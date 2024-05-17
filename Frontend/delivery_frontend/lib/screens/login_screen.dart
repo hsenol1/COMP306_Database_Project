@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'register_screen.dart'; // Import the RegisterScreen
+import 'admin_page.dart'; // Import the AdminPage
 
 class LoginScreen extends StatelessWidget {
+  final _usernameController = TextEditingController();
+  final _passwordController = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -24,6 +27,7 @@ class LoginScreen extends StatelessWidget {
               ),
               SizedBox(height: 100),
               TextField(
+                controller: _usernameController,
                 decoration: InputDecoration(
                   labelText: 'Username',
                   labelStyle: TextStyle(fontSize: 70),
@@ -31,10 +35,11 @@ class LoginScreen extends StatelessWidget {
                   contentPadding: EdgeInsets.symmetric(vertical: 40, horizontal: 16),
                 ),
                 keyboardType: TextInputType.emailAddress,
-                style: TextStyle(fontSize: 18),
+                style: TextStyle(fontSize: 40),
               ),
               SizedBox(height: 50),
               TextField(
+                controller: _passwordController,
                 decoration: InputDecoration(
                   labelText: 'Password',
                   labelStyle: TextStyle(fontSize: 70),
@@ -42,11 +47,20 @@ class LoginScreen extends StatelessWidget {
                   contentPadding: EdgeInsets.symmetric(vertical: 40, horizontal: 16),
                 ),
                 obscureText: true,
-                style: TextStyle(fontSize: 18),
+                style: TextStyle(fontSize: 40),
               ),
               SizedBox(height: 50),
               ElevatedButton(
                 onPressed: () {
+                  if (_usernameController.text == 'admin' && _passwordController.text == 'admin') {
+                            // Navigate to AdminPage
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => AdminPage()),
+                            );
+                          } else {
+                            // Handle login for non-admin users
+                          }
                   // Handle login
                 },
                 child: Container(
