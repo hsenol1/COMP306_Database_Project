@@ -4,6 +4,7 @@ from django.views.decorators.csrf import csrf_exempt
 from SupermarketApp.dao import executeRaw, get_next_id, insert_one
 from django.http import HttpResponse
 from django.db import transaction
+import json
 
 # Create your views here.
 
@@ -33,4 +34,21 @@ def register_customer(request):
         insert_one("Customers", home_address, city, phone, u_id)
     response = HttpResponse("Customer created successfully")
     response.status_code = 201
+    return response
+
+@csrf_exempt
+def get_categories(request):
+    if request.method != 'GET':
+        response = HttpResponse("get_categories only accepts GET requests")
+        response.status_code = 405
+        return response
+    result = executeRaw("select distinct category from Products")
+    if len(result) == 0:
+        response = HttpResponse("No categories found")
+        response.status_code = 404
+        return response
+    result = map(lambda x: x[0], result)
+    result = json.dumps(list(result))
+    response = HttpResponse(result)
+    response.status_code = 200
     return response
