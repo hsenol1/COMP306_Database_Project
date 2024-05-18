@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS Admins
 	(employee_id INTEGER,
 	 u_id INTEGER,
 	 PRIMARY KEY (u_id),
-	 FOREIGN KEY (u_id) REFERENCES Users(u_id));
+	 FOREIGN KEY (u_id) REFERENCES Users(u_id) ON UPDATE CASCADE);
 
 CREATE TABLE IF NOT EXISTS Customers
 	(home_address VARCHAR(200),
@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS Customers
 	 phone CHAR(11),
 	 u_id INTEGER,
 	 PRIMARY KEY (u_id),
-	 FOREIGN KEY (u_id) REFERENCES Users(u_id));
+	 FOREIGN KEY (u_id) REFERENCES Users(u_id) ON UPDATE CASCADE);
 
 CREATE TABLE IF NOT EXISTS Vouchers
 	(v_id INTEGER,
@@ -51,8 +51,8 @@ CREATE TABLE IF NOT EXISTS Order_Products
 	o_id INTEGER,
 p_amount INTEGER,
 purchased_price DECIMAL(6,2) CHECK (purchased_price >= 0),
-FOREIGN KEY (p_id) REFERENCES Products(p_id),
-FOREIGN KEY (o_id) REFERENCES Orders(o_id),
+FOREIGN KEY (p_id) REFERENCES Products(p_id) ON UPDATE CASCADE,
+FOREIGN KEY (o_id) REFERENCES Orders(o_id) ON UPDATE CASCADE,
 PRIMARY KEY (p_id, o_id));
 
 CREATE TABLE IF NOT EXISTS Customer_Vouchers
@@ -60,8 +60,8 @@ CREATE TABLE IF NOT EXISTS Customer_Vouchers
 	 v_id INTEGER,
 	 v_amount INTEGER,
 	 PRIMARY KEY (u_id, v_id),
-	 FOREIGN KEY (u_id) REFERENCES Customers(u_id),
-	 FOREIGN KEY (v_id) REFERENCES Vouchers(v_id));
+	 FOREIGN KEY (u_id) REFERENCES Customers(u_id) ON UPDATE CASCADE,
+	 FOREIGN KEY (v_id) REFERENCES Vouchers(v_id) ON UPDATE CASCADE);
 
 CREATE TABLE IF NOT EXISTS Order_Placements
 	(u_id INTEGER,
@@ -69,9 +69,10 @@ CREATE TABLE IF NOT EXISTS Order_Placements
 	 o_id INTEGER,
 	 rating INTEGER CHECK (rating BETWEEN 1 AND 5),
 	 PRIMARY KEY (u_id, v_id, o_id),
-	 FOREIGN KEY (u_id) REFERENCES Customers(u_id),
-	 FOREIGN KEY (v_id) REFERENCES Vouchers(v_id),
-	 FOREIGN KEY (o_id) REFERENCES Orders(o_id));
+	 FOREIGN KEY (u_id) REFERENCES Customers(u_id) ON UPDATE CASCADE,
+	 FOREIGN KEY (v_id) REFERENCES Vouchers(v_id) ON UPDATE CASCADE,
+	 FOREIGN KEY (o_id) REFERENCES Orders(o_id) ON UPDATE CASCADE);
+
 
 
 

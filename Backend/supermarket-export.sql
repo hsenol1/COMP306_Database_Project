@@ -26,7 +26,7 @@ CREATE TABLE `Admins` (
   `employee_id` int DEFAULT NULL,
   `u_id` int NOT NULL,
   PRIMARY KEY (`u_id`),
-  CONSTRAINT `admins_ibfk_1` FOREIGN KEY (`u_id`) REFERENCES `Users` (`u_id`)
+  CONSTRAINT `admins_ibfk_1` FOREIGN KEY (`u_id`) REFERENCES `Users` (`u_id`) ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -52,8 +52,8 @@ CREATE TABLE `Customer_Vouchers` (
   `v_amount` int DEFAULT NULL,
   PRIMARY KEY (`u_id`,`v_id`),
   KEY `v_id` (`v_id`),
-  CONSTRAINT `customer_vouchers_ibfk_1` FOREIGN KEY (`u_id`) REFERENCES `Customers` (`u_id`),
-  CONSTRAINT `customer_vouchers_ibfk_2` FOREIGN KEY (`v_id`) REFERENCES `Vouchers` (`v_id`)
+  CONSTRAINT `customer_vouchers_ibfk_1` FOREIGN KEY (`u_id`) REFERENCES `Customers` (`u_id`) ON UPDATE CASCADE,
+  CONSTRAINT `customer_vouchers_ibfk_2` FOREIGN KEY (`v_id`) REFERENCES `Vouchers` (`v_id`) ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -79,7 +79,7 @@ CREATE TABLE `Customers` (
   `phone` char(11) DEFAULT NULL,
   `u_id` int NOT NULL,
   PRIMARY KEY (`u_id`),
-  CONSTRAINT `customers_ibfk_1` FOREIGN KEY (`u_id`) REFERENCES `Users` (`u_id`)
+  CONSTRAINT `customers_ibfk_1` FOREIGN KEY (`u_id`) REFERENCES `Users` (`u_id`) ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -107,9 +107,9 @@ CREATE TABLE `Order_Placements` (
   PRIMARY KEY (`u_id`,`v_id`,`o_id`),
   KEY `v_id` (`v_id`),
   KEY `o_id` (`o_id`),
-  CONSTRAINT `order_placements_ibfk_1` FOREIGN KEY (`u_id`) REFERENCES `Customers` (`u_id`),
-  CONSTRAINT `order_placements_ibfk_2` FOREIGN KEY (`v_id`) REFERENCES `Vouchers` (`v_id`),
-  CONSTRAINT `order_placements_ibfk_3` FOREIGN KEY (`o_id`) REFERENCES `Orders` (`o_id`),
+  CONSTRAINT `order_placements_ibfk_1` FOREIGN KEY (`u_id`) REFERENCES `Customers` (`u_id`) ON UPDATE CASCADE,
+  CONSTRAINT `order_placements_ibfk_2` FOREIGN KEY (`v_id`) REFERENCES `Vouchers` (`v_id`) ON UPDATE CASCADE,
+  CONSTRAINT `order_placements_ibfk_3` FOREIGN KEY (`o_id`) REFERENCES `Orders` (`o_id`) ON UPDATE CASCADE,
   CONSTRAINT `order_placements_chk_1` CHECK ((`rating` between 1 and 5))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -137,8 +137,8 @@ CREATE TABLE `Order_Products` (
   `purchased_price` decimal(6,2) DEFAULT NULL,
   PRIMARY KEY (`p_id`,`o_id`),
   KEY `o_id` (`o_id`),
-  CONSTRAINT `order_products_ibfk_1` FOREIGN KEY (`p_id`) REFERENCES `Products` (`p_id`),
-  CONSTRAINT `order_products_ibfk_2` FOREIGN KEY (`o_id`) REFERENCES `Orders` (`o_id`),
+  CONSTRAINT `order_products_ibfk_1` FOREIGN KEY (`p_id`) REFERENCES `Products` (`p_id`) ON UPDATE CASCADE,
+  CONSTRAINT `order_products_ibfk_2` FOREIGN KEY (`o_id`) REFERENCES `Orders` (`o_id`) ON UPDATE CASCADE,
   CONSTRAINT `order_products_chk_1` CHECK ((`purchased_price` >= 0))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -266,4 +266,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-05-18 17:37:03
+-- Dump completed on 2024-05-18 18:59:56
