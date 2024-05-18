@@ -1,4 +1,4 @@
-import 'package:delivery_frontend/screens/main_screen.dart';
+import 'screens/main_screen.dart';
 import 'package:flutter/material.dart';
 import 'screens/login_screen.dart';
 
