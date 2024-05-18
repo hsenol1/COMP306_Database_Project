@@ -1,3 +1,4 @@
+import 'package:delivery_frontend/screens/main_screen.dart';
 import 'package:flutter/material.dart';
 import 'screens/login_screen.dart';
 
@@ -14,6 +15,7 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
       ),
       //change home: to the view to be testes
+      //home: LoginScreen(),
       home: LoginScreen(),
     );
   }

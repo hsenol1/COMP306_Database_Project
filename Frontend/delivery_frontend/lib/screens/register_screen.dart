@@ -15,24 +15,26 @@ class _RegisterScreenState extends State<RegisterScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Register', style: TextStyle(fontSize: 24)),
+        backgroundColor: Colors.blue,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(24.0),
+      body: Center(
         child: SingleChildScrollView(
+          padding: const EdgeInsets.all(24.0),
           child: Form(
             key: _formKey,
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: <Widget>[
-                SizedBox(height: 50),
+                SizedBox(height: 30),
                 TextFormField(
                   decoration: InputDecoration(
+                    prefixIcon: Icon(Icons.person, color: Colors.grey),
                     labelText: 'Name',
-                    labelStyle: TextStyle(fontSize: 70),
+                    labelStyle: TextStyle(fontSize: 16, color: Colors.black),
                     border: OutlineInputBorder(),
-                    contentPadding: EdgeInsets.symmetric(vertical: 40, horizontal: 16),
+                    contentPadding: EdgeInsets.symmetric(vertical: 16, horizontal: 16),
                   ),
-                  style: TextStyle(fontSize: 18),
+                  style: TextStyle(fontSize: 16),
                   validator: (value) {
                     if (value!.isEmpty) {
                       return 'Please enter your name';
@@ -40,15 +42,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     return null;
                   },
                 ),
-                SizedBox(height: 50),
+                SizedBox(height: 20),
                 TextFormField(
                   decoration: InputDecoration(
+                    prefixIcon: Icon(Icons.person, color: Colors.grey),
                     labelText: 'Surname',
-                    labelStyle: TextStyle(fontSize: 70),
+                    labelStyle: TextStyle(fontSize: 16, color: Colors.black),
                     border: OutlineInputBorder(),
-                    contentPadding: EdgeInsets.symmetric(vertical: 40, horizontal: 16),
+                    contentPadding: EdgeInsets.symmetric(vertical: 16, horizontal: 16),
                   ),
-                  style: TextStyle(fontSize: 18),
+                  style: TextStyle(fontSize: 16),
                   validator: (value) {
                     if (value!.isEmpty) {
                       return 'Please enter your surname';
@@ -56,15 +59,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     return null;
                   },
                 ),
-                SizedBox(height: 50),
+                SizedBox(height: 20),
                 TextFormField(
                   decoration: InputDecoration(
+                    prefixIcon: Icon(Icons.person_outline, color: Colors.grey),
                     labelText: 'Username',
-                    labelStyle: TextStyle(fontSize: 70),
+                    labelStyle: TextStyle(fontSize: 16, color: Colors.black),
                     border: OutlineInputBorder(),
-                    contentPadding: EdgeInsets.symmetric(vertical: 40, horizontal: 16),
+                    contentPadding: EdgeInsets.symmetric(vertical: 16, horizontal: 16),
                   ),
-                  style: TextStyle(fontSize: 18),
+                  style: TextStyle(fontSize: 16),
                   validator: (value) {
                     if (value!.isEmpty) {
                       return 'Please enter your username';
@@ -72,16 +76,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     return null;
                   },
                 ),
-                SizedBox(height: 50),
+                SizedBox(height: 20),
                 TextFormField(
                   decoration: InputDecoration(
+                    prefixIcon: Icon(Icons.lock, color: Colors.grey),
                     labelText: 'Password',
-                    labelStyle: TextStyle(fontSize: 70),
+                    labelStyle: TextStyle(fontSize: 16, color: Colors.black),
                     border: OutlineInputBorder(),
-                    contentPadding: EdgeInsets.symmetric(vertical: 40, horizontal: 16),
+                    contentPadding: EdgeInsets.symmetric(vertical: 16, horizontal: 16),
                   ),
                   obscureText: true,
-                  style: TextStyle(fontSize: 18),
+                  style: TextStyle(fontSize: 16),
                   validator: (value) {
                     if (value!.isEmpty) {
                       return 'Please enter your password';
@@ -89,14 +94,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     return null;
                   },
                 ),
-                SizedBox(height: 50),
+                SizedBox(height: 20),
                 Container(
                   child: DropdownButtonFormField(
                     decoration: InputDecoration(
+                      prefixIcon: Icon(Icons.location_city, color: Colors.grey),
                       labelText: 'City',
-                      labelStyle: TextStyle(fontSize: 40),
+                      labelStyle: TextStyle(fontSize: 16, color: Colors.black),
                       border: OutlineInputBorder(),
-                      contentPadding: EdgeInsets.symmetric(vertical: 20, horizontal: 16), // Adjust the padding
+                      contentPadding: EdgeInsets.symmetric(vertical: 16, horizontal: 16),
                     ),
                     isDense: false,
                     isExpanded: true,
@@ -108,7 +114,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     },
                     items: _cities.map((city) {
                       return DropdownMenuItem(
-                        child: Text(city, style: TextStyle(fontSize: 40)),
+                        child: Text(city, style: TextStyle(fontSize: 16)),
                         value: city,
                       );
                     }).toList(),
@@ -120,16 +126,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     },
                   ),
                 ),
-                SizedBox(height: 50),
+                SizedBox(height: 20),
                 TextFormField(
                   decoration: InputDecoration(
+                    prefixIcon: Icon(Icons.home, color: Colors.grey),
                     labelText: 'Address',
-                    labelStyle: TextStyle(fontSize: 70),
+                    labelStyle: TextStyle(fontSize: 16, color: Colors.black),
                     border: OutlineInputBorder(),
-                    isDense: true,
-                    contentPadding: EdgeInsets.symmetric(vertical: 40, horizontal: 16),
+                    contentPadding: EdgeInsets.symmetric(vertical: 16, horizontal: 16),
                   ),
-                  style: TextStyle(fontSize: 18),
+                  style: TextStyle(fontSize: 16),
                   validator: (value) {
                     if (value!.isEmpty) {
                       return 'Please enter your address';
@@ -137,16 +143,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     return null;
                   },
                 ),
-                SizedBox(height: 50),
+                SizedBox(height: 20),
                 TextFormField(
                   decoration: InputDecoration(
+                    prefixIcon: Icon(Icons.phone, color: Colors.grey),
                     labelText: 'Phone Number',
-                    labelStyle: TextStyle(fontSize: 70),
+                    labelStyle: TextStyle(fontSize: 16, color: Colors.black),
                     border: OutlineInputBorder(),
-                    contentPadding: EdgeInsets.symmetric(vertical: 40, horizontal: 16),
+                    contentPadding: EdgeInsets.symmetric(vertical: 16, horizontal: 16),
                   ),
                   keyboardType: TextInputType.phone,
-                  style: TextStyle(fontSize: 18),
+                  style: TextStyle(fontSize: 16),
                   validator: (value) {
                     if (value!.isEmpty) {
                       return 'Please enter your phone number';
@@ -154,19 +161,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     return null;
                   },
                 ),
-                SizedBox(height: 50),
+                SizedBox(height: 30),
                 ElevatedButton(
                   onPressed: () {
                     if (_formKey.currentState!.validate()) {
                       // Handle registration logic
                     }
                   },
-                  child: Container(
-                    width: double.infinity,
-                    padding: EdgeInsets.symmetric(vertical: 20),
-                    alignment: Alignment.center,
-                    child: Text('Register', style: TextStyle(fontSize: 40)),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue,
+                    padding: EdgeInsets.symmetric(vertical: 16),
                   ),
+                  child: Text('Register', style: TextStyle(fontSize: 16)),
                 ),
               ],
             ),

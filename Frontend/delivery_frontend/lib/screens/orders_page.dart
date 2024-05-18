@@ -74,6 +74,7 @@ class OrdersPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text('Orders', style: TextStyle(fontSize: 24)),
+        backgroundColor: Colors.blue,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -94,10 +95,10 @@ class OrdersPage extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Order ID: ${order['orderId']}', style: TextStyle(fontSize: 40)),
-                      Text('Status: ${order['status']}', style: TextStyle(fontSize: 40)),
-                      Text('Date: ${order['date']}', style: TextStyle(fontSize: 40)),
-                      Text('Total Price: \$${order['totalPrice']}', style: TextStyle(fontSize: 40)),
+                      Text('Order ID: ${order['orderId']}', style: TextStyle(fontSize: 16, color: Colors.black)),
+                      Text('Status: ${order['status']}', style: TextStyle(fontSize: 16, color: Colors.black)),
+                      Text('Date: ${order['date']}', style: TextStyle(fontSize: 16, color: Colors.black)),
+                      Text('Total Price: \$${order['totalPrice']}', style: TextStyle(fontSize: 16, color: Colors.black)),
                     ],
                   ),
                 ),

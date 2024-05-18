@@ -38,6 +38,7 @@ class CustomersPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text('Customers', style: TextStyle(fontSize: 24)),
+        backgroundColor: Colors.blue,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -47,7 +48,11 @@ class CustomersPage extends StatelessWidget {
               onPressed: () {
                 // Show one customer per city logic
               },
-              child: Text('Show one customer per city', style: TextStyle(fontSize: 40)),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blue,
+                padding: EdgeInsets.symmetric(vertical: 12),
+              ),
+              child: Text('Show one customer per city', style: TextStyle(fontSize: 16)),
             ),
             SizedBox(height: 20), // Add spacing between button and list
             Expanded(
@@ -72,10 +77,10 @@ class CustomersPage extends StatelessWidget {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text('Username: ${customer['username']}', style: TextStyle(fontSize: 40)),
-                                  Text('Name: ${customer['name']}', style: TextStyle(fontSize: 40)),
-                                  Text('Surname: ${customer['surname']}', style: TextStyle(fontSize: 40)),
-                                  Text('Phone: ${customer['phone']}', style: TextStyle(fontSize: 40)),
+                                  Text('Username: ${customer['username']}', style: TextStyle(fontSize: 16, color: Colors.black)),
+                                  Text('Name: ${customer['name']}', style: TextStyle(fontSize: 16, color: Colors.black)),
+                                  Text('Surname: ${customer['surname']}', style: TextStyle(fontSize: 16, color: Colors.black)),
+                                  Text('Phone: ${customer['phone']}', style: TextStyle(fontSize: 16, color: Colors.black)),
                                 ],
                               ),
                             ),

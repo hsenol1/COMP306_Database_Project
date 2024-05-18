@@ -26,20 +26,20 @@ class VouchersPage extends StatelessWidget {
       builder: (context) {
         return AlertDialog(
           title: Text('Delete Voucher', style: TextStyle(fontSize: 24)),
-          content: Text('Are you sure you want to delete this voucher?', style: TextStyle(fontSize: 40)),
+          content: Text('Are you sure you want to delete this voucher?', style: TextStyle(fontSize: 16, color: Colors.black)),
           actions: [
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: Text('Cancel', style: TextStyle(fontSize: 40)),
+              child: Text('Cancel', style: TextStyle(fontSize: 16, color: Colors.black)),
             ),
             ElevatedButton(
               onPressed: () {
                 // Handle delete voucher logic here
                 Navigator.of(context).pop();
               },
-              child: Text('OK', style: TextStyle(fontSize: 40)),
+              child: Text('OK', style: TextStyle(fontSize: 16, color: Colors.black)),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.red,
               ),
@@ -55,6 +55,7 @@ class VouchersPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text('Vouchers', style: TextStyle(fontSize: 24)),
+        backgroundColor: Colors.blue,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -64,7 +65,11 @@ class VouchersPage extends StatelessWidget {
               onPressed: () {
                 // Add voucher logic (to be implemented)
               },
-              child: Text('Add Voucher', style: TextStyle(fontSize: 40)),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blue,
+                padding: EdgeInsets.symmetric(vertical: 12),
+              ),
+              child: Text('Add Voucher', style: TextStyle(fontSize: 16)),
             ),
             SizedBox(height: 10), // Add spacing between button and list
             Expanded(
@@ -82,9 +87,9 @@ class VouchersPage extends StatelessWidget {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text('Voucher ID: ${voucher['voucherId']}', style: TextStyle(fontSize: 40)),
-                                Text('Discount Rate: ${voucher['discountRate']}%', style: TextStyle(fontSize: 40)),
-                                Text('Name: ${voucher['name']}', style: TextStyle(fontSize: 40)),
+                                Text('Voucher ID: ${voucher['voucherId']}', style: TextStyle(fontSize: 16, color: Colors.black)),
+                                Text('Discount Rate: ${voucher['discountRate']}%', style: TextStyle(fontSize: 16, color: Colors.black)),
+                                Text('Name: ${voucher['name']}', style: TextStyle(fontSize: 16, color: Colors.black)),
                               ],
                             ),
                           ),
@@ -92,9 +97,10 @@ class VouchersPage extends StatelessWidget {
                             onPressed: () {
                               _showDeleteConfirmationDialog(context, voucher['voucherId']);
                             },
-                            child: Text('Delete', style: TextStyle(fontSize: 40)),
+                            child: Text('Delete', style: TextStyle(fontSize: 16, color: Colors.black)),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.red,
+                              padding: EdgeInsets.symmetric(vertical: 12),
                             ),
                           ),
                         ],
