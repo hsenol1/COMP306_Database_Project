@@ -1,6 +1,6 @@
 # 0: Entering the virtual environment 
 #### Make sure to be in virtual environment before installing new packages or running the app
-// Make sure you are in the Backend folder
+// Make sure you are in the Backend folder\
 source env/bin/activate
 
 # Running the app:
