@@ -5,9 +5,7 @@ source env/bin/activate
 
 # 1: Creating the Database and Tables
 // Make sure you are in the Backend folder
-mysql -u root -p\
-(Password should be 123456)\
-source CreateDbAndTables.sql;
+mysql -u root -p source CreateDbAndTables.sql
 
 # 2: Import from the supermarket-export.sql file
 // Make sure you are in the Backend folder\
