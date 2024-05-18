@@ -229,7 +229,6 @@ CREATE TABLE `Users` (
 
 LOCK TABLES `Users` WRITE;
 /*!40000 ALTER TABLE `Users` DISABLE KEYS */;
-INSERT INTO `Users` VALUES (1,'omer','atasoy','omeratsy','opwd'),(2,'ege','balmum','ebalmum','epwd'),(3,'huseyin','senol','hsenol','hpwd'),(4,'kaan','erdogan','kerdogan','kpwd');
 /*!40000 ALTER TABLE `Users` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -267,4 +266,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-05-18 16:35:18
+-- Dump completed on 2024-05-18 17:37:03
