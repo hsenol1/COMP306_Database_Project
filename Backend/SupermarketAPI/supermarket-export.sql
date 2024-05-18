@@ -203,6 +203,7 @@ CREATE TABLE `Products` (
 
 LOCK TABLES `Products` WRITE;
 /*!40000 ALTER TABLE `Products` DISABLE KEYS */;
+INSERT INTO `Products` VALUES (1,100,'food',3.50,'bread'),(2,200,'technology',1000.00,'iphone');
 /*!40000 ALTER TABLE `Products` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -229,6 +230,7 @@ CREATE TABLE `Users` (
 
 LOCK TABLES `Users` WRITE;
 /*!40000 ALTER TABLE `Users` DISABLE KEYS */;
+INSERT INTO `Users` VALUES (1,'omer','atasoy','omeratsy','opwd'),(2,'ege','balmum','ebalmum','epwd'),(3,'huseyin','senol','hsenol','hpwd'),(4,'kaan','erdogan','kerdogan','kpwd');
 /*!40000 ALTER TABLE `Users` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -266,4 +268,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-05-18 18:59:56
+-- Dump completed on 2024-05-18 20:33:34

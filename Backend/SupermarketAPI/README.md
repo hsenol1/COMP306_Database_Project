@@ -2,20 +2,19 @@
 #### Make sure to be in virtual environment before installing new packages or running the app
 source env/bin/activate
 #### Make sure that you install the necessary libraries 
+// Make sure you are in the upper SupermarketAPI folder\
 pip install -r requirements.txt
 
 # Running the app:
-// Make sure you are in the upper SupermarketAPI folder
+// Make sure you are in the upper SupermarketAPI folder\
 python manage.py runserver
 
 # 1: Creating the Database and Tables
-// Make sure you are in the Backend folder
-mysql -u root -p
-(Password should be 123456)
-source CreateDbAndTables.sql;
+// Make sure you are in the upper SupermarketAPI folder\
+mysql -u root -p source CreateDbAndTables.sql
 
 # 2: Import from the supermarket-export.sql file
-// Make sure you are in the Backend folder
+// Make sure you are in the upper SupermarketAPI folder\
 mysql -u root -p supermarketdb < supermarket-export.sql
 
 # 3: Inserting data from xlsx files
@@ -23,7 +22,7 @@ mysql -u root -p supermarketdb < supermarket-export.sql
 python manage.py csv_to_db <table_name> <path_to_csv_file> --truncate [optional]
 
 # 4: Export sql to the supermarket-export.sql file
-// Make sure you are in the Backend folder
+// Make sure you are in the upper SupermarketAPI folder\
 mysqldump -u root -p supermarketdb > supermarket-export.sql
 
 # Register user using request
