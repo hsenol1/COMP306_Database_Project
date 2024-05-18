@@ -13,7 +13,7 @@ source CreateDbAndTables.sql;
 mysql -u root -p supermarketdb < supermarket-export.sql
 
 # 3: Inserting data from xlsx files
-// Make sure you are in the upper SupermarketAPI folder
+// Make sure you are in the upper SupermarketAPI folder, csv files should be placed in the csv_files folder
 python manage.py csv_to_db <table_name> <path_to_csv_file> --truncate [optional]
 
 # 4: Export sql to the supermarket-export.sql file
