@@ -2,7 +2,7 @@
 #### Make sure to be in virtual environment before installing new packages or running the app
 source env/bin/activate
 #### Make sure that you install the necessary libraries 
-pip install requirements.txt
+pip install -r requirements.txt
 
 # Running the app:
 // Make sure you are in the upper SupermarketAPI folder
