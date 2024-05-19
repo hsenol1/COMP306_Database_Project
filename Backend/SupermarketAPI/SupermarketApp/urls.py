@@ -6,4 +6,5 @@ urlpatterns = [
     path('get-categories/', views.get_categories, name='get_categories'),
     path('get-products-by-category/', views.get_products_by_category, name='get_products_by_category'),
     path('get-products-by-search/', views.get_products_by_search, name='get_products_by_search'),
+    path('get-user-data-by-username/', views.get_user_data_by_username, name='get_user_data_by_username'),
 ]
