@@ -62,7 +62,7 @@ def get_products_by_category(request):
         return response
     value = JSONParser().parse(request)
     if "category" not in value:
-        response = HttpResponse("category not found")
+        response = HttpResponse("category not found in request body")
         response.status_code = 400
         return response
     category = value["category"]
@@ -72,6 +72,29 @@ def get_products_by_category(request):
         response.status_code = 404
         return response
     
+    result = convert_decimals_to_str(result)
+    result = json.dumps(result)
+    response = HttpResponse(result)
+    response.status_code = 200
+    return response
+
+@csrf_exempt
+def get_products_by_search(request):
+    if request.method != 'GET':
+        response = HttpResponse("get_products_by_search only accepts GET requests")
+        response.status_code = 405
+        return response
+    value = JSONParser().parse(request)
+    if "search" not in value:
+        response = HttpResponse("search not found in request body")
+        response.status_code = 400
+        return response
+    search = value["search"]
+    result = executeRaw(f"select * from Products where p_name like '%{search}%'")
+    if len(result) == 0:
+        response = HttpResponse("No products found")
+        response.status_code = 404
+        return response
     result = convert_decimals_to_str(result)
     result = json.dumps(result)
     response = HttpResponse(result)

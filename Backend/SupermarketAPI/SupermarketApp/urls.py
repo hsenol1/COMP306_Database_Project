@@ -5,4 +5,5 @@ urlpatterns = [
     path('register-customer/', views.register_customer, name='register_customer'),
     path('get-categories/', views.get_categories, name='get_categories'),
     path('get-products-by-category/', views.get_products_by_category, name='get_products_by_category'),
+    path('get-products-by-search/', views.get_products_by_search, name='get_products_by_search'),
 ]
