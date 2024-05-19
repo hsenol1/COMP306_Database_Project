@@ -5,6 +5,7 @@ from SupermarketApp.dao import executeRaw, get_next_id, insert_one
 from django.http import HttpResponse
 from django.db import transaction
 import json
+from decimal import Decimal
 
 # Create your views here.
 
@@ -52,3 +53,37 @@ def get_categories(request):
     response = HttpResponse(result)
     response.status_code = 200
     return response
+
+@csrf_exempt
+def get_products_by_category(request):
+    if request.method != 'GET':
+        response = HttpResponse("get_products_by_category only accepts GET requests")
+        response.status_code = 405
+        return response
+    value = JSONParser().parse(request)
+    if "category" not in value:
+        response = HttpResponse("category not found")
+        response.status_code = 400
+        return response
+    category = value["category"]
+    result = executeRaw(f"select * from Products where category = '{category}'")
+    if len(result) == 0:
+        response = HttpResponse("No products found")
+        response.status_code = 404
+        return response
+    
+    result = convert_decimals_to_str(result)
+    result = json.dumps(result)
+    response = HttpResponse(result)
+    response.status_code = 200
+    return response
+
+def convert_decimals_to_str(result):
+    result = list(result)
+    result = list(map(lambda x: list(x), result))
+    for i in range(len(result)):
+        for j in range(len(result[i])):
+            if type(result[i][j]) == Decimal:
+                result[i][j] = str(result[i][3])
+    
+    return result
