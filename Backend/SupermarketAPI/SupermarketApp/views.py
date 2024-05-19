@@ -102,7 +102,36 @@ def get_products_by_search(request):
     return response
 
 @csrf_exempt
-def get_user_data_by_username(request):
+def is_user_admin_by_username(request):
+    if request.method != 'GET':
+        response = HttpResponse("is_user_admin_by_username only accepts GET requests")
+        response.status_code = 405
+        return response
+    value = JSONParser().parse(request)
+    if "username" not in value:
+        response = HttpResponse("username not found in request body")
+        response.status_code = 400
+        return response
+    username = value["username"]
+    result = executeRaw(f"select * from Users where username = '{username}'")
+    if len(result) == 0:
+        response = HttpResponse("No user found")
+        response.status_code = 404
+        return response
+    result = convert_decimals_to_str(result)
+    result = result[0]
+    user_id = result[0]
+    admin_result = executeRaw(f"select * from Admins where u_id = {user_id}")
+    if len(admin_result) == 0:
+        response = HttpResponse("False")
+        response.status_code = 200
+        return response
+    response = HttpResponse("True")
+    response.status_code = 200
+    return response
+
+@csrf_exempt
+def get_admin_data_by_username(request):
     if request.method != 'GET':
         response = HttpResponse("get_user_data_by_username only accepts GET requests")
         response.status_code = 405
@@ -120,6 +149,44 @@ def get_user_data_by_username(request):
         return response
     result = convert_decimals_to_str(result)
     result = result[0]
+    user_id = result[0]
+    admin_result = executeRaw(f"select * from Admins where u_id = {user_id}")
+    if len(admin_result) == 0:
+        response = HttpResponse("User is not an admin")
+        response.status_code = 404
+        return response
+    result.append(admin_result[0])
+    result = json.dumps(result)
+    response = HttpResponse(result)
+    response.status_code = 200
+    return response
+
+@csrf_exempt
+def get_customer_data_by_username(request):
+    if request.method != 'GET':
+        response = HttpResponse("get_user_data_by_username only accepts GET requests")
+        response.status_code = 405
+        return response
+    value = JSONParser().parse(request)
+    if "username" not in value:
+        response = HttpResponse("username not found in request body")
+        response.status_code = 400
+        return response
+    username = value["username"]
+    result = executeRaw(f"select * from Users where username = '{username}'")
+    if len(result) == 0:
+        response = HttpResponse("No user found")
+        response.status_code = 404
+        return response
+    result = convert_decimals_to_str(result)
+    result = result[0]
+    user_id = result[0]
+    customer_result = executeRaw(f"select * from Customers where u_id = {user_id}")
+    if len(customer_result) == 0:
+        response = HttpResponse("User is not a customer")
+        response.status_code = 404
+        return response
+    result.append(customer_result[0])
     result = json.dumps(result)
     response = HttpResponse(result)
     response.status_code = 200
