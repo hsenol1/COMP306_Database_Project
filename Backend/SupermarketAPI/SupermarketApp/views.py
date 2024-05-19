@@ -84,6 +84,6 @@ def convert_decimals_to_str(result):
     for i in range(len(result)):
         for j in range(len(result[i])):
             if type(result[i][j]) == Decimal:
-                result[i][j] = str(result[i][3])
+                result[i][j] = str(result[i][j])
     
     return result
