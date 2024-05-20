@@ -1,5 +1,6 @@
 # 0: Entering the virtual environment 
 #### Make sure to be in virtual environment before installing new packages or running the app
+// Make sure you are in the Backend folder\
 source env/bin/activate
 #### Make sure that you install the necessary libraries 
 // Make sure you are in the upper SupermarketAPI folder\
@@ -17,7 +18,7 @@ mysql -u root -p source CreateDbAndTables.sql
 // Make sure you are in the upper SupermarketAPI folder\
 mysql -u root -p supermarketdb < supermarket-export.sql
 
-# 3: Inserting data from xlsx files
+# 3: Inserting data from csv files (ignore this unless you prepared a csv file to import data from, currently buggy due to the auto_id_column argument)
 // Make sure you are in the upper SupermarketAPI folder, csv files should be placed in the csv_files folder
 python manage.py csv_to_db <table_name> <path_to_csv_file> --truncate [optional]
 
