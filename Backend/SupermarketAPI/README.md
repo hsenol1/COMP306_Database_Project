@@ -12,7 +12,8 @@ python manage.py runserver
 
 # 1: Creating the Database and Tables
 // Make sure you are in the upper SupermarketAPI folder\
-mysql -u root -p source CreateDbAndTables.sql
+mysql -u root -p\
+source CreateDbAndTables.sql
 
 # 2: Import from the supermarket-export.sql file
 // Make sure you are in the upper SupermarketAPI folder\
