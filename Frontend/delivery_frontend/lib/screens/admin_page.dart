@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'products_page.dart'; // Import the ProductsPage
-import 'customers_page.dart'; // Import the CustomersPage
-import 'orders_page.dart'; // Import the OrdersPage
-import 'vouchers_page.dart'; // Import the VouchersPage
+import 'products_page.dart';
+import 'customers_page.dart';
+import 'orders_page.dart';
+import 'vouchers_page.dart';
 
 class AdminPage extends StatelessWidget {
   @override

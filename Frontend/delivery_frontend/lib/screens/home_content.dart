@@ -1,9 +1,21 @@
+import 'package:delivery_frontend/utils/popup_utils.dart';
 import 'package:flutter/material.dart';
 import '../models/product.dart';
 import '../models/basket.dart';
-import '../widgets/product_card.dart'; // Import the ProductCard
+import '../services/network_service.dart';
+import '../widgets/product_card.dart';
+import 'dart:convert';
 
-class HomeContent extends StatelessWidget {
+class HomeContent extends StatefulWidget {
+  final Basket basket;
+
+  HomeContent({required this.basket});
+
+  @override
+  _HomeContentState createState() => _HomeContentState();
+}
+
+class _HomeContentState extends State<HomeContent> {
   final List<Product> products = [
     Product(
       image: 'assets/bunch-bananas-isolated-on-white-600w-1722111529.png',
@@ -37,9 +49,42 @@ class HomeContent extends StatelessWidget {
     ),
   ];
 
-  final Basket basket;
+  List<String> categories = [];
+  bool isLoading = true;
+  final NetworkService _networkService = NetworkService(baseUrl: 'http://10.0.2.2:8000');
 
-  HomeContent({required this.basket});
+  @override
+  void initState() {
+    super.initState();
+    _fetchCategories();
+  }
+
+  Future<void> _fetchCategories() async {
+    final response = await _networkService.getCategories();
+    if (response.statusCode == 200)
+    {
+        List<dynamic> decodedJson = jsonDecode(response.body);
+        List<String> tmpCategories = List<String>.from(decodedJson);
+        setState(() {
+          categories = tmpCategories;
+        isLoading = false;
+      });
+    }
+    else if (response.statusCode == 404)
+    {
+       setState(() {
+        isLoading = false;
+      });
+      showErrorPopup(context, response.body);
+    }
+    else {
+       setState(() {
+        isLoading = false;
+      });
+      showErrorPopup(context, "Network error occured. Please try again.");
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -47,17 +92,14 @@ class HomeContent extends StatelessWidget {
         Container(
           color: Colors.grey[200],
           padding: EdgeInsets.all(10.0),
-          child: SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: <Widget>[
-                CategoryButton(name: 'Category 1'),
-                CategoryButton(name: 'Category 2'),
-                CategoryButton(name: 'Category 3'),
-                CategoryButton(name: 'Category 4'),
-              ],
-            ),
-          ),
+          child: isLoading
+              ? Center(child: CircularProgressIndicator())
+              : SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: categories.map((category) => CategoryButton(name: category)).toList(),
+                  ),
+                ),
         ),
         Expanded(
           child: Padding(
@@ -71,7 +113,7 @@ class HomeContent extends StatelessWidget {
               itemCount: products.length,
               itemBuilder: (context, index) {
                 final product = products[index];
-                return ProductCard(product: product, basket: basket);
+                return ProductCard(product: product, basket: widget.basket);
               },
             ),
           ),

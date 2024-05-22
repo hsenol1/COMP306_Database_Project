@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/product.dart';
 import '../models/basket.dart';
-import '../widgets/product_card.dart'; // Import the ProductCard
+import '../widgets/product_card.dart';
 
 class SearchScreen extends StatefulWidget {
   final Basket basket;

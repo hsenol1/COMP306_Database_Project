@@ -1,9 +1,13 @@
 import 'package:delivery_frontend/screens/main_screen.dart';
+import 'package:delivery_frontend/utils/popup_utils.dart';
 import 'package:flutter/material.dart';
-import 'register_screen.dart'; // Import the RegisterScreen
-import 'admin_page.dart'; // Import the AdminPage
+import 'register_screen.dart';
+import 'admin_page.dart';
+import 'package:delivery_frontend/services/network_service.dart';
 
 class LoginScreen extends StatelessWidget {
+  final NetworkService _networkService =
+      NetworkService(baseUrl: 'http://10.0.2.2:8000');
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
 
@@ -58,18 +62,33 @@ class LoginScreen extends StatelessWidget {
               ),
               SizedBox(height: 30),
               ElevatedButton(
-                onPressed: () {
-                  if (_usernameController.text == 'admin' && _passwordController.text == 'admin') {
-                    // Navigate to AdminPage
-                    Navigator.push(
+                onPressed: () async {
+                  final response = await _networkService.login(_usernameController.text, _passwordController.text);
+                  if (response.statusCode == 201) {
+                    //GettirTODO:
+                     //if testing admin make isAdmin = true.
+                     //Implement admin check in backend to handle the logic from response.
+                     //Implement statusCode for nonexisted user handle (For now, it is 999)
+                     //Get user data to write into profile page from this response.
+                    final isAdmin = false;
+                    if (isAdmin)
+                    {
+                      Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => AdminPage()),
-                    );
-                  } else {
-                    // Handle login for non-admin users
-                    Navigator.push(
-                      context, MaterialPageRoute(builder: (context) => MainScreen()),
-                    );
+                      MaterialPageRoute(builder: (context) => AdminPage()));
+                    }
+                    else {
+                      Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => MainScreen()));
+                    }
+                      
+                  } else if (response.statusCode == 999)
+                  {
+                    showErrorPopup(context, response.body);
+                  }
+                  else {
+                    showErrorPopup(context, "Network error occured. Please try again.");
                   }
                 },
                 style: ElevatedButton.styleFrom(

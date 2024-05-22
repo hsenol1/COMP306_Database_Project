@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'customer_details_page.dart'; // Import the CustomerDetailsPage
+import 'customer_details_page.dart';
 
 class CustomersPage extends StatelessWidget {
   final List<Map<String, dynamic>> customers = [

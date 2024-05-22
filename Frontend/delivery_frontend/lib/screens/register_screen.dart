@@ -2,6 +2,7 @@ import 'package:delivery_frontend/screens/login_screen.dart';
 import 'package:delivery_frontend/screens/main_screen.dart';
 import 'package:delivery_frontend/services/network_service.dart';
 import 'package:flutter/material.dart';
+import 'package:delivery_frontend/utils/popup_utils.dart';
 
 class RegisterScreen extends StatefulWidget {
   @override
@@ -285,8 +286,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         context,
                         MaterialPageRoute(builder: (context) => MainScreen()),
                       );
-                    } else {
-                      //Error
+                    } else if (response.statusCode == 409) {
+                      showErrorPopup(context, response.body);
+                    }
+                    else {
+                      showErrorPopup(context, 'Network error occured. Please try again.');
                     }
                   },
                   style: ElevatedButton.styleFrom(

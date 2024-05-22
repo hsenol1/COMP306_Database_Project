@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'login_screen.dart'; // Import the LoginScreen
+import 'login_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   // Mock user data

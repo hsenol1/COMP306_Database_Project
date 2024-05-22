@@ -24,4 +24,23 @@ class NetworkService {
     );
     return response;
   }
+
+  Future<http.Response> login(String username,
+      String password) async {
+        final queryParameters = {
+        'username': username,
+        'pwd': password,
+        };
+        final uri = Uri.http(baseUrl, '/login-customer/', queryParameters);
+        final headers = {'Content-Type': 'application/json'};
+        final response = await http.get(uri, headers: headers);
+        return response;
+  }
+
+  Future<http.Response> getCategories() async {
+        final uri = Uri.http(baseUrl, '/categories/');
+        final headers = {'Content-Type': 'application/json'};
+        final response = await http.get(uri, headers: headers);
+        return response;
+  }
 }

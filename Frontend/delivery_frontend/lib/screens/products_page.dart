@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'product_details_page.dart'; // Import the ProductDetailsPage
+import 'product_details_page.dart';
 
 class ProductsPage extends StatelessWidget {
   final List<Map<String, dynamic>> products = [
@@ -24,7 +24,6 @@ class ProductsPage extends StatelessWidget {
       'price': 5.0,
       'category': 'Category A',
     },
-    // Add more placeholder products as needed
   ];
 
   @override
