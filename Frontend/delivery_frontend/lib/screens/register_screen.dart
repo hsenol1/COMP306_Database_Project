@@ -1,3 +1,6 @@
+import 'package:delivery_frontend/screens/login_screen.dart';
+import 'package:delivery_frontend/screens/main_screen.dart';
+import 'package:delivery_frontend/services/network_service.dart';
 import 'package:flutter/material.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -7,6 +10,15 @@ class RegisterScreen extends StatefulWidget {
 
 class _RegisterScreenState extends State<RegisterScreen> {
   final _formKey = GlobalKey<FormState>();
+  final NetworkService _networkService = NetworkService(baseUrl: 'http://127.0.0.1:8000');
+
+  final _nameController = TextEditingController();
+  final _surnameController = TextEditingController();
+  final _usernameController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _addressController = TextEditingController();
+  final _phoneController = TextEditingController();
+
   String _selectedCity = 'Adana';
   List<String> _cities = ['Adana', 'Adıyaman', 'Afyonkarahisar', 'Ağrı', 'Aksaray', 'Amasya', 'Ankara', 'Antalya', 'Ardahan', 'Artvin', 'Aydın', 'Balıkesir', 'Bartın', 'Batman', 'Bayburt', 'Bilecik', 'Bingöl', 'Bitlis', 'Bolu', 'Burdur', 'Bursa', 'Çanakkale', 'Çankırı', 'Çorum', 'Denizli', 'Diyarbakır', 'Düzce', 'Edirne', 'Elazığ', 'Erzincan', 'Erzurum', 'Eskişehir', 'Gaziantep', 'Giresun', 'Gümüşhane', 'Hakkari', 'Hatay', 'Iğdır', 'Isparta', 'İstanbul', 'İzmir', 'Kahramanmaraş', 'Karabük', 'Karaman', 'Kars', 'Kastamonu', 'Kayseri', 'Kilis', 'Kırıkkale', 'Kırklareli', 'Kırşehir', 'Kocaeli', 'Konya', 'Kütahya', 'Malatya', 'Manisa', 'Mardin', 'Mersin', 'Muğla', 'Muş', 'Nevşehir', 'Niğde', 'Ordu', 'Osmaniye', 'Rize', 'Sakarya', 'Samsun', 'Siirt', 'Sinop', 'Sivas', 'Şanlıurfa', 'Şırnak', 'Tekirdağ', 'Tokat', 'Trabzon', 'Tunceli', 'Uşak', 'Van', 'Yalova', 'Yozgat', 'Zonguldak']; // Replace with actual city names
 
@@ -27,6 +39,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               children: <Widget>[
                 SizedBox(height: 30),
                 TextFormField(
+                  controller: _nameController,
                   decoration: InputDecoration(
                     prefixIcon: Icon(Icons.person, color: Colors.grey),
                     labelText: 'Name',
@@ -44,6 +57,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
                 SizedBox(height: 20),
                 TextFormField(
+                  controller: _surnameController,
                   decoration: InputDecoration(
                     prefixIcon: Icon(Icons.person, color: Colors.grey),
                     labelText: 'Surname',
@@ -61,6 +75,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
                 SizedBox(height: 20),
                 TextFormField(
+                  controller: _usernameController,
                   decoration: InputDecoration(
                     prefixIcon: Icon(Icons.person_outline, color: Colors.grey),
                     labelText: 'Username',
@@ -78,6 +93,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
                 SizedBox(height: 20),
                 TextFormField(
+                  controller: _passwordController,
                   decoration: InputDecoration(
                     prefixIcon: Icon(Icons.lock, color: Colors.grey),
                     labelText: 'Password',
@@ -128,6 +144,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
                 SizedBox(height: 20),
                 TextFormField(
+                  controller: _addressController,
                   decoration: InputDecoration(
                     prefixIcon: Icon(Icons.home, color: Colors.grey),
                     labelText: 'Address',
@@ -145,6 +162,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
                 SizedBox(height: 20),
                 TextFormField(
+                  controller: _phoneController,
                   decoration: InputDecoration(
                     prefixIcon: Icon(Icons.phone, color: Colors.grey),
                     labelText: 'Phone Number',
@@ -163,9 +181,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
                 SizedBox(height: 30),
                 ElevatedButton(
-                  onPressed: () {
-                    if (_formKey.currentState!.validate()) {
-                      // Handle registration logic
+                  onPressed: () async {
+                    final response = await _networkService.register(_nameController.text, _surnameController.text, _usernameController.text, _passwordController.text, _selectedCity, _addressController.text, _phoneController.text);
+                    if (response.statusCode == 200)
+                    {
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => LoginScreen()),
+                      );
+                    }
+                    else {
+                      //Error
                     }
                   },
                   style: ElevatedButton.styleFrom(
