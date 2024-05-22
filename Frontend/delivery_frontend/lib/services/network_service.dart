@@ -6,7 +6,8 @@ class NetworkService {
 
   NetworkService({required this.baseUrl});
 
-  Future<http.Response> register(String name, String surname, String username, String password, String city, String address, String phoneNumber) async {
+  Future<http.Response> register(String name, String surname, String username,
+      String password, String city, String address, String phoneNumber) async {
     final url = Uri.parse('$baseUrl/register-customer/');
     final response = await http.post(
       url,
@@ -23,6 +24,4 @@ class NetworkService {
     );
     return response;
   }
-
-
 }

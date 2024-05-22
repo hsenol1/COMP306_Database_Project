@@ -10,7 +10,8 @@ class RegisterScreen extends StatefulWidget {
 
 class _RegisterScreenState extends State<RegisterScreen> {
   final _formKey = GlobalKey<FormState>();
-  final NetworkService _networkService = NetworkService(baseUrl: 'http://127.0.0.1:8000');
+  final NetworkService _networkService =
+      NetworkService(baseUrl: 'http://10.0.2.2:8000');
 
   final _nameController = TextEditingController();
   final _surnameController = TextEditingController();
@@ -20,7 +21,89 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _phoneController = TextEditingController();
 
   String _selectedCity = 'Adana';
-  List<String> _cities = ['Adana', 'Adıyaman', 'Afyonkarahisar', 'Ağrı', 'Aksaray', 'Amasya', 'Ankara', 'Antalya', 'Ardahan', 'Artvin', 'Aydın', 'Balıkesir', 'Bartın', 'Batman', 'Bayburt', 'Bilecik', 'Bingöl', 'Bitlis', 'Bolu', 'Burdur', 'Bursa', 'Çanakkale', 'Çankırı', 'Çorum', 'Denizli', 'Diyarbakır', 'Düzce', 'Edirne', 'Elazığ', 'Erzincan', 'Erzurum', 'Eskişehir', 'Gaziantep', 'Giresun', 'Gümüşhane', 'Hakkari', 'Hatay', 'Iğdır', 'Isparta', 'İstanbul', 'İzmir', 'Kahramanmaraş', 'Karabük', 'Karaman', 'Kars', 'Kastamonu', 'Kayseri', 'Kilis', 'Kırıkkale', 'Kırklareli', 'Kırşehir', 'Kocaeli', 'Konya', 'Kütahya', 'Malatya', 'Manisa', 'Mardin', 'Mersin', 'Muğla', 'Muş', 'Nevşehir', 'Niğde', 'Ordu', 'Osmaniye', 'Rize', 'Sakarya', 'Samsun', 'Siirt', 'Sinop', 'Sivas', 'Şanlıurfa', 'Şırnak', 'Tekirdağ', 'Tokat', 'Trabzon', 'Tunceli', 'Uşak', 'Van', 'Yalova', 'Yozgat', 'Zonguldak']; // Replace with actual city names
+  List<String> _cities = [
+    'Adana',
+    'Adıyaman',
+    'Afyonkarahisar',
+    'Ağrı',
+    'Aksaray',
+    'Amasya',
+    'Ankara',
+    'Antalya',
+    'Ardahan',
+    'Artvin',
+    'Aydın',
+    'Balıkesir',
+    'Bartın',
+    'Batman',
+    'Bayburt',
+    'Bilecik',
+    'Bingöl',
+    'Bitlis',
+    'Bolu',
+    'Burdur',
+    'Bursa',
+    'Çanakkale',
+    'Çankırı',
+    'Çorum',
+    'Denizli',
+    'Diyarbakır',
+    'Düzce',
+    'Edirne',
+    'Elazığ',
+    'Erzincan',
+    'Erzurum',
+    'Eskişehir',
+    'Gaziantep',
+    'Giresun',
+    'Gümüşhane',
+    'Hakkari',
+    'Hatay',
+    'Iğdır',
+    'Isparta',
+    'İstanbul',
+    'İzmir',
+    'Kahramanmaraş',
+    'Karabük',
+    'Karaman',
+    'Kars',
+    'Kastamonu',
+    'Kayseri',
+    'Kilis',
+    'Kırıkkale',
+    'Kırklareli',
+    'Kırşehir',
+    'Kocaeli',
+    'Konya',
+    'Kütahya',
+    'Malatya',
+    'Manisa',
+    'Mardin',
+    'Mersin',
+    'Muğla',
+    'Muş',
+    'Nevşehir',
+    'Niğde',
+    'Ordu',
+    'Osmaniye',
+    'Rize',
+    'Sakarya',
+    'Samsun',
+    'Siirt',
+    'Sinop',
+    'Sivas',
+    'Şanlıurfa',
+    'Şırnak',
+    'Tekirdağ',
+    'Tokat',
+    'Trabzon',
+    'Tunceli',
+    'Uşak',
+    'Van',
+    'Yalova',
+    'Yozgat',
+    'Zonguldak'
+  ]; // Replace with actual city names
 
   @override
   Widget build(BuildContext context) {
@@ -45,7 +128,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     labelText: 'Name',
                     labelStyle: TextStyle(fontSize: 16, color: Colors.black),
                     border: OutlineInputBorder(),
-                    contentPadding: EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+                    contentPadding:
+                        EdgeInsets.symmetric(vertical: 16, horizontal: 16),
                   ),
                   style: TextStyle(fontSize: 16),
                   validator: (value) {
@@ -63,7 +147,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     labelText: 'Surname',
                     labelStyle: TextStyle(fontSize: 16, color: Colors.black),
                     border: OutlineInputBorder(),
-                    contentPadding: EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+                    contentPadding:
+                        EdgeInsets.symmetric(vertical: 16, horizontal: 16),
                   ),
                   style: TextStyle(fontSize: 16),
                   validator: (value) {
@@ -81,7 +166,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     labelText: 'Username',
                     labelStyle: TextStyle(fontSize: 16, color: Colors.black),
                     border: OutlineInputBorder(),
-                    contentPadding: EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+                    contentPadding:
+                        EdgeInsets.symmetric(vertical: 16, horizontal: 16),
                   ),
                   style: TextStyle(fontSize: 16),
                   validator: (value) {
@@ -99,7 +185,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     labelText: 'Password',
                     labelStyle: TextStyle(fontSize: 16, color: Colors.black),
                     border: OutlineInputBorder(),
-                    contentPadding: EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+                    contentPadding:
+                        EdgeInsets.symmetric(vertical: 16, horizontal: 16),
                   ),
                   obscureText: true,
                   style: TextStyle(fontSize: 16),
@@ -118,7 +205,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       labelText: 'City',
                       labelStyle: TextStyle(fontSize: 16, color: Colors.black),
                       border: OutlineInputBorder(),
-                      contentPadding: EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+                      contentPadding:
+                          EdgeInsets.symmetric(vertical: 16, horizontal: 16),
                     ),
                     isDense: false,
                     isExpanded: true,
@@ -150,7 +238,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     labelText: 'Address',
                     labelStyle: TextStyle(fontSize: 16, color: Colors.black),
                     border: OutlineInputBorder(),
-                    contentPadding: EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+                    contentPadding:
+                        EdgeInsets.symmetric(vertical: 16, horizontal: 16),
                   ),
                   style: TextStyle(fontSize: 16),
                   validator: (value) {
@@ -168,7 +257,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     labelText: 'Phone Number',
                     labelStyle: TextStyle(fontSize: 16, color: Colors.black),
                     border: OutlineInputBorder(),
-                    contentPadding: EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+                    contentPadding:
+                        EdgeInsets.symmetric(vertical: 16, horizontal: 16),
                   ),
                   keyboardType: TextInputType.phone,
                   style: TextStyle(fontSize: 16),
@@ -182,13 +272,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 SizedBox(height: 30),
                 ElevatedButton(
                   onPressed: () async {
-                    final response = await _networkService.register(_nameController.text, _surnameController.text, _usernameController.text, _passwordController.text, _selectedCity, _addressController.text, _phoneController.text);
-                    if (response.statusCode == 200)
-                    {
-                      Navigator.push(context, MaterialPageRoute(builder: (context) => LoginScreen()),
+                    final response = await _networkService.register(
+                        _nameController.text,
+                        _surnameController.text,
+                        _usernameController.text,
+                        _passwordController.text,
+                        _selectedCity,
+                        _addressController.text,
+                        _phoneController.text);
+                    if (response.statusCode == 201) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => MainScreen()),
                       );
-                    }
-                    else {
+                    } else {
                       //Error
                     }
                   },
