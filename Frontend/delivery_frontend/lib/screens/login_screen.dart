@@ -66,6 +66,7 @@ class LoginScreen extends StatelessWidget {
               SizedBox(height: 30),
               ElevatedButton(
                 onPressed: () async {
+                  //GETTIRTODO: Until backend implements login
                   Navigator.push(context,
                       MaterialPageRoute(builder: (context) => MainScreen()));
                   return;

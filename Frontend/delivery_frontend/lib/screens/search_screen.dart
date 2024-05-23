@@ -1,3 +1,5 @@
+import 'package:delivery_frontend/services/network_service.dart';
+import 'package:delivery_frontend/utils/popup_utils.dart';
 import 'package:flutter/material.dart';
 import '../models/product.dart';
 import '../models/basket.dart';
@@ -45,6 +47,9 @@ class _SearchScreenState extends State<SearchScreen> {
   ];
 
   late Basket _basket;
+  bool isLoading = true;
+  final NetworkService _networkService =
+      NetworkService(baseUrl: 'http://10.0.2.2:8000');
 
   String query = '';
   List<Product> filteredProducts = [];
@@ -63,6 +68,12 @@ class _SearchScreenState extends State<SearchScreen> {
     super.initState();
     _basket = widget.basket;
     filteredProducts = products;
+  }
+
+  void updateProducts(List<Product> newProducts) {
+    setState(() {
+      filteredProducts = newProducts;
+    });
   }
 
   @override
@@ -85,13 +96,31 @@ class _SearchScreenState extends State<SearchScreen> {
                     ),
                     onChanged: (value) {
                       query = value;
-                      _searchProducts();
                     },
                   ),
                 ),
                 SizedBox(width: 8),
                 ElevatedButton(
-                  onPressed: _searchProducts,
+                  onPressed: () async {
+                    //GETTIRTODO: Until backend fixes structure of get queries.
+                    List<Product> products = Product.fromJsonList(
+                        '[[1, 100, "food", "3.50", "bread"]]');
+                    updateProducts(products);
+                    return;
+
+                    final response =
+                        await _networkService.getProductsBySearch(query);
+                    if (response.statusCode == 200) {
+                      List<Product> products =
+                          Product.fromJsonList(response.body);
+                      updateProducts(products);
+                    } else if (response.statusCode == 404) {
+                      showErrorPopup(context, response.body);
+                    } else {
+                      showErrorPopup(
+                          context, 'Network error occurred. Please try again.');
+                    }
+                  },
                   child: Text('Search'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.blue,

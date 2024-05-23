@@ -51,7 +51,8 @@ class _HomeContentState extends State<HomeContent> {
 
   List<String> categories = [];
   bool isLoading = true;
-  final NetworkService _networkService = NetworkService(baseUrl: 'http://10.0.2.2:8000');
+  final NetworkService _networkService =
+      NetworkService(baseUrl: 'http://10.0.2.2:8000');
 
   @override
   void initState() {
@@ -138,7 +139,10 @@ class CategoryButton extends StatelessWidget {
   final NetworkService networkService;
   final Function(List<Product>) onProductsFetched;
 
-  CategoryButton({required this.name, required this.networkService, required this.onProductsFetched});
+  CategoryButton(
+      {required this.name,
+      required this.networkService,
+      required this.onProductsFetched});
 
   @override
   Widget build(BuildContext context) {
@@ -146,6 +150,11 @@ class CategoryButton extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 8.0),
       child: ElevatedButton(
         onPressed: () async {
+          //GETTIRTODO: Until backend fixes structure of get queries.
+          List<Product> products =
+              Product.fromJsonList('[[1, 100, "food", "3.50", "bread"]]');
+          onProductsFetched(products);
+          return;
           final response = await networkService.getProductsByCategory(name);
           if (response.statusCode == 200) {
             List<Product> products = Product.fromJsonList(response.body);
@@ -153,7 +162,8 @@ class CategoryButton extends StatelessWidget {
           } else if (response.statusCode == 404) {
             showErrorPopup(context, response.body);
           } else {
-            showErrorPopup(context, 'Network error occurred. Please try again.');
+            showErrorPopup(
+                context, 'Network error occurred. Please try again.');
           }
         },
         child: Text(name),
