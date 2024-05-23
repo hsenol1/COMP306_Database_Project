@@ -34,7 +34,8 @@ class NetworkService {
         queryParameters: {
           'username': username,
           'pwd': password,
-        });
+        }
+    );
     final headers = {'Content-Type': 'application/json'};
     final response = await http.get(uri, headers: headers);
     return response;
@@ -46,6 +47,36 @@ class NetworkService {
       host: '10.0.2.2',
       port: 8000,
       path: '/get-categories/',
+    );
+    final headers = {'Content-Type': 'application/json'};
+    final response = await http.get(uri, headers: headers);
+    return response;
+  }
+
+  Future<http.Response> getProductsByCategory(String category) async {
+    final uri = Uri(
+      scheme: 'http',
+      host: '10.0.2.2',
+      port: 8000,
+      path: '/get-products-by-category/',
+      queryParameters: {
+          'category': category,
+        }
+    );
+    final headers = {'Content-Type': 'application/json'};
+    final response = await http.get(uri, headers: headers);
+    return response;
+  }
+
+  Future<http.Response> getProductsBySearch(String searchQuery) async {
+    final uri = Uri(
+      scheme: 'http',
+      host: '10.0.2.2',
+      port: 8000,
+      path: '/get-products-by-search/',
+      queryParameters: {
+          'search': searchQuery,
+        }
     );
     final headers = {'Content-Type': 'application/json'};
     final response = await http.get(uri, headers: headers);

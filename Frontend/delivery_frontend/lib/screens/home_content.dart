@@ -1,10 +1,10 @@
-import 'package:delivery_frontend/utils/popup_utils.dart';
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import '../models/product.dart';
 import '../models/basket.dart';
 import '../services/network_service.dart';
 import '../widgets/product_card.dart';
-import 'dart:convert';
+import '../utils/popup_utils.dart';
 
 class HomeContent extends StatefulWidget {
   final Basket basket;
@@ -16,7 +16,7 @@ class HomeContent extends StatefulWidget {
 }
 
 class _HomeContentState extends State<HomeContent> {
-  final List<Product> products = [
+  List<Product> products = [
     Product(
       image: 'assets/bunch-bananas-isolated-on-white-600w-1722111529.png',
       name: 'Bananas',
@@ -51,8 +51,7 @@ class _HomeContentState extends State<HomeContent> {
 
   List<String> categories = [];
   bool isLoading = true;
-  final NetworkService _networkService =
-      NetworkService(baseUrl: 'http://10.0.2.2:8000');
+  final NetworkService _networkService = NetworkService(baseUrl: 'http://10.0.2.2:8000');
 
   @override
   void initState() {
@@ -78,8 +77,14 @@ class _HomeContentState extends State<HomeContent> {
       setState(() {
         isLoading = false;
       });
-      showErrorPopup(context, "Network error occured. Please try again.");
+      showErrorPopup(context, "Network error occurred. Please try again.");
     }
+  }
+
+  void updateProducts(List<Product> newProducts) {
+    setState(() {
+      products = newProducts;
+    });
   }
 
   @override
@@ -97,7 +102,11 @@ class _HomeContentState extends State<HomeContent> {
                   scrollDirection: Axis.horizontal,
                   child: Row(
                     children: categories
-                        .map((category) => CategoryButton(name: category))
+                        .map((category) => CategoryButton(
+                              name: category,
+                              networkService: _networkService,
+                              onProductsFetched: updateProducts,
+                            ))
                         .toList(),
                   ),
                 ),
@@ -126,16 +135,26 @@ class _HomeContentState extends State<HomeContent> {
 
 class CategoryButton extends StatelessWidget {
   final String name;
+  final NetworkService networkService;
+  final Function(List<Product>) onProductsFetched;
 
-  CategoryButton({required this.name});
+  CategoryButton({required this.name, required this.networkService, required this.onProductsFetched});
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8.0),
       child: ElevatedButton(
-        onPressed: () {
-          // Handle category button press
+        onPressed: () async {
+          final response = await networkService.getProductsByCategory(name);
+          if (response.statusCode == 200) {
+            List<Product> products = Product.fromJsonList(response.body);
+            onProductsFetched(products);
+          } else if (response.statusCode == 404) {
+            showErrorPopup(context, response.body);
+          } else {
+            showErrorPopup(context, 'Network error occurred. Please try again.');
+          }
         },
         child: Text(name),
       ),
