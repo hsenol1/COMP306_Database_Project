@@ -51,7 +51,8 @@ class _HomeContentState extends State<HomeContent> {
 
   List<String> categories = [];
   bool isLoading = true;
-  final NetworkService _networkService = NetworkService(baseUrl: 'http://10.0.2.2:8000');
+  final NetworkService _networkService =
+      NetworkService(baseUrl: 'http://10.0.2.2:8000');
 
   @override
   void initState() {
@@ -61,24 +62,20 @@ class _HomeContentState extends State<HomeContent> {
 
   Future<void> _fetchCategories() async {
     final response = await _networkService.getCategories();
-    if (response.statusCode == 200)
-    {
-        List<dynamic> decodedJson = jsonDecode(response.body);
-        List<String> tmpCategories = List<String>.from(decodedJson);
-        setState(() {
-          categories = tmpCategories;
+    if (response.statusCode == 200) {
+      List<dynamic> decodedJson = jsonDecode(response.body);
+      List<String> tmpCategories = List<String>.from(decodedJson);
+      setState(() {
+        categories = tmpCategories;
         isLoading = false;
       });
-    }
-    else if (response.statusCode == 404)
-    {
-       setState(() {
+    } else if (response.statusCode == 404) {
+      setState(() {
         isLoading = false;
       });
       showErrorPopup(context, response.body);
-    }
-    else {
-       setState(() {
+    } else {
+      setState(() {
         isLoading = false;
       });
       showErrorPopup(context, "Network error occured. Please try again.");
@@ -90,6 +87,8 @@ class _HomeContentState extends State<HomeContent> {
     return Column(
       children: <Widget>[
         Container(
+          alignment: Alignment.center,
+          width: double.infinity,
           color: Colors.grey[200],
           padding: EdgeInsets.all(10.0),
           child: isLoading
@@ -97,7 +96,9 @@ class _HomeContentState extends State<HomeContent> {
               : SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: Row(
-                    children: categories.map((category) => CategoryButton(name: category)).toList(),
+                    children: categories
+                        .map((category) => CategoryButton(name: category))
+                        .toList(),
                   ),
                 ),
         ),

@@ -8,7 +8,7 @@ class NetworkService {
 
   Future<http.Response> register(String name, String surname, String username,
       String password, String city, String address, String phoneNumber) async {
-    final url = Uri.parse('$baseUrl/register-customer/');
+    final url = Uri.parse('http://$baseUrl/register-customer/');
     final response = await http.post(
       url,
       headers: {'Content-Type': 'application/json'},
@@ -25,22 +25,30 @@ class NetworkService {
     return response;
   }
 
-  Future<http.Response> login(String username,
-      String password) async {
-        final queryParameters = {
-        'username': username,
-        'pwd': password,
-        };
-        final uri = Uri.http(baseUrl, '/login-customer/', queryParameters);
-        final headers = {'Content-Type': 'application/json'};
-        final response = await http.get(uri, headers: headers);
-        return response;
+  Future<http.Response> login(String username, String password) async {
+    final uri = Uri(
+        scheme: 'http',
+        host: '10.0.2.2',
+        port: 8000,
+        path: '/login-customer/',
+        queryParameters: {
+          'username': username,
+          'pwd': password,
+        });
+    final headers = {'Content-Type': 'application/json'};
+    final response = await http.get(uri, headers: headers);
+    return response;
   }
 
   Future<http.Response> getCategories() async {
-        final uri = Uri.http(baseUrl, '/categories/');
-        final headers = {'Content-Type': 'application/json'};
-        final response = await http.get(uri, headers: headers);
-        return response;
+    final uri = Uri(
+      scheme: 'http',
+      host: '10.0.2.2',
+      port: 8000,
+      path: '/get-categories/',
+    );
+    final headers = {'Content-Type': 'application/json'};
+    final response = await http.get(uri, headers: headers);
+    return response;
   }
 }
