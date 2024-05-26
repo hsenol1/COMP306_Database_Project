@@ -1,4 +1,5 @@
 import 'package:delivery_frontend/services/network_service.dart';
+import 'package:delivery_frontend/utils/dialog_utils.dart';
 import 'package:delivery_frontend/utils/popup_utils.dart';
 import 'package:flutter/material.dart';
 import '../models/product.dart';
@@ -103,9 +104,13 @@ class _SearchScreenState extends State<SearchScreen> {
                 ElevatedButton(
                   onPressed: () async {
                     //GETTIRTODO: Until backend fixes structure of get queries.
+
+                    showLoadingDialog(context);
+                    await Future.delayed(Duration(seconds: 3));
                     List<Product> products = Product.fromJsonList(
                         '[[1, 100, "food", "3.50", "bread"]]');
                     updateProducts(products);
+                    Navigator.of(context).pop();
                     return;
 
                     final response =

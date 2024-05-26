@@ -25,7 +25,7 @@ class LoginScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
               SizedBox(
-                  height: 30), // Adds some space from the top of the screen
+                  height: 30),
               Text(
                 'GETTİR',
                 style: TextStyle(
@@ -104,7 +104,6 @@ class LoginScreen extends StatelessWidget {
               SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () {
-                  // Navigate to RegisterScreen
                   Navigator.push(
                     context,
                     MaterialPageRoute(builder: (context) => RegisterScreen()),

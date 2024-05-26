@@ -26,21 +26,18 @@ class NetworkService {
   }
 
   Future<http.Response> login(String username, String password) async {
-    final uri = Uri(
-        scheme: 'http',
-        host: '10.0.2.2',
-        port: 8000,
-        path: '/login-customer/',
-        queryParameters: {
+    final url = Uri.parse('http://$baseUrl/login-customer/');
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
           'username': username,
           'pwd': password,
-        }
+      }),
     );
-    final headers = {'Content-Type': 'application/json'};
-    final response = await http.get(uri, headers: headers);
     return response;
   }
-
+  
   Future<http.Response> getCategories() async {
     final uri = Uri(
       scheme: 'http',
@@ -54,32 +51,88 @@ class NetworkService {
   }
 
   Future<http.Response> getProductsByCategory(String category) async {
-    final uri = Uri(
-      scheme: 'http',
-      host: '10.0.2.2',
-      port: 8000,
-      path: '/get-products-by-category/',
-      queryParameters: {
+    final url = Uri.parse('http://$baseUrl/get-products-by-category/');
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
           'category': category,
-        }
+      }),
     );
-    final headers = {'Content-Type': 'application/json'};
-    final response = await http.get(uri, headers: headers);
     return response;
   }
 
   Future<http.Response> getProductsBySearch(String searchQuery) async {
-    final uri = Uri(
-      scheme: 'http',
-      host: '10.0.2.2',
-      port: 8000,
-      path: '/get-products-by-search/',
-      queryParameters: {
+    final url = Uri.parse('http://$baseUrl/get-products-by-search/');
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
           'search': searchQuery,
-        }
+      }),
     );
-    final headers = {'Content-Type': 'application/json'};
-    final response = await http.get(uri, headers: headers);
+    return response;
+  }
+
+  Future<http.Response> addProductToBucket(String username, String productName) async {
+    final url = Uri.parse('http://$baseUrl/add-product-to-bucket/');
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+          'username': username,
+          'productName': productName,
+      }),
+    );
+    return response;
+  }
+
+  Future<http.Response> deleteBucket(String username) async {
+    final url = Uri.parse('http://$baseUrl/delete-bucket/');
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+          'username': username,
+      }),
+    );
+    return response;
+  }
+
+  Future<http.Response> getBucket(String username) async {
+    final url = Uri.parse('http://$baseUrl/get-bucket/');
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+          'username': username,
+      }),
+    );
+    return response;
+  }
+  
+  Future<http.Response> createOrder(String username, String paymentMethod) async {
+    final url = Uri.parse('http://$baseUrl/create-order/');
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+          'username': username,
+          'paymentMethod': paymentMethod,
+      }),
+    );
+    return response;
+  }
+
+  Future<http.Response> getOrderHistory(String username) async {
+    final url = Uri.parse('http://$baseUrl/get-order-history/');
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+          'username': username,
+      }),
+    );
     return response;
   }
 }

@@ -1,3 +1,4 @@
+import 'package:delivery_frontend/screens/voucher_screen';
 import 'package:flutter/material.dart';
 import '../models/product.dart';
 import 'home_content.dart';
@@ -33,7 +34,7 @@ class _MainScreenState extends State<MainScreen> {
       HomeContent(basket: _basket,),
       SearchScreen(basket: _basket,),
       ProfileScreen(),
-      Center(child: Text('Voucher Screen')),
+      VoucherScreen(),
     ]);
 
     _basket.itemsNotifier.addListener(_updateState);
