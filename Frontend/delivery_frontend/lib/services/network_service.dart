@@ -142,4 +142,12 @@ class NetworkService {
     final response = await http.get(url, headers: headers);
     return response;
   }
+
+  Future<http.Response> getProducts() async {
+    final url = Uri.parse('http://$baseUrl/get-products/');
+    final headers = {'Content-Type': 'application/json'};
+    final response = await http.get(url, headers: headers);
+    return response;
+  }
+
 }
