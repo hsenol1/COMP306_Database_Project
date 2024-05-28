@@ -10,4 +10,5 @@ urlpatterns = [
     path('get-admin-data-by-username/', views.get_admin_data_by_username, name='get_admin_data_by_username'),
     path('get-customer-data-by-username/', views.get_customer_data_by_username, name='get_customer_data_by_username'),
     path('get_low_stock_products/', views.get_low_stock_products, name='get_low_stock_products')
+    path('get_products/', views.get_products, name='get_products')
 ]
