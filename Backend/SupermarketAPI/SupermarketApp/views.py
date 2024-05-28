@@ -192,6 +192,25 @@ def get_customer_data_by_username(request):
     response.status_code = 200
     return response
 
+@csrf_exempt
+def get_low_stock_products(request):
+    if request.method != 'GET':
+        response = HttpResponse("get_low_stock_products only accepts GET requests")
+        response.status_code = 405
+        return response
+    
+    result = executeRaw("select * from Products where stock_amount < 100")
+    if len(result) == 0:
+        response = HttpResponse("No low stock products found")
+        response.status_code = 404
+        return response
+    
+    result = convert_decimals_to_str(result)
+    result = json.dumps(result)
+    response = HttpResponse(result)
+    response.status_code = 200
+    return response
+
 def convert_decimals_to_str(result):
     result = list(result)
     result = list(map(lambda x: list(x), result))
