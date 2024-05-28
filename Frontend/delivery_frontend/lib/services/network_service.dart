@@ -135,4 +135,11 @@ class NetworkService {
     );
     return response;
   }
+
+  Future<http.Response> getLowStockProducts() async {
+    final url = Uri.parse('http://$baseUrl/get-low-stock-products/');
+    final headers = {'Content-Type': 'application/json'};
+    final response = await http.get(url, headers: headers);
+    return response;
+  }
 }
