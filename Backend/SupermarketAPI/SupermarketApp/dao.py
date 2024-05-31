@@ -22,3 +22,5 @@ def insert_one(table_name, *values):
     values = ", ".join(values)
     with connection.cursor() as cursor:
         cursor.execute(f"INSERT INTO {table_name} VALUES ({values})")
+
+

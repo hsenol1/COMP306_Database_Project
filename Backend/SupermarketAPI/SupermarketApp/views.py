@@ -230,6 +230,117 @@ def get_products(request):
     response.status_code = 200
     return response
 
+@csrf_exempt
+def get_order_history(request):
+    if request.method != 'GET':
+        response = HttpResponse("get_order_history only accepts GET requests")
+        response.status_code = 405
+        return response
+    data = JSONParser().parse(request)
+    username = data["username"]
+
+    user_result = executeRaw(f"SELECT c.u_id FROM Users u JOIN Customers c ON u.u_id = c.u_id WHERE u.username = '{username}'")
+    if not user_result:
+        response = HttpResponse("Customer not found")
+        response.status_code = 404
+        return response
+    user_id = user_result[0][0]
+
+    result = executeRaw(f"""
+    SELECT o.o_id, o.payment_type, o.total_price, o.order_date, o.order_status
+    FROM Orders o
+    JOIN Order_Placements op ON o.o_id = op.o_id
+    WHERE op.u_id = {user_id}
+    ORDER BY o.order_date DESC
+    LIMIT 10
+    """)
+
+    if not result: 
+        response = HttpResponse("No order history found")
+        response.status_code = 404 
+        return response
+    
+    response = HttpResponse(json.dumps(result))
+    response.status_code = 200
+    return response
+
+
+@csrf_exempt
+def get_bucket(request):
+    if request.method != 'GET':
+        response = HttpResponse("get_bucket only accepts GET request")
+        response.status_code = 405
+        return response
+
+    value = JSONParser().parse(request)
+    if "username" not in value:
+        response = HttpResponse("username not found in request body")
+        response.status_code = 400
+        return response
+    
+    username = value["username"]
+
+    user_result = executeRaw(f"SELECT c.u_id FROM Users u JOIN Customers c ON u.u_id = c.u_id WHERE u.username = '{username}'")
+    if not user_result:
+        response = HttpResponse("Customer not found")
+        response.status_code = 404
+        return response
+    user_id = user_result[0][0]
+
+    result = executeRaw(f"""
+        SELECT p.p_id, p.p_name, b.p_amount, p.price, (b.p_amount * p.price) AS total_price
+        FROM Buckets b
+        JOIN Products p ON b.p_id = p.p_id
+        WHERE b.u_id = {user_id}
+    """)
+
+    if not result: 
+        response = HttpResponse("Bucket is empty")
+        response.status_code = 404
+        return response
+    
+
+    bucket_info = [
+        {
+            "product_id": row[0],
+            "product_name": row[1],
+            "amount": row[2],
+            "price": float(row[3]),
+            "total_price": float(row[4])
+        } for row in result
+    ]
+
+    response = HttpResponse(json.dumps(bucket_info), content_type='application/json')
+    response.status_code = 200
+    return response 
+
+
+
+@csrf_exempt
+def delete_bucket(request):
+    if request.method != 'DELETE':
+        response = HttpResponse("delete_bucket only accepts DELETE requests")
+        response.status_code = 405
+        return response
+    data = JSONParser().parse(request)
+    username = data.get("username")
+    
+
+    user_result = executeRaw(f"SELECT c.u_id FROM Users u JOIN Customers c ON u.u_id = c.u_id WHERE u.username = '{username}'")
+    if not user_result:
+        response = HttpResponse("Customer not found")
+        response.status_code = 404
+        return response
+    user_id = user_result[0][0]
+
+    executeRaw(f"DELETE FROM Buckets WHERE u_id = {user_id}")
+
+    response = HttpResponse("All products in the bucket have been deleted successfully")
+    response.status_code = 200
+    return response
+
+
+
 def convert_decimals_to_str(result):
     result = list(result)
     result = list(map(lambda x: list(x), result))
@@ -239,3 +350,4 @@ def convert_decimals_to_str(result):
                 result[i][j] = str(result[i][j])
     
     return result
+

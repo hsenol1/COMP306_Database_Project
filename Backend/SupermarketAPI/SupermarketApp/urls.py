@@ -10,5 +10,8 @@ urlpatterns = [
     path('get-admin-data-by-username/', views.get_admin_data_by_username, name='get_admin_data_by_username'),
     path('get-customer-data-by-username/', views.get_customer_data_by_username, name='get_customer_data_by_username'),
     path('get_low_stock_products/', views.get_low_stock_products, name='get_low_stock_products'),
-    path('get_products/', views.get_products, name='get_products')
+    path('get_products/', views.get_products, name='get_products'),
+    path('get-order-history/', views.get_order_history, name='get-order-history'),
+    path('get-bucket/', views.get_bucket, name = 'get-order-history'),
+    path('delete-bucket/', views.delete_bucket, name= 'delete-bucket')
 ]
