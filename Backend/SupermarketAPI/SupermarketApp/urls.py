@@ -12,6 +12,6 @@ urlpatterns = [
     path('get_low_stock_products/', views.get_low_stock_products, name='get_low_stock_products'),
     path('get_products/', views.get_products, name='get_products'),
     path('get-order-history/', views.get_order_history, name='get-order-history'),
-    path('get-bucket/', views.get_bucket, name = 'get-order-history'),
+    path('get-bucket/', views.get_bucket, name = 'get-bucket'),
     path('delete-bucket/', views.delete_bucket, name= 'delete-bucket')
 ]

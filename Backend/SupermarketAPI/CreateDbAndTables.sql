@@ -74,6 +74,14 @@ CREATE TABLE IF NOT EXISTS Order_Placements
 	 FOREIGN KEY (o_id) REFERENCES Orders(o_id) ON UPDATE CASCADE);
 
 
+CREATE TABLE IF NOT EXISTS Buckets (
+	u_id INTEGER,
+	p_id INTEGER,
+	p_amount INTEGER,
+	PRIMARY KEY  (u_id, p_id),
+    FOREIGN KEY (u_id) REFERENCES Customers(u_id) ON UPDATE CASCADE,
+    FOREIGN KEY (p_id) REFERENCES Products(p_id) ON UPDATE CASCADE
+);
 
 
 

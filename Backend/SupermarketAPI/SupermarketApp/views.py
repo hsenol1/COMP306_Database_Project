@@ -268,18 +268,12 @@ def get_order_history(request):
 @csrf_exempt
 def get_bucket(request):
     if request.method != 'GET':
-        response = HttpResponse("get_bucket only accepts GET request")
+        response = HttpResponse("get_bucket only accepts GET requests")
         response.status_code = 405
         return response
-
-    value = JSONParser().parse(request)
-    if "username" not in value:
-        response = HttpResponse("username not found in request body")
-        response.status_code = 400
-        return response
+    data = JSONParser().parse(request)
+    username = data.get("username")
     
-    username = value["username"]
-
     user_result = executeRaw(f"SELECT c.u_id FROM Users u JOIN Customers c ON u.u_id = c.u_id WHERE u.username = '{username}'")
     if not user_result:
         response = HttpResponse("Customer not found")
@@ -293,12 +287,10 @@ def get_bucket(request):
         JOIN Products p ON b.p_id = p.p_id
         WHERE b.u_id = {user_id}
     """)
-
-    if not result: 
-        response = HttpResponse("Bucket is empty")
+    if not result:
+        response = HttpResponse("Bucket is empty.")
         response.status_code = 404
         return response
-    
 
     bucket_info = [
         {
@@ -312,7 +304,7 @@ def get_bucket(request):
 
     response = HttpResponse(json.dumps(bucket_info), content_type='application/json')
     response.status_code = 200
-    return response 
+    return response
 
 
 
@@ -324,7 +316,6 @@ def delete_bucket(request):
         return response
     data = JSONParser().parse(request)
     username = data.get("username")
-    
 
     user_result = executeRaw(f"SELECT c.u_id FROM Users u JOIN Customers c ON u.u_id = c.u_id WHERE u.username = '{username}'")
     if not user_result:
