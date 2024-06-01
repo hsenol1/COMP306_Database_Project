@@ -18,9 +18,12 @@ class _ProductsPageState extends State<ProductsPage> {
     fetchProducts();
   }
 
-  Future<void> fetchProducts() async {
+  Future<void> fetch(Future<List<Map<String, dynamic>>> Function() fetchFunction) async {
+    setState(() {
+      isLoading = true;
+    });
     try {
-      List<Map<String, dynamic>> fetchedProducts = await networkService.fetchProducts();
+      List<Map<String, dynamic>> fetchedProducts = await fetchFunction();
       setState(() {
         products = fetchedProducts;
         isLoading = false;
@@ -33,58 +36,20 @@ class _ProductsPageState extends State<ProductsPage> {
     }
   }
 
+  Future<void> fetchProducts() async {
+    await fetch(networkService.fetchProducts);
+  }
+
   Future<void> fetchLowStockProducts() async {
-    setState(() {
-      isLoading = true;
-    });
-    try {
-      List<Map<String, dynamic>> lowStockProducts = await networkService.fetchLowStockProducts();
-      setState(() {
-        products = lowStockProducts;
-        isLoading = false;
-      });
-    } catch (e) {
-      print(e);
-      setState(() {
-        isLoading = false;
-      });
-    }
+    await fetch(networkService.fetchLowStockProducts);
   }
 
   Future<void> fetchProductsWithHigherThan4Rating() async {
-    setState(() {
-      isLoading = true;
-    });
-    try {
-      List<Map<String, dynamic>> highRatingProducts = await networkService.fetchProductsWithHigherthan4Rating();
-      setState(() {
-        products = highRatingProducts;
-        isLoading = false;
-      });
-    } catch (e) {
-      print(e);
-      setState(() {
-        isLoading = false;
-      });
-    }
+    await fetch(networkService.fetchProductsWithHigherthan4Rating);
   }
 
   Future<void> fetchTop5LowestRatedProducts() async {
-    setState(() {
-      isLoading = true;
-    });
-    try {
-      List<Map<String, dynamic>> Top5LowestRatedProducts = await networkService.fetchTop5LowestRatedProducts();
-      setState(() {
-        products = Top5LowestRatedProducts;
-        isLoading = false;
-      });
-    } catch (e) {
-      print(e);
-      setState(() {
-        isLoading = false;
-      });
-    }
+    await fetch(networkService.fetchTop5LowestRatedProducts);
   }
 
   @override
