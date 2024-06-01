@@ -52,7 +52,7 @@ class _HomeContentState extends State<HomeContent> {
   List<String> categories = [];
   bool isLoading = true;
   final NetworkService _networkService =
-      NetworkService(baseUrl: 'http://10.0.2.2:8000');
+      NetworkService();
 
   @override
   void initState() {

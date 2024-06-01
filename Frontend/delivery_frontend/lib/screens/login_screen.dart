@@ -7,7 +7,7 @@ import 'package:delivery_frontend/services/network_service.dart';
 
 class LoginScreen extends StatelessWidget {
   final NetworkService _networkService =
-      NetworkService(baseUrl: '10.0.2.2:8000');
+      NetworkService();
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
 

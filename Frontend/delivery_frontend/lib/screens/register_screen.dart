@@ -11,7 +11,7 @@ class RegisterScreen extends StatefulWidget {
 class _RegisterScreenState extends State<RegisterScreen> {
   final _formKey = GlobalKey<FormState>();
   final NetworkService _networkService =
-      NetworkService(baseUrl: '10.0.2.2:8000');
+      NetworkService();
 
   final _nameController = TextEditingController();
   final _surnameController = TextEditingController();

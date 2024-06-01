@@ -50,7 +50,7 @@ class _SearchScreenState extends State<SearchScreen> {
   late Basket _basket;
   bool isLoading = true;
   final NetworkService _networkService =
-      NetworkService(baseUrl: 'http://10.0.2.2:8000');
+      NetworkService();
 
   String query = '';
   List<Product> filteredProducts = [];

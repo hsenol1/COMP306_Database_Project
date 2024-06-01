@@ -2,9 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class NetworkService {
-  final String baseUrl;
-
-  NetworkService({required this.baseUrl});
+  final String baseUrl = '127.0.0.1:8000';
 
   Future<http.Response> register(String name, String surname, String username,
       String password, String city, String address, String phoneNumber) async {
@@ -39,12 +37,7 @@ class NetworkService {
   }
   
   Future<http.Response> getCategories() async {
-    final uri = Uri(
-      scheme: 'http',
-      host: '10.0.2.2',
-      port: 8000,
-      path: '/get-categories/',
-    );
+    final uri = Uri.parse('http://$baseUrl/register-customer/');
     final headers = {'Content-Type': 'application/json'};
     final response = await http.get(uri, headers: headers);
     return response;
@@ -148,6 +141,48 @@ class NetworkService {
     final headers = {'Content-Type': 'application/json'};
     final response = await http.get(url, headers: headers);
     return response;
+  }
+
+  Future<List<Map<String, dynamic>>> fetchProducts() async {
+    final response = await getProducts();
+
+    if (response.statusCode == 200) {
+      List<dynamic> data = json.decode(response.body);
+      print(data); // Debugging: Print the response data
+      return data.map((product) {
+        return {
+          'id': product[0],
+          'stock': product[1],
+          'category': product[2],
+          'price': product[3],
+          'name': product[4],
+          'image': 'assets/bunch-bananas-isolated-on-white-600w-1722111529.png', // Placeholder image URL
+        };
+      }).toList();
+    } else {
+      throw Exception('Failed to load products');
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> fetchLowStockProducts() async {
+    final response = await getLowStockProducts();
+
+    if (response.statusCode == 200) {
+      List<dynamic> data = json.decode(response.body);
+      print(data); // Debugging: Print the response data
+      return data.map((product) {
+        return {
+          'id': product[0],
+          'stock': product[1],
+          'category': product[2],
+          'price': product[3],
+          'name': product[4],
+          'image': 'assets/bunch-bananas-isolated-on-white-600w-1722111529.png', // Placeholder image URL
+        };
+      }).toList();
+    } else {
+      throw Exception('Failed to load low stock products');
+    }
   }
 
 }

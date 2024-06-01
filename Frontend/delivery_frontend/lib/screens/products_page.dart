@@ -1,30 +1,55 @@
 import 'package:flutter/material.dart';
 import 'product_details_page.dart';
+import 'package:delivery_frontend/services/network_service.dart';
 
-class ProductsPage extends StatelessWidget {
-  final List<Map<String, dynamic>> products = [
-    {
-      'image': 'assets/bunch-bananas-isolated-on-white-600w-1722111529.png', // Placeholder image
-      'name': 'Product 1',
-      'stock': 50,
-      'price': 20.0,
-      'category': 'Category A',
-    },
-    {
-      'image': 'assets/bunch-bananas-isolated-on-white-600w-1722111529.png', // Placeholder image
-      'name': 'Product 2',
-      'stock': 30,
-      'price': 15.0,
-      'category': 'Category B',
-    },
-    {
-      'image': 'assets/bunch-bananas-isolated-on-white-600w-1722111529.png', // Placeholder image
-      'name': 'Product 3',
-      'stock': 10,
-      'price': 5.0,
-      'category': 'Category A',
-    },
-  ];
+class ProductsPage extends StatefulWidget {
+  @override
+  _ProductsPageState createState() => _ProductsPageState();
+}
+
+class _ProductsPageState extends State<ProductsPage> {
+  final NetworkService networkService = NetworkService();
+  List<Map<String, dynamic>> products = [];
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchProducts();
+  }
+
+  Future<void> fetchProducts() async {
+    try {
+      List<Map<String, dynamic>> fetchedProducts = await networkService.fetchProducts();
+      setState(() {
+        products = fetchedProducts;
+        isLoading = false;
+      });
+    } catch (e) {
+      print(e);
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
+  Future<void> fetchLowStockProducts() async {
+    setState(() {
+      isLoading = true;
+    });
+    try {
+      List<Map<String, dynamic>> lowStockProducts = await networkService.fetchLowStockProducts();
+      setState(() {
+        products = lowStockProducts;
+        isLoading = false;
+      });
+    } catch (e) {
+      print(e);
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -63,66 +88,69 @@ class ProductsPage extends StatelessWidget {
                 SizedBox(height: 20), // Add spacing between buttons
                 ElevatedButton(
                   onPressed: () {
-                    // Show 50 products with the lowest stock amount
+                    fetchLowStockProducts();
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.blue,
                     padding: EdgeInsets.symmetric(vertical: 12),
                   ),
-                  child: Text('Low stock products', style: TextStyle(fontSize: 16)),
+                  child: Text('Lowest stock product from every category', style: TextStyle(fontSize: 16)),
                 ),
               ],
             ),
             SizedBox(height: 20),
-            Expanded(
-              child: ListView.builder(
-                itemCount: products.length,
-                itemBuilder: (context, index) {
-                  final product = products[index];
-                  return GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => ProductDetailsPage(product: product)),
-                      );
-                    },
-                    child: Card(
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Container(
-                              width: 100, // Set the desired width
-                              height: 100, // Set the desired height
-                              child: Image.asset(
-                                product['image'],
-                                fit: BoxFit.cover, // Stretch the image to fill the container
-                              ),
-                            ),
-                            SizedBox(width: 10), // Spacing between image and text
-                            Expanded(
-                              child: Column(
+            isLoading
+                ? Center(child: CircularProgressIndicator())
+                : Expanded(
+                    child: ListView.builder(
+                      itemCount: products.length,
+                      itemBuilder: (context, index) {
+                        final product = products[index];
+                        print(product); // Debugging: Print each product
+                        return GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => ProductDetailsPage(product: product)),
+                            );
+                          },
+                          child: Card(
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Row(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(product['name'], style: TextStyle(fontSize: 16, color: Colors.black)),
-                                  SizedBox(height: 5),
-                                  Text('Stock: ${product['stock']}', style: TextStyle(fontSize: 14, color: Colors.black)),
-                                  SizedBox(height: 5),
-                                  Text('Price: \$${product['price']}', style: TextStyle(fontSize: 14, color: Colors.black)),
-                                  SizedBox(height: 5),
-                                  Text('Category: ${product['category']}', style: TextStyle(fontSize: 14, color: Colors.black)),
+                                  Container(
+                                    width: 100, // Set the desired width
+                                    height: 100, // Set the desired height
+                                    child: Image.network(
+                                      product['image'],
+                                      fit: BoxFit.cover, // Stretch the image to fill the container
+                                    ),
+                                  ),
+                                  SizedBox(width: 10), // Spacing between image and text
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(product['name'], style: TextStyle(fontSize: 16, color: Colors.black)),
+                                        SizedBox(height: 5),
+                                        Text('Stock: ${product['stock']}', style: TextStyle(fontSize: 14, color: Colors.black)),
+                                        SizedBox(height: 5),
+                                        Text('Price: \$${product['price']}', style: TextStyle(fontSize: 14, color: Colors.black)),
+                                        SizedBox(height: 5),
+                                        Text('Category: ${product['category']}', style: TextStyle(fontSize: 14, color: Colors.black)),
+                                      ],
+                                    ),
+                                  ),
                                 ],
                               ),
                             ),
-                          ],
-                        ),
-                      ),
+                          ),
+                        );
+                      },
                     ),
-                  );
-                },
-              ),
-            ),
+                  ),
           ],
         ),
       ),
