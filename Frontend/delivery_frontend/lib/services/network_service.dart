@@ -143,6 +143,13 @@ class NetworkService {
     return response;
   }
 
+  Future<http.Response> getProductsWithHigherthan3Rating() async {
+    final url = Uri.parse('http://$baseUrl/get-products-with-higher-than-3-rating/');
+    final headers = {'Content-Type': 'application/json'};
+    final response = await http.get(url, headers: headers);
+    return response;
+  }
+
   Future<List<Map<String, dynamic>>> fetchProducts() async {
     final response = await getProducts();
 
@@ -182,6 +189,26 @@ class NetworkService {
       }).toList();
     } else {
       throw Exception('Failed to load low stock products');
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> fetchProductsWithHigherthan3Rating() async {
+    final response = await getProductsWithHigherthan3Rating();
+
+    if (response.statusCode == 200) {
+      List<dynamic> data = json.decode(response.body);
+      return data.map((product) {
+        return {
+          'id': product[0],
+          'stock': product[1],
+          'category': product[2],
+          'price': product[3],
+          'name': product[4],
+          'image': 'assets/bunch-bananas-isolated-on-white-600w-1722111529.png', // Placeholder image URL
+        };
+      }).toList();
+    } else {
+      throw Exception('Failed to load products with higher than 3 rating');
     }
   }
 
