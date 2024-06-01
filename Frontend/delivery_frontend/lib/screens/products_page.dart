@@ -109,11 +109,14 @@ class _ProductsPageState extends State<ProductsPage> {
                         final product = products[index];
                         print(product); // Debugging: Print each product
                         return GestureDetector(
-                          onTap: () {
-                            Navigator.push(
+                          onTap: () async {
+                            final result = await Navigator.push(
                               context,
                               MaterialPageRoute(builder: (context) => ProductDetailsPage(product: product)),
                             );
+                            if (result == true) {
+                              fetchProducts();
+                            }
                           },
                           child: Card(
                             child: Padding(
