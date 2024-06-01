@@ -246,7 +246,7 @@ def get_products_with_higher_than_3_rating(request):
         response.status_code = 405
         return response
     
-    result = executeRaw("""SELECT p.p_id, p.p_name, p.category, p.price, p.stock_amount
+    result = executeRaw("""SELECT p.p_id, p.stock_amount, p.category, p.price, p.p_name 
                             FROM Products p
                             JOIN Order_Products op ON p.p_id = op.p_id
                             JOIN Order_Placements opl ON op.o_id = opl.o_id
