@@ -206,7 +206,7 @@ def get_low_stock_products(request):
                             WHERE stock_amount = (
                                 SELECT MIN(stock_amount) 
                                 FROM Products p2 
-                                WHERE p2.category_id = p1.category_id
+                                WHERE p2.category = p1.category
                             );""")
     if len(result) == 0:
         response = HttpResponse("No low stock products found")
