@@ -192,6 +192,8 @@ def get_customer_data_by_username(request):
     response.status_code = 200
     return response
 
+
+#WARNING: get_low_stock_products returns lowest stock product from each category
 @csrf_exempt
 def get_low_stock_products(request):
     if request.method != 'GET':
@@ -199,7 +201,13 @@ def get_low_stock_products(request):
         response.status_code = 405
         return response
     
-    result = executeRaw("select * from Products where stock_amount < 100")
+    result = executeRaw("""SELECT * 
+                            FROM Products p1 
+                            WHERE stock_amount = (
+                                SELECT MIN(stock_amount) 
+                                FROM Products p2 
+                                WHERE p2.category_id = p1.category_id
+                            );""")
     if len(result) == 0:
         response = HttpResponse("No low stock products found")
         response.status_code = 404
