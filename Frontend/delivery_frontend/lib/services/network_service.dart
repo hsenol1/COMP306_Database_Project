@@ -4,6 +4,34 @@ import 'package:http/http.dart' as http;
 class NetworkService {
   final String baseUrl = '127.0.0.1:8000';
 
+  Future<http.Response> getRequestTemplate(String endpoint) async {
+    final url = Uri.parse('http://$baseUrl/$endpoint');
+    final headers = {'Content-Type': 'application/json'};
+    final response = await http.get(url, headers: headers);
+    return response;
+  }
+
+  Future<List<Map<String, dynamic>>> fetchProductsTemplate(Future<http.Response> Function() getFunction) async {
+    final response = await getFunction();
+
+    if (response.statusCode == 200) {
+      List<dynamic> data = json.decode(response.body);
+      print(data); // Debugging: Print the response data
+      return data.map((product) {
+        return {
+          'id': product[0],
+          'stock': product[1],
+          'category': product[2],
+          'price': product[3],
+          'name': product[4],
+          'image': 'assets/bunch-bananas-isolated-on-white-600w-1722111529.png', // Placeholder image URL
+        };
+      }).toList();
+    } else {
+      throw Exception('Failed to load products');
+    }
+  }
+
   Future<http.Response> register(String name, String surname, String username,
       String password, String city, String address, String phoneNumber) async {
     final url = Uri.parse('http://$baseUrl/register-customer/');
@@ -129,114 +157,41 @@ class NetworkService {
     return response;
   }
 
-  Future<http.Response> getLowStockProducts() async {
-    final url = Uri.parse('http://$baseUrl/get-low-stock-products/');
-    final headers = {'Content-Type': 'application/json'};
-    final response = await http.get(url, headers: headers);
-    return response;
-  }
+  
 
   Future<http.Response> getProducts() async {
-    final url = Uri.parse('http://$baseUrl/get-products/');
-    final headers = {'Content-Type': 'application/json'};
-    final response = await http.get(url, headers: headers);
-    return response;
+    return await getRequestTemplate('get-products/');
+  }
+
+  Future<http.Response> getLowStockProducts() async {
+    return await getRequestTemplate('get-low-stock-products/');
   }
 
   Future<http.Response> getProductsWithHigherthan4Rating() async {
-    final url = Uri.parse('http://$baseUrl/get-products-with-higher-than-4-rating/');
-    final headers = {'Content-Type': 'application/json'};
-    final response = await http.get(url, headers: headers);
-    return response;
+    return await getRequestTemplate('get-products-with-higher-than-4-rating/');
   }
 
   Future<http.Response> getTop5LowestRatedProducts() async {
-    final url = Uri.parse('http://$baseUrl/get-top-5-lowest-rated-products/');
-    final headers = {'Content-Type': 'application/json'};
-    final response = await http.get(url, headers: headers);
-    return response;
+    return await getRequestTemplate('get-top-5-lowest-rated-products/');
   }
+  
+  
 
   Future<List<Map<String, dynamic>>> fetchProducts() async {
-    final response = await getProducts();
-
-    if (response.statusCode == 200) {
-      List<dynamic> data = json.decode(response.body);
-      print(data); // Debugging: Print the response data
-      return data.map((product) {
-        return {
-          'id': product[0],
-          'stock': product[1],
-          'category': product[2],
-          'price': product[3],
-          'name': product[4],
-          'image': 'assets/bunch-bananas-isolated-on-white-600w-1722111529.png', // Placeholder image URL
-        };
-      }).toList();
-    } else {
-      throw Exception('Failed to load products');
-    }
+    return await fetchProductsTemplate(getProducts);
   }
 
   Future<List<Map<String, dynamic>>> fetchLowStockProducts() async {
-    final response = await getLowStockProducts();
-
-    if (response.statusCode == 200) {
-      List<dynamic> data = json.decode(response.body);
-      print(data); // Debugging: Print the response data
-      return data.map((product) {
-        return {
-          'id': product[0],
-          'stock': product[1],
-          'category': product[2],
-          'price': product[3],
-          'name': product[4],
-          'image': 'assets/bunch-bananas-isolated-on-white-600w-1722111529.png', // Placeholder image URL
-        };
-      }).toList();
-    } else {
-      throw Exception('Failed to load low stock products');
-    }
+    return await fetchProductsTemplate(getLowStockProducts);
   }
 
   Future<List<Map<String, dynamic>>> fetchProductsWithHigherthan4Rating() async {
-    final response = await getProductsWithHigherthan4Rating();
-
-    if (response.statusCode == 200) {
-      List<dynamic> data = json.decode(response.body);
-      return data.map((product) {
-        return {
-          'id': product[0],
-          'stock': product[1],
-          'category': product[2],
-          'price': product[3],
-          'name': product[4],
-          'image': 'assets/bunch-bananas-isolated-on-white-600w-1722111529.png', // Placeholder image URL
-        };
-      }).toList();
-    } else {
-      throw Exception('Failed to load products with higher than 4 rating');
-    }
+    return await fetchProductsTemplate(getProductsWithHigherthan4Rating);
   }
 
   Future<List<Map<String, dynamic>>> fetchTop5LowestRatedProducts() async {
-    final response = await getTop5LowestRatedProducts();
-
-    if (response.statusCode == 200) {
-      List<dynamic> data = json.decode(response.body);
-      return data.map((product) {
-        return {
-          'id': product[0],
-          'stock': product[1],
-          'category': product[2],
-          'price': product[3],
-          'name': product[4],
-          'image': 'assets/bunch-bananas-isolated-on-white-600w-1722111529.png', // Placeholder image URL
-        };
-      }).toList();
-    } else {
-      throw Exception('Failed to load top 5 lowest rated products');
-    }
+    return await fetchProductsTemplate(getTop5LowestRatedProducts);
   }
+
 
 }
