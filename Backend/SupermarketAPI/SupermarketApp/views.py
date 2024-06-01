@@ -274,8 +274,8 @@ def get_top_5_lowest_rated_products(request):
                             FROM Products p
                             JOIN Order_Products op ON p.p_id = op.p_id
                             JOIN Order_Placements opl ON op.o_id = opl.o_id
-                            GROUP BY p.p_id, p.p_name, p.category, p.price, p.stock_amount
-                            ORDER BY average_rating ASC
+                            GROUP BY p.p_id
+                            ORDER BY AVG(rating) ASC
                             LIMIT 5;""")
     if len(result) == 0:
         response = HttpResponse("No products found")
