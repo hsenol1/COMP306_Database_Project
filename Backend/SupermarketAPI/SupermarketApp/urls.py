@@ -11,5 +11,6 @@ urlpatterns = [
     path('get-customer-data-by-username/', views.get_customer_data_by_username, name='get_customer_data_by_username'),
     path('get-low-stock-products/', views.get_low_stock_products, name='get_low_stock_products'),
     path('get-products/', views.get_products, name='get_products'),
-    path('get-products-with-higher-than-4-rating/', views.get_products_with_higher_than_4_rating, name='get_products_with_higher_than_4_rating')
+    path('get-products-with-higher-than-4-rating/', views.get_products_with_higher_than_4_rating, name='get_products_with_higher_than_4_rating'),
+    path('get-top-5-lowest-rated-products/', views.get_top_5_lowest_rated_products, name='get_top_5_lowest_rated_products')
 ]

@@ -242,7 +242,7 @@ def get_products(request):
 @csrf_exempt
 def get_products_with_higher_than_4_rating(request):
     if request.method != 'GET':
-        response = HttpResponse("get_products only accepts GET requests")
+        response = HttpResponse("get_products_with_higher_than_4_rating only accepts GET requests")
         response.status_code = 405
         return response
     
@@ -252,6 +252,31 @@ def get_products_with_higher_than_4_rating(request):
                             JOIN Order_Placements opl ON op.o_id = opl.o_id
                             GROUP BY p.p_id
                             HAVING AVG(opl.rating) > 4""")
+    if len(result) == 0:
+        response = HttpResponse("No products found")
+        response.status_code = 404
+        return response
+    
+    result = convert_decimals_to_str(result)
+    result = json.dumps(result)
+    response = HttpResponse(result)
+    response.status_code = 200
+    return response
+
+@csrf_exempt
+def get_top_5_lowest_rated_products(request):
+    if request.method != 'GET':
+        response = HttpResponse("get_top_5_lowest_rated_products only accepts GET requests")
+        response.status_code = 405
+        return response
+    
+    result = executeRaw("""SELECT p.p_id, p.stock_amount, p.category, p.price, p.p_name
+                            FROM Products p
+                            JOIN Order_Products op ON p.p_id = op.p_id
+                            JOIN Order_Placements opl ON op.o_id = opl.o_id
+                            GROUP BY p.p_id, p.p_name, p.category, p.price, p.stock_amount
+                            ORDER BY average_rating ASC
+                            LIMIT 5;""")
     if len(result) == 0:
         response = HttpResponse("No products found")
         response.status_code = 404
