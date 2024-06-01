@@ -240,7 +240,7 @@ def get_products(request):
     
 
 @csrf_exempt
-def get_products_with_higher_than_3_rating(request):
+def get_products_with_higher_than_4_rating(request):
     if request.method != 'GET':
         response = HttpResponse("get_products only accepts GET requests")
         response.status_code = 405
@@ -251,7 +251,7 @@ def get_products_with_higher_than_3_rating(request):
                             JOIN Order_Products op ON p.p_id = op.p_id
                             JOIN Order_Placements opl ON op.o_id = opl.o_id
                             GROUP BY p.p_id
-                            HAVING AVG(opl.rating) > 3""")
+                            HAVING AVG(opl.rating) > 4""")
     if len(result) == 0:
         response = HttpResponse("No products found")
         response.status_code = 404
