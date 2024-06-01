@@ -258,6 +258,33 @@ def get_top_5_lowest_rated_products(request):
 
 
 
+@csrf_exempt
+def increase_product_quantity(request):
+    if request.method != 'POST':
+        response = HttpResponse("increase_product_quantity only accepts POST requests")
+        response.status_code = 405
+        return response
+    value = JSONParser().parse(request)
+    if "p_id" not in value or "quantity" not in value:
+        response = HttpResponse("p_id or quantity not found in request body")
+        response.status_code = 400
+        return response
+    p_id = value["p_id"]
+    quantity = value["quantity"]
+    # Ensure quantity is a positive integer
+    if not isinstance(quantity, int) or quantity <= 0:
+        response = HttpResponse("quantity must be a positive integer")
+        response.status_code = 400
+        return response
+    # Update the product quantity in the database
+    with transaction.atomic():
+        executeRaw(f"UPDATE Products SET stock_amount = stock_amount + {quantity} WHERE p_id = {p_id}")
+    response = HttpResponse("Product quantity increased successfully")
+    response.status_code = 200
+    return response
+
+
+
 def convert_decimals_to_str(result):
     result = list(result)
     result = list(map(lambda x: list(x), result))
