@@ -51,6 +51,24 @@ class _ProductsPageState extends State<ProductsPage> {
     }
   }
 
+  Future<void> fetchProductsWithHigherThan3Rating() async {
+    setState(() {
+      isLoading = true;
+    });
+    try {
+      List<Map<String, dynamic>> highRatingProducts = await networkService.fetchProductsWithHigherthan3Rating();
+      setState(() {
+        products = highRatingProducts;
+        isLoading = false;
+      });
+    } catch (e) {
+      print(e);
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -66,7 +84,7 @@ class _ProductsPageState extends State<ProductsPage> {
               children: [
                 ElevatedButton(
                   onPressed: () {
-                    // Show products with +3 rating
+                    fetchProductsWithHigherThan3Rating();
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.blue,
