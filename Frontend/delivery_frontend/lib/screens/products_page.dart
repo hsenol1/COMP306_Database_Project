@@ -69,6 +69,24 @@ class _ProductsPageState extends State<ProductsPage> {
     }
   }
 
+  Future<void> fetchTop5LowestRatedProducts() async {
+    setState(() {
+      isLoading = true;
+    });
+    try {
+      List<Map<String, dynamic>> Top5LowestRatedProducts = await networkService.fetchTop5LowestRatedProducts();
+      setState(() {
+        products = Top5LowestRatedProducts;
+        isLoading = false;
+      });
+    } catch (e) {
+      print(e);
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -95,7 +113,7 @@ class _ProductsPageState extends State<ProductsPage> {
                 SizedBox(height: 20), // Add spacing between buttons
                 ElevatedButton(
                   onPressed: () {
-                    // Show lowest rated products of each category
+                    fetchTop5LowestRatedProducts();
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.blue,
