@@ -193,100 +193,70 @@ def get_customer_data_by_username(request):
     return response
 
 
-#WARNING: get_low_stock_products returns lowest stock product from each category
-@csrf_exempt
-def get_low_stock_products(request):
+
+def get_template(request, func_name, query):
     if request.method != 'GET':
-        response = HttpResponse("get_low_stock_products only accepts GET requests")
+        response = HttpResponse(func_name + " only accepts GET requests")
         response.status_code = 405
         return response
-    
-    result = executeRaw("""SELECT * 
-                            FROM Products p1 
-                            WHERE stock_amount = (
-                                SELECT MIN(stock_amount) 
-                                FROM Products p2 
-                                WHERE p2.category = p1.category
-                            );""")
+    result = executeRaw(query)
     if len(result) == 0:
-        response = HttpResponse("No low stock products found")
+        response = HttpResponse(func_name + " returned none")
         response.status_code = 404
         return response
-    
     result = convert_decimals_to_str(result)
     result = json.dumps(result)
     response = HttpResponse(result)
     response.status_code = 200
     return response
+
+
 
 @csrf_exempt
 def get_products(request):
-    if request.method != 'GET':
-        response = HttpResponse("get_products only accepts GET requests")
-        response.status_code = 405
-        return response
-    
-    result = executeRaw("select * from Products")
-    if len(result) == 0:
-        response = HttpResponse("No products found")
-        response.status_code = 404
-        return response
-    
-    result = convert_decimals_to_str(result)
-    result = json.dumps(result)
-    response = HttpResponse(result)
-    response.status_code = 200
+    response = get_template(request, 'get_products', "select * from Products")
     return response
-    
+
+
+
+#WARNING: get_low_stock_products returns lowest stock product from each category
+@csrf_exempt
+def get_low_stock_products(request):
+    response = get_template(request, 'get_low_stock_products', """SELECT * 
+                                                                    FROM Products p1 
+                                                                    WHERE stock_amount = (
+                                                                        SELECT MIN(stock_amount) 
+                                                                        FROM Products p2 
+                                                                        WHERE p2.category = p1.category
+                                                                        );""")
+    return response
+
+
 
 @csrf_exempt
 def get_products_with_higher_than_4_rating(request):
-    if request.method != 'GET':
-        response = HttpResponse("get_products_with_higher_than_4_rating only accepts GET requests")
-        response.status_code = 405
-        return response
-    
-    result = executeRaw("""SELECT p.p_id, p.stock_amount, p.category, p.price, p.p_name 
-                            FROM Products p
-                            JOIN Order_Products op ON p.p_id = op.p_id
-                            JOIN Order_Placements opl ON op.o_id = opl.o_id
-                            GROUP BY p.p_id
-                            HAVING AVG(opl.rating) > 4""")
-    if len(result) == 0:
-        response = HttpResponse("No products found")
-        response.status_code = 404
-        return response
-    
-    result = convert_decimals_to_str(result)
-    result = json.dumps(result)
-    response = HttpResponse(result)
-    response.status_code = 200
+    response = get_template(request, 'get_products_with_higher_than_4_rating', """SELECT p.p_id, p.stock_amount, p.category, p.price, p.p_name 
+                                                                                    FROM Products p
+                                                                                    JOIN Order_Products op ON p.p_id = op.p_id
+                                                                                    JOIN Order_Placements opl ON op.o_id = opl.o_id
+                                                                                    GROUP BY p.p_id
+                                                                                    HAVING AVG(opl.rating) > 4""")
     return response
+
+
 
 @csrf_exempt
 def get_top_5_lowest_rated_products(request):
-    if request.method != 'GET':
-        response = HttpResponse("get_top_5_lowest_rated_products only accepts GET requests")
-        response.status_code = 405
-        return response
-    
-    result = executeRaw("""SELECT p.p_id, p.stock_amount, p.category, p.price, p.p_name
-                            FROM Products p
-                            JOIN Order_Products op ON p.p_id = op.p_id
-                            JOIN Order_Placements opl ON op.o_id = opl.o_id
-                            GROUP BY p.p_id
-                            ORDER BY AVG(rating) ASC
-                            LIMIT 5;""")
-    if len(result) == 0:
-        response = HttpResponse("No products found")
-        response.status_code = 404
-        return response
-    
-    result = convert_decimals_to_str(result)
-    result = json.dumps(result)
-    response = HttpResponse(result)
-    response.status_code = 200
+    response = get_template(request, 'get_top_5_lowest_rated_products', """SELECT p.p_id, p.stock_amount, p.category, p.price, p.p_name
+                                                                            FROM Products p
+                                                                            JOIN Order_Products op ON p.p_id = op.p_id
+                                                                            JOIN Order_Placements opl ON op.o_id = opl.o_id
+                                                                            GROUP BY p.p_id
+                                                                            ORDER BY AVG(rating) ASC
+                                                                            LIMIT 5;""")
     return response
+
+
 
 def convert_decimals_to_str(result):
     result = list(result)
