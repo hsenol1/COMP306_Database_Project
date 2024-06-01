@@ -232,6 +232,12 @@ def get_products(request):
         response.status_code = 404
         return response
     
+    result = convert_decimals_to_str(result)
+    result = json.dumps(result)
+    response = HttpResponse(result)
+    response.status_code = 200
+    return response
+    
 
 @csrf_exempt
 def get_products_with_higher_than_3_rating(request):
