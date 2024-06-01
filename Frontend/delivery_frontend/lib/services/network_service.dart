@@ -143,8 +143,8 @@ class NetworkService {
     return response;
   }
 
-  Future<http.Response> getProductsWithHigherthan3Rating() async {
-    final url = Uri.parse('http://$baseUrl/get-products-with-higher-than-3-rating/');
+  Future<http.Response> getProductsWithHigherthan4Rating() async {
+    final url = Uri.parse('http://$baseUrl/get-products-with-higher-than-4-rating/');
     final headers = {'Content-Type': 'application/json'};
     final response = await http.get(url, headers: headers);
     return response;
@@ -192,8 +192,8 @@ class NetworkService {
     }
   }
 
-  Future<List<Map<String, dynamic>>> fetchProductsWithHigherthan3Rating() async {
-    final response = await getProductsWithHigherthan3Rating();
+  Future<List<Map<String, dynamic>>> fetchProductsWithHigherthan4Rating() async {
+    final response = await getProductsWithHigherthan4Rating();
 
     if (response.statusCode == 200) {
       List<dynamic> data = json.decode(response.body);
@@ -208,7 +208,7 @@ class NetworkService {
         };
       }).toList();
     } else {
-      throw Exception('Failed to load products with higher than 3 rating');
+      throw Exception('Failed to load products with higher than 4 rating');
     }
   }
 

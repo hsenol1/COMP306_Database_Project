@@ -51,12 +51,12 @@ class _ProductsPageState extends State<ProductsPage> {
     }
   }
 
-  Future<void> fetchProductsWithHigherThan3Rating() async {
+  Future<void> fetchProductsWithHigherThan4Rating() async {
     setState(() {
       isLoading = true;
     });
     try {
-      List<Map<String, dynamic>> highRatingProducts = await networkService.fetchProductsWithHigherthan3Rating();
+      List<Map<String, dynamic>> highRatingProducts = await networkService.fetchProductsWithHigherthan4Rating();
       setState(() {
         products = highRatingProducts;
         isLoading = false;
@@ -84,13 +84,13 @@ class _ProductsPageState extends State<ProductsPage> {
               children: [
                 ElevatedButton(
                   onPressed: () {
-                    fetchProductsWithHigherThan3Rating();
+                    fetchProductsWithHigherThan4Rating();
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.blue,
                     padding: EdgeInsets.symmetric(vertical: 12),
                   ),
-                  child: Text('Show products with 3+ rating', style: TextStyle(fontSize: 16)),
+                  child: Text('Show products with 4+ rating', style: TextStyle(fontSize: 16)),
                 ),
                 SizedBox(height: 20), // Add spacing between buttons
                 ElevatedButton(
