@@ -234,31 +234,6 @@ def delete_template(request, table_name, id_field, delete_query):
     response = HttpResponse(f"{table_name} deleted successfully")
     response.status_code = 200
     return response
-
-
-
-@csrf_exempt
-def delete_template(request, table_name, delete_query):
-  if request.method != 'POST':
-    response = HttpResponse(f"delete_{table_name} only accepts POST requests")
-    response.status_code = 405
-    return response
-  value = JSONParser().parse(request)
-  if "id" not in value:
-    response = HttpResponse(f"{table_name} id not found in request body")
-    response.status_code = 400
-    return response
-  object_id = value["id"]
-  existing_object_result = executeRaw(f"select * from {table_name} where id = {object_id}")
-  if len(existing_object_result) == 0:
-    response = HttpResponse(f"{table_name} not found")
-    response.status_code = 404
-    return response
-  with transaction.atomic():
-    executeRaw(delete_query, [object_id])
-  response = HttpResponse(f"{table_name} deleted successfully")
-  response.status_code = 200
-  return response
   
 
 
