@@ -341,48 +341,40 @@ def decrease_product_quantity(request):
 
 @csrf_exempt
 def get_customers(request):
-    response = get_template(request, 'get_customers', "select * from Customers")
+    response = get_template(request, 'get_customers', "select * from Customers JOIN Users ON Customers.u_id = Users.u_id")
     return response
 
 
 
 @csrf_exempt
 def get_one_customer_per_city(request):
-    response = get_template(request, 'get_one_customer_per_city', """SELECT *
+    response = get_template(request, 'get_one_customer_per_city', """SELECT c.*, u.*
+                                                                        FROM Customers c
+                                                                        JOIN Users u ON c.u_id = u.u_id
+                                                                        JOIN (
+                                                                            SELECT city, MIN(u_id) as min_u_id
                                                                             FROM Customers
                                                                             GROUP BY city
-                                                                            LIMIT 1;""")
-    return response
-
-
-
-
-@csrf_exempt
-def get_orders(request):
-    response = get_template(request, 'get_orders', "select * from orders")
+                                                                        ) as subquery
+                                                                        ON c.u_id = subquery.min_u_id;
+                                                                        """)
     return response
 
 
 
 @csrf_exempt
-def get_products_from_order(request):
-  if request.method != 'GET':
-    response = HttpResponse("get_products_from_order only accepts GET requests")
-    response.status_code = 405
-    return response
-  value = JSONParser().parse(request)
-  if "order_id" not in value:
-    response = HttpResponse("order_id not found in request body")
-    response.status_code = 400
-    return response
-  order_id = value["order_id"]
-  query = f"""
-            SELECT p.p_id, p.stock_amount, p.category, op.purchased_price, p.p_name
+def get_products_from_order(request, order_id):
+    if request.method != 'GET':
+        response = HttpResponse("get_products_from_order only accepts GET requests")
+        response.status_code = 405
+        return response
+    query = f"""
+            SELECT p.p_id, p.stock_amount, p.category, op.purchased_price, p.p_name, op.p_amount, op.purchased_price
             FROM Products p
             INNER JOIN Order_Products op ON p.p_id = op.p_id
             WHERE op.o_id = {order_id};
             """
-  return get_template(request, "get_products_from_order", query)
+    return get_template(request, "get_products_from_order", query)
 
 
 
@@ -518,3 +510,38 @@ def convert_decimals_to_str(result):
                 result[i][j] = str(result[i][j])
     
     return result
+
+
+def convert_to_serializable(result):
+    serializable_result = []
+    for row in result:
+        serializable_row = []
+        for value in row:
+            if isinstance(value, datetime):
+                serializable_row.append(value.strftime('%Y-%m-%d %H:%M:%S'))
+            elif isinstance(value, Decimal):
+                serializable_row.append(str(value))
+            else:
+                serializable_row.append(value)
+        serializable_result.append(serializable_row)
+    return serializable_result
+
+def get_template_serial(request, func_name, query):
+    if request.method != 'GET':
+        response = HttpResponse(func_name + " only accepts GET requests")
+        response.status_code = 405
+        return response
+    result = executeRaw(query)
+    if len(result) == 0:
+        response = HttpResponse(func_name + " returned none")
+        response.status_code = 404
+        return response
+    result = convert_to_serializable(result)
+    result = json.dumps(result)
+    response = HttpResponse(result)
+    response.status_code = 200
+    return response
+
+def get_orders(request):
+    response = get_template_serial(request, 'get_orders', "select * from Orders JOIN Order_Placements ON Orders.o_id = Order_Placements.o_id")
+    return response
