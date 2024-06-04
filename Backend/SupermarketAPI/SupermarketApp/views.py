@@ -213,7 +213,7 @@ def get_template(request, func_name, query):
 
 
 @csrf_exempt
-def delete_template(request, table_name, id_field, delete_query):
+def delete_template(request, table_name, id_field):
     if request.method != 'POST':
         response = HttpResponse(f"delete_{table_name} only accepts POST requests")
         response.status_code = 405
@@ -224,13 +224,13 @@ def delete_template(request, table_name, id_field, delete_query):
         response.status_code = 400
         return response
     object_id = value["id"]
-    existing_object_result = executeRaw(f"select * from {table_name} where {id_field} = {object_id}")
+    existing_object_result = executeRaw(f"SELECT * FROM {table_name} WHERE {id_field} = '{object_id}'")
     if len(existing_object_result) == 0:
         response = HttpResponse(f"{table_name} not found")
         response.status_code = 404
         return response
     with transaction.atomic():
-        executeRaw(delete_query, [object_id])
+        executeRaw(f"DELETE FROM {table_name} WHERE {id_field} = '{object_id}'")
     response = HttpResponse(f"{table_name} deleted successfully")
     response.status_code = 200
     return response
@@ -421,15 +421,15 @@ def insert_voucher(request):
 
 @csrf_exempt
 def delete_product(request):
-    return delete_template(request, "Products", "p_id", f"DELETE FROM Products WHERE p_id = %s")
+    return delete_template(request, "Products", "p_id")
 
 @csrf_exempt
 def delete_customer(request):
-    return delete_template(request, "Customers", "u_id", f"DELETE FROM Customers WHERE u_id = %s")
+    return delete_template(request, "Customers", "u_id")
 
 @csrf_exempt
 def delete_voucher(request):
-    return delete_template(request, "Vouchers", "v_id", f"DELETE FROM Vouchers WHERE v_id = %s")
+    return delete_template(request, "Vouchers", "v_id")
 
 
 
