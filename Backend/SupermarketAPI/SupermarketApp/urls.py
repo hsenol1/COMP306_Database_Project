@@ -24,5 +24,5 @@ urlpatterns = [
     path('get-vouchers/', views.get_vouchers, name='get_vouchers'),
     path('insert-voucher/', views.insert_voucher, name='insert_voucher'),
     path('delete-voucher/', views.delete_voucher, name='delete_voucher'),
-    path('create-order/', views.create_order, name='create-order')
+    path('create-order/', views.create_order, name='create_order')
 ]

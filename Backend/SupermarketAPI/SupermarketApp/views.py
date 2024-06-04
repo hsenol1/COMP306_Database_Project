@@ -8,6 +8,7 @@ import json
 from decimal import Decimal
 from datetime import datetime
 
+
 # Create your views here.
 
 @csrf_exempt
@@ -468,7 +469,14 @@ def create_order(request):
         response.status_code = 405
         return response 
     
-    value = JSONParser().parse(request)
+
+    try:
+        value = JSONParser().parse(request)
+    except Exception as e:
+        response = HttpResponse("Invalid JSON format.")
+        response.status_code = 400
+        return response
+    # value = JSONParser().parse(request)
     if 'u_id' not in value:
         response = HttpResponse("u_id is not found in request body")
         response.status_code = 400
@@ -476,36 +484,56 @@ def create_order(request):
     
 
     u_id = value["u_id"]
+
+    customer_exists = executeRaw(f"SELECT * FROM Customers WHERE u_id = {u_id}")
+    if len(customer_exists) == 0:
+        response = HttpResponse("u_id does not exist in Customers table")
+        response.status_code = 400
+        return response
+
     existing_orders = executeRaw(f"SELECT * FROM Orders o JOIN Order_Placements op ON o.o_id = op.o_id WHERE op.u_id = {u_id} AND o.order_status = 'IN_PROGRESS'")
     if len(existing_orders) > 0:
-        response = HttpResponse("There is already IN-PROGRESS Order exists.")
+        response = HttpResponse("There is already IN_ROGRESS Order exists for user_id: {u_id}.")
         response.status_code = 409
         return response
     
 
     o_id = get_next_id("Orders", "o_id")
-    order_date = datetime.now().strftime('%d-%m-%Y')
-    order_status = 'IN_PROGRESS'
-    payment_type = 'NA'
+    order_date = datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
+    order_status = "IN_PROGRESS"
+    payment_type = "Not specified"
     total_price = 0.0
 
     with transaction.atomic():
         # Create Order
-        executeRaw(f"INSERT INTO Orders (o_id, payment_type, total_price, order_date, order_status) VALUES ({o_id}, '{payment_type}', {total_price}, '{order_date}', '{order_status}')")
+        insert_one("Orders", o_id, payment_type, total_price, order_date,order_status)
+        if "products" in value:
+            for product in value["products"]:
+                p_id = product["p_id"]
+                p_amount = product["p_amount"]
+                purchased_price = product["purchased_price"]
+                ## executeRaw(f"INSERT INTO Order_Products (p_id, o_id, p_amount, purchased_price) VALUES ({p_id}, {o_id}, {p_amount}, {purchased_price})")
+                insert_one("Order_Products",p_id,o_id,p_amount, purchased_price)
+                total_price += p_amount * purchased_price
 
-        p_id = 0 # placeholder.
-        p_amount = 1  # Default amount
-        purchased_price = 0 # Placeholder
-        executeRaw(f"INSERT INTO Order_Products (p_id, o_id, p_amount, purchased_price) VALUES ({p_id}, {o_id}, {p_amount}, {purchased_price})")
-
+        executeRaw(f"UPDATE Orders SET total_price = {total_price} WHERE o_id = {o_id}")
+        
         # Create Order_Placement
-        v_id = 0 # Standard 0, no voucher.
-        rating = 5  # Default rating, assuming no feedback means 5.
+        v_id = value["voucher_id"]
+        rating = value["rating"]
+        if v_id is None:
+            v_id = get_next_id("Vouchers", "v_id")  # 
+        if rating is None:
+            rating = 5  # default 
+
         executeRaw(f"INSERT INTO Order_Placements (u_id, v_id, o_id, rating) VALUES ({u_id}, {v_id}, {o_id}, {rating})")
 
+           
     response = HttpResponse("Order created successfully")
     response.status_code = 201
     return response
+        
+
 
 
 
