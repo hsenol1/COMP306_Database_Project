@@ -207,4 +207,17 @@ class NetworkService {
     return response;
   }
 
+  Future<http.Response> decreaseProductQuantity(String productId, int quantity) async {
+    final url = Uri.parse('http://$baseUrl/decrease-product-quantity/');
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'p_id': productId,
+        'quantity': quantity,
+      }),
+    );
+    return response;
+  }
+
 }

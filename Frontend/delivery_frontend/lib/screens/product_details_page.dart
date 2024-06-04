@@ -29,6 +29,14 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
     });
   }
 
+  void _decreaseStock(int quantity) async {
+    await networkService.decreaseProductQuantity(product['id'].toString(), quantity);
+    setState(() {
+      product['stock'] -= quantity;
+      _isProductUpdated = true; // Set flag to true
+    });
+  }
+
   void _showChangeAmountDialog(BuildContext context, String title, String label, bool isIncrease) {
     showDialog(
       context: context,
@@ -55,7 +63,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                   if (isIncrease) {
                     _updateStock(quantity);
                   } else {
-                    _updateStock(-quantity);
+                    _decreaseStock(quantity);
                   }
                   Navigator.of(context).pop();
                 } else {
