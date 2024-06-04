@@ -43,6 +43,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
       _isProductUpdated = true; // Set flag to true
     });
     Navigator.of(context).pop(true); // Return true to indicate the product was deleted
+    Navigator.of(context).pop(true);
   }
 
   void _showChangeAmountDialog(BuildContext context, String title, String label, bool isIncrease) {
