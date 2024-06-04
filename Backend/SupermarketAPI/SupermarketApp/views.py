@@ -6,6 +6,7 @@ from django.http import HttpResponse
 from django.db import transaction
 import json
 from decimal import Decimal
+from datetime import datetime
 
 # Create your views here.
 
@@ -458,6 +459,53 @@ def insert_voucher(request):
 @csrf_exempt
 def delete_voucher(request):
   return delete_template(request, "vouchers", f"DELETE FROM vouchers WHERE v_id = %s")
+
+
+@csrf_exempt
+def create_order(request):
+    if request.method != 'POST':
+        response = HttpResponse("create_order only accepts POST request.")
+        response.status_code = 405
+        return response 
+    
+    value = JSONParser().parse(request)
+    if 'u_id' not in value:
+        response = HttpResponse("u_id is not found in request body")
+        response.status_code = 400
+        return response
+    
+
+    u_id = value["u_id"]
+    existing_orders = executeRaw(f"SELECT * FROM Orders o JOIN Order_Placements op ON o.o_id = op.o_id WHERE op.u_id = {u_id} AND o.order_status = 'IN_PROGRESS'")
+    if len(existing_orders) > 0:
+        response = HttpResponse("There is already IN-PROGRESS Order exists.")
+        response.status_code = 409
+        return response
+    
+
+    o_id = get_next_id("Orders", "o_id")
+    order_date = datetime.now().strftime('%d-%m-%Y')
+    order_status = 'IN_PROGRESS'
+    payment_type = 'NA'
+    total_price = 0.0
+
+    with transaction.atomic():
+        # Create Order
+        executeRaw(f"INSERT INTO Orders (o_id, payment_type, total_price, order_date, order_status) VALUES ({o_id}, '{payment_type}', {total_price}, '{order_date}', '{order_status}')")
+
+        p_id = 0 # placeholder.
+        p_amount = 1  # Default amount
+        purchased_price = 0 # Placeholder
+        executeRaw(f"INSERT INTO Order_Products (p_id, o_id, p_amount, purchased_price) VALUES ({p_id}, {o_id}, {p_amount}, {purchased_price})")
+
+        # Create Order_Placement
+        v_id = 0 # Standard 0, no voucher.
+        rating = 5  # Default rating, assuming no feedback means 5.
+        executeRaw(f"INSERT INTO Order_Placements (u_id, v_id, o_id, rating) VALUES ({u_id}, {v_id}, {o_id}, {rating})")
+
+    response = HttpResponse("Order created successfully")
+    response.status_code = 201
+    return response
 
 
 
