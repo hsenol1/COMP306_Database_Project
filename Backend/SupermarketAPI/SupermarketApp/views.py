@@ -213,27 +213,27 @@ def get_template(request, func_name, query):
 
 
 @csrf_exempt
-def delete_template(request, table_name, delete_query):
-  if request.method != 'POST':
-    response = HttpResponse(f"delete_{table_name} only accepts POST requests")
-    response.status_code = 405
+def delete_template(request, table_name, id_field, delete_query):
+    if request.method != 'POST':
+        response = HttpResponse(f"delete_{table_name} only accepts POST requests")
+        response.status_code = 405
+        return response
+    value = JSONParser().parse(request)
+    if "id" not in value:
+        response = HttpResponse(f"{table_name} id not found in request body")
+        response.status_code = 400
+        return response
+    object_id = value["id"]
+    existing_object_result = executeRaw(f"select * from {table_name} where {id_field} = {object_id}")
+    if len(existing_object_result) == 0:
+        response = HttpResponse(f"{table_name} not found")
+        response.status_code = 404
+        return response
+    with transaction.atomic():
+        executeRaw(delete_query, [object_id])
+    response = HttpResponse(f"{table_name} deleted successfully")
+    response.status_code = 200
     return response
-  value = JSONParser().parse(request)
-  if "id" not in value:
-    response = HttpResponse(f"{table_name} id not found in request body")
-    response.status_code = 400
-    return response
-  object_id = value["id"]
-  existing_object_result = executeRaw(f"select * from {table_name} where id = {object_id}")
-  if len(existing_object_result) == 0:
-    response = HttpResponse(f"{table_name} not found")
-    response.status_code = 404
-    return response
-  with transaction.atomic():
-    executeRaw(delete_query, [object_id])
-  response = HttpResponse(f"{table_name} deleted successfully")
-  response.status_code = 200
-  return response
 
 
 
@@ -363,12 +363,6 @@ def decrease_product_quantity(request):
 
 
 @csrf_exempt
-def delete_product(request):
-  return delete_template(request, "products", f"DELETE FROM products WHERE p_id = %s")
-
-
-
-@csrf_exempt
 def get_customers(request):
     response = get_template(request, 'get_customers', "select * from Customers")
     return response
@@ -383,11 +377,6 @@ def get_one_customer_per_city(request):
                                                                             LIMIT 1;""")
     return response
 
-
-
-@csrf_exempt
-def delete_customer(request):
-  return delete_template(request, "customers", f"DELETE FROM customers WHERE p_id = %s")
 
 
 
@@ -456,8 +445,16 @@ def insert_voucher(request):
 
 
 @csrf_exempt
+def delete_product(request):
+    return delete_template(request, "Products", "p_id", f"DELETE FROM Products WHERE p_id = %s")
+
+@csrf_exempt
+def delete_customer(request):
+    return delete_template(request, "Customers", "u_id", f"DELETE FROM Customers WHERE u_id = %s")
+
+@csrf_exempt
 def delete_voucher(request):
-  return delete_template(request, "vouchers", f"DELETE FROM vouchers WHERE v_id = %s")
+    return delete_template(request, "Vouchers", "v_id", f"DELETE FROM Vouchers WHERE v_id = %s")
 
 
 
