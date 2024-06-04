@@ -7,7 +7,8 @@ from django.db import transaction
 import json
 from decimal import Decimal
 from datetime import datetime
-
+import decimal
+from django.core.serializers.json import DjangoJSONEncoder  
 
 # Create your views here.
 
@@ -433,6 +434,47 @@ def delete_customer(request):
 def delete_voucher(request):
     return delete_template(request, "Vouchers", "v_id")
 
+@csrf_exempt
+def get_last_10_orders(request):
+    if request.method != 'GET':
+        response = HttpResponse("get_last_10_order only accepts POST request.")
+        response.status_code = 405
+        return response
+
+    try: 
+        value = JSONParser().parse(request)
+    except Exception as e:
+        response = HttpResponse("Invalid JSON format.")
+        response.status_code = 400
+        return response
+    
+    if 'u_id' not in value:
+        response = HttpResponse("u_id is not found in request body")
+        response.status_code = 400
+        return response
+    
+    u_id = value["u_id"]
+    customer_exists = executeRaw(f"SELECT * FROM Customers WHERE u_id = {u_id}")
+    if len(customer_exists) == 0:
+        response = HttpResponse("u_id does not exist in Customers table")
+        response.status_code = 400
+        return response
+
+    try:
+        existing_orders = executeRaw(f"SELECT * FROM Orders o JOIN Order_Placements op ON o.o_id = op.o_id WHERE op.u_id = {u_id}")
+        print(existing_orders)
+        result = json.dumps(existing_orders, cls=DjangoJSONEncoder)
+        response = HttpResponse(result)
+        response.status_code = 200
+    except Exception as e:
+        response = HttpResponse(f"Internal Server Error: {str(e)}")
+        response.status_code = 500
+    return response
+
+def decimal_default(obj):
+    if isinstance(obj, decimal.Decimal):
+        return float(obj)
+    raise TypeError
 
 @csrf_exempt
 def create_order(request):
@@ -505,6 +547,24 @@ def create_order(request):
     response.status_code = 201
     return response
         
+## Example JSON
+# # {
+# #   "u_id": 10,
+# #   "products": [
+# #     {
+# #       "p_id": 1,
+# #       "p_amount": 2,
+# #       "purchased_price": 3.50
+# #     },
+# #     {
+# #       "p_id": 2,
+# #       "p_amount": 1,
+# #       "purchased_price": 1000.00
+# #     }
+# #   ],
+# #   "voucher_id": 5,
+# #   "rating": 4
+# # }
 
 
 
