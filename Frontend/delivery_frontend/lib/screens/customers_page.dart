@@ -1,37 +1,68 @@
 import 'package:flutter/material.dart';
 import 'customer_details_page.dart';
+import 'package:delivery_frontend/services/network_service.dart';
 
-class CustomersPage extends StatelessWidget {
-  final List<Map<String, dynamic>> customers = [
-    {
-      'username': 'user1',
-      'name': 'John',
-      'surname': 'Doe',
-      'phone': '123-456-7890',
-      'city': 'City A',
-      'address': '123 Main St',
-      'password': 'password1',
-    },
-    {
-      'username': 'user2',
-      'name': 'Jane',
-      'surname': 'Smith',
-      'phone': '234-567-8901',
-      'city': 'City B',
-      'address': '456 Elm St',
-      'password': 'password2',
-    },
-    {
-      'username': 'user3',
-      'name': 'Bob',
-      'surname': 'Johnson',
-      'phone': '345-678-9012',
-      'city': 'City A',
-      'address': '789 Oak St',
-      'password': 'password3',
-    },
-    // Add more placeholder customers as needed
-  ];
+class CustomersPage extends StatefulWidget {
+  @override
+  _CustomersPageState createState() => _CustomersPageState();
+}
+
+class _CustomersPageState extends State<CustomersPage> {
+  final NetworkService networkService = NetworkService();
+  List<Map<String, dynamic>> customers = [];
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchCustomers();
+  }
+
+  Future<void> fetchCustomers() async {
+    setState(() {
+      isLoading = true;
+    });
+    try {
+      List<Map<String, dynamic>> fetchedCustomers = await networkService.fetchCustomers();
+      setState(() {
+        customers = fetchedCustomers;
+        isLoading = false;
+      });
+    } catch (e) {
+      print(e);
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
+  Future<void> fetchOneCustomerPerCity() async {
+    setState(() {
+      isLoading = true;
+    });
+    try {
+      List<Map<String, dynamic>> fetchedCustomers = await networkService.fetchOneCustomerPerCity();
+      setState(() {
+        customers = fetchedCustomers;
+        isLoading = false;
+      });
+    } catch (e) {
+      print(e);
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
+  Future<void> navigateToCustomerDetails(Map<String, dynamic> customer) async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => CustomerDetailsPage(customer: customer)),
+    );
+    if (result == true) {
+      fetchCustomers(); // Refresh the customer list if a customer was deleted
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -46,7 +77,7 @@ class CustomersPage extends StatelessWidget {
           children: [
             ElevatedButton(
               onPressed: () {
-                // Show one customer per city logic
+                fetchOneCustomerPerCity();
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.blue,
@@ -55,43 +86,42 @@ class CustomersPage extends StatelessWidget {
               child: Text('Show one customer per city', style: TextStyle(fontSize: 16)),
             ),
             SizedBox(height: 20), // Add spacing between button and list
-            Expanded(
-              child: ListView.builder(
-                itemCount: customers.length,
-                itemBuilder: (context, index) {
-                  final customer = customers[index];
-                  return GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => CustomerDetailsPage(customer: customer)),
-                      );
-                    },
-                    child: Card(
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Expanded(
-                              child: Column(
+            isLoading
+                ? Center(child: CircularProgressIndicator())
+                : Expanded(
+                    child: ListView.builder(
+                      itemCount: customers.length,
+                      itemBuilder: (context, index) {
+                        final customer = customers[index];
+                        return GestureDetector(
+                          onTap: () {
+                            navigateToCustomerDetails(customer);
+                          },
+                          child: Card(
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Row(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text('Username: ${customer['username']}', style: TextStyle(fontSize: 16, color: Colors.black)),
-                                  Text('Name: ${customer['name']}', style: TextStyle(fontSize: 16, color: Colors.black)),
-                                  Text('Surname: ${customer['surname']}', style: TextStyle(fontSize: 16, color: Colors.black)),
-                                  Text('Phone: ${customer['phone']}', style: TextStyle(fontSize: 16, color: Colors.black)),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text('Username: ${customer['username']}', style: TextStyle(fontSize: 16, color: Colors.black)),
+                                        Text('Name: ${customer['name']}', style: TextStyle(fontSize: 16, color: Colors.black)),
+                                        Text('Surname: ${customer['surname']}', style: TextStyle(fontSize: 16, color: Colors.black)),
+                                        Text('Phone: ${customer['phone']}', style: TextStyle(fontSize: 16, color: Colors.black)),
+                                      ],
+                                    ),
+                                  ),
                                 ],
                               ),
                             ),
-                          ],
-                        ),
-                      ),
+                          ),
+                        );
+                      },
                     ),
-                  );
-                },
-              ),
-            ),
+                  ),
           ],
         ),
       ),

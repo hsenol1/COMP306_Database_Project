@@ -33,16 +33,61 @@ class NetworkService {
   }
 
   Future<http.Response> deleteTemplate(String endpoint, String itemId) async {
-  final url = Uri.parse('http://$baseUrl/$endpoint/');
-  final response = await http.post(
-    url,
-    headers: {'Content-Type': 'application/json'},
-    body: jsonEncode({
-      'id': itemId,
-    }),
-  );
-  return response;
-}
+    final url = Uri.parse('http://$baseUrl/$endpoint/');
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'id': itemId,
+      }),
+    );
+    return response;
+  }
+
+  Future<List<Map<String, dynamic>>> fetchCustomersTemplate(Future<http.Response> Function() getFunction) async {
+    final response = await getFunction();
+
+    if (response.statusCode == 200) {
+      List<dynamic> data = json.decode(response.body);
+      print(data); // Debugging: Print the response data
+      return data.map((customer) {
+        return {
+          'id': customer[3],
+          'name': customer[5],
+          'surname': customer[6],
+          'username': customer[7],
+          'password': customer[8],
+          'city': customer[1],
+          'home_address': customer[0],
+          'phone': customer[2],
+        };
+      }).toList();
+    } else {
+      throw Exception('Failed to load customers');
+    }
+  }
+
+
+  Future<List<Map<String, dynamic>>> fetchOrderTemplate(Future<http.Response> Function() getFunction) async {
+    final response = await getFunction();
+
+    if (response.statusCode == 200) {
+      List<dynamic> data = json.decode(response.body);
+      print(data); // Debugging: Print the response data
+      return data.map((order) {
+        return {
+          'id': order[0],
+          'customer_id': order[5],
+          'total_price': order[2],
+          'date': order[3],
+        };
+      }).toList();
+    } else {
+      throw Exception('Failed to load orders');
+    }
+  }
+
+
 
   Future<http.Response> register(String name, String surname, String username,
       String password, String city, String address, String phoneNumber) async {
@@ -243,5 +288,54 @@ class NetworkService {
   Future<http.Response> deleteVoucher(String voucherId) async {
     return await deleteTemplate('delete-voucher', voucherId);
   }
+
+  Future<http.Response> getCustomers() async {
+    return await getRequestTemplate('get-customers');
+  }
+
+  Future<http.Response> getOneCustomerPerCity() async {
+    return await getRequestTemplate('get-one-customer-per-city');
+  }
+
+  Future<List<Map<String, dynamic>>> fetchCustomers() async {
+    return await fetchCustomersTemplate(getCustomers);
+  }
+
+  Future<List<Map<String, dynamic>>> fetchOneCustomerPerCity() async {
+    return await fetchCustomersTemplate(getOneCustomerPerCity);
+  }
+
+  Future<http.Response> getOrders() async {
+    return await getRequestTemplate('get-orders');
+  }
+
+  Future<http.Response> getProductsFromOrder(String orderId) async {
+    return await getRequestTemplate('get-products-from-order/$orderId');
+  }
+
+  Future<List<Map<String, dynamic>>> fetchOrders() async {
+    return await fetchOrderTemplate(getOrders);
+  }
+
+  Future<List<Map<String, dynamic>>> fetchProductsFromOrder(String orderId) async {
+  final response = await getProductsFromOrder(orderId);
+
+  if (response.statusCode == 200) {
+    List<dynamic> data = json.decode(response.body);
+    print(data); // Debugging: Print the response data
+    return data.map((product) {
+      return {
+        'id': product[0],
+        'name': product[4],
+        'quantity': product[5],
+        'price': product[6],
+        'image': 'assets/bunch-bananas-isolated-on-white-600w-1722111529.png',
+      };
+    }).toList();
+  } else {
+    throw Exception('Failed to load products from order');
+  }
+}
+
 
 }

@@ -1,15 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:delivery_frontend/services/network_service.dart'; // Import your network service
 
 class CustomerDetailsPage extends StatelessWidget {
   final Map<String, dynamic> customer;
+  final NetworkService networkService = NetworkService(); // Create an instance of NetworkService
 
   CustomerDetailsPage({required this.customer});
+
+  void _deleteCustomer(BuildContext context) async {
+    await networkService.deleteCustomer(customer['id'].toString());
+    Navigator.of(context).pop(true); // Return true to indicate the customer was deleted
+    Navigator.of(context).pop(true); // Return true to indicate the customer was deleted
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(customer['username'], style: TextStyle(fontSize: 24)),
+        title: Text(customer['username'].toString(), style: TextStyle(fontSize: 24)),
         backgroundColor: Colors.blue,
       ),
       body: Padding(
@@ -28,9 +36,9 @@ class CustomerDetailsPage extends StatelessWidget {
               SizedBox(height: 20),
               Text('City: ${customer['city']}', style: TextStyle(fontSize: 16, color: Colors.black)),
               SizedBox(height: 20),
-              Text('Address: ${customer['address']}', style: TextStyle(fontSize: 16, color: Colors.black)),
+              Text('Address: ${customer['home_address']}', style: TextStyle(fontSize: 16, color: Colors.black)),
               SizedBox(height: 20),
-              Text('Phone: ${customer['phone']}', style: TextStyle(fontSize: 16, color: Colors.black)),
+              Text('Phone: ${customer['phone'].toString()}', style: TextStyle(fontSize: 16, color: Colors.black)),
               SizedBox(height: 20),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -70,8 +78,7 @@ class CustomerDetailsPage extends StatelessWidget {
             ),
             ElevatedButton(
               onPressed: () {
-                // Handle delete account logic here
-                Navigator.of(context).pop();
+                _deleteCustomer(context);
               },
               child: Text('OK', style: TextStyle(fontSize: 16)),
             ),
