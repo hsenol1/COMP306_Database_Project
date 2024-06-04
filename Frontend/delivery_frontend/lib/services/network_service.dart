@@ -32,6 +32,18 @@ class NetworkService {
     }
   }
 
+  Future<http.Response> deleteTemplate(String endpoint, String itemId) async {
+  final url = Uri.parse('http://$baseUrl/$endpoint/');
+  final response = await http.post(
+    url,
+    headers: {'Content-Type': 'application/json'},
+    body: jsonEncode({
+      'id': itemId,
+    }),
+  );
+  return response;
+}
+
   Future<http.Response> register(String name, String surname, String username,
       String password, String city, String address, String phoneNumber) async {
     final url = Uri.parse('http://$baseUrl/register-customer/');
@@ -218,6 +230,18 @@ class NetworkService {
       }),
     );
     return response;
+  }
+
+  Future<http.Response> deleteProduct(String productId) async {
+    return await deleteTemplate('delete-product', productId);
+  }
+
+  Future<http.Response> deleteCustomer(String customerId) async {
+    return await deleteTemplate('delete-customer', customerId);
+  }
+
+  Future<http.Response> deleteVoucher(String voucherId) async {
+    return await deleteTemplate('delete-voucher', voucherId);
   }
 
 }
