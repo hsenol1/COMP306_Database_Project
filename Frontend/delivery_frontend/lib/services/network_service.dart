@@ -87,6 +87,24 @@ class NetworkService {
     }
   }
 
+  Future<List<Map<String, dynamic>>> fetchVouchersTemplate(Future<http.Response> Function() getFunction) async {
+    final response = await getFunction();
+
+    if (response.statusCode == 200) {
+      List<dynamic> data = json.decode(response.body);
+      print(data); // Debugging: Print the response data
+      return data.map((voucher) {
+        return {
+          'id': voucher[0],
+          'discount_rate': voucher[1],
+          'name': voucher[2],
+        };
+      }).toList();
+    } else {
+      throw Exception('Failed to load vouchers');
+    }
+  }
+
 
 
   Future<http.Response> register(String name, String surname, String username,
@@ -336,6 +354,29 @@ class NetworkService {
     throw Exception('Failed to load products from order');
   }
 }
+
+Future<http.Response> getVouchers() async {
+  return await getRequestTemplate('get-vouchers');
+}
+
+Future<http.Response> insertVoucher(int discountRate, String voucherName) async {
+  final url = Uri.parse('http://$baseUrl/insert-voucher/');
+  final response = await http.post(
+    url,
+    headers: {'Content-Type': 'application/json'},
+    body: jsonEncode({
+      'discount_rate': discountRate,
+      'v_name': voucherName,
+    }),
+  );
+  return response;
+}
+
+Future<List<Map<String, dynamic>>> fetchVouchers() async {
+  return await fetchVouchersTemplate(getVouchers);
+}
+
+
 
 
 }
