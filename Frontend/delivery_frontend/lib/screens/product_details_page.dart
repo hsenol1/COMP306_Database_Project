@@ -37,6 +37,14 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
     });
   }
 
+  void _deleteProduct() async {
+    await networkService.deleteTemplate('delete-product', product['id'].toString());
+    setState(() {
+      _isProductUpdated = true; // Set flag to true
+    });
+    Navigator.of(context).pop(true); // Return true to indicate the product was deleted
+  }
+
   void _showChangeAmountDialog(BuildContext context, String title, String label, bool isIncrease) {
     showDialog(
       context: context,
@@ -72,6 +80,32 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                     SnackBar(content: Text('Please enter a valid quantity')),
                   );
                 }
+              },
+              child: Text('OK', style: TextStyle(fontSize: 16, color: Colors.black)),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showDeleteConfirmationDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Delete Product', style: TextStyle(fontSize: 16, color: Colors.black)),
+          content: Text('Are you sure you want to delete this product?', style: TextStyle(fontSize: 16, color: Colors.black)),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('Cancel', style: TextStyle(fontSize: 16, color: Colors.black)),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                _deleteProduct();
               },
               child: Text('OK', style: TextStyle(fontSize: 16, color: Colors.black)),
             ),
@@ -146,33 +180,6 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
           ),
         ),
       ),
-    );
-  }
-
-  void _showDeleteConfirmationDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Delete Product', style: TextStyle(fontSize: 16, color: Colors.black)),
-          content: Text('Are you sure you want to delete this product?', style: TextStyle(fontSize: 16, color: Colors.black)),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text('Cancel', style: TextStyle(fontSize: 16, color: Colors.black)),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                // Handle delete product logic
-                Navigator.of(context).pop();
-              },
-              child: Text('OK', style: TextStyle(fontSize: 16, color: Colors.black)),
-            ),
-          ],
-        );
-      },
     );
   }
 }
