@@ -499,10 +499,58 @@ def get_last_10_orders(request):
         response.status_code = 500
     return response
 
+## Example body 
+## {"u_id": 5}
+
 def decimal_default(obj):
     if isinstance(obj, decimal.Decimal):
         return float(obj)
     raise TypeError
+
+
+
+@csrf_exempt
+def delete_bucket(request):
+    if request.method != 'POST':
+        response = HttpResponse("create_order only accepts POST request.")
+        response.status_code = 405
+        return response 
+    
+    try:
+        value = JSONParser().parse(request)
+    except Exception as e:
+        response = HttpResponse("Invalid JSON format.")
+        response.status_code = 400
+        return response
+    
+    if 'u_id' not in value:
+        response = HttpResponse("u_id is not found in request body")
+        response.status_code = 400
+        return response
+    
+    u_id = value["u_id"]
+    
+    customer_exists = executeRaw(f"SELECT * FROM Customers WHERE u_id = {u_id}")
+    if len(customer_exists) == 0:
+        response = HttpResponse("u_id does not exist in Customers table")
+        response.status_code = 400
+        return response
+    
+    existing_orders = executeRaw(f"SELECT * FROM Orders o JOIN Order_Placements op ON o.o_id = op.o_id WHERE op.u_id = {u_id} AND o.order_status = 'IN_PROGRESS'")
+    if len(existing_orders) == 0:
+        response = HttpResponse("There is not IN-PROGRESS bucket for user: {u_id}.")
+        return response
+    
+    o_id = existing_orders[0][0]
+
+    executeRaw(f"DELETE from Order_Placements WHERE o_id={o_id}")
+    executeRaw(f"DELETE from Order_Products WHERE o_id={o_id}")
+    executeRaw(f"DELETE from Orders WHERE o_id={o_id}")
+
+    response = HttpResponse("Existing bucket deleted successfully")
+    response.status_code = 201
+    return response
+
 
 @csrf_exempt
 def create_order(request):
