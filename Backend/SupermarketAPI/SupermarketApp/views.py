@@ -213,6 +213,56 @@ def get_template(request, func_name, query):
 
 
 @csrf_exempt
+def delete_template(request, table_name, delete_query):
+  if request.method != 'POST':
+    response = HttpResponse(f"delete_{table_name} only accepts POST requests")
+    response.status_code = 405
+    return response
+  value = JSONParser().parse(request)
+  if "id" not in value:
+    response = HttpResponse(f"{table_name} id not found in request body")
+    response.status_code = 400
+    return response
+  object_id = value["id"]
+  existing_object_result = executeRaw(f"select * from {table_name} where id = {object_id}")
+  if len(existing_object_result) == 0:
+    response = HttpResponse(f"{table_name} not found")
+    response.status_code = 404
+    return response
+  with transaction.atomic():
+    executeRaw(delete_query, [object_id])
+  response = HttpResponse(f"{table_name} deleted successfully")
+  response.status_code = 200
+  return response
+
+
+
+@csrf_exempt
+def delete_template(request, table_name, delete_query):
+  if request.method != 'POST':
+    response = HttpResponse(f"delete_{table_name} only accepts POST requests")
+    response.status_code = 405
+    return response
+  value = JSONParser().parse(request)
+  if "id" not in value:
+    response = HttpResponse(f"{table_name} id not found in request body")
+    response.status_code = 400
+    return response
+  object_id = value["id"]
+  existing_object_result = executeRaw(f"select * from {table_name} where id = {object_id}")
+  if len(existing_object_result) == 0:
+    response = HttpResponse(f"{table_name} not found")
+    response.status_code = 404
+    return response
+  with transaction.atomic():
+    executeRaw(delete_query, [object_id])
+  response = HttpResponse(f"{table_name} deleted successfully")
+  response.status_code = 200
+  return response
+  
+
+
+@csrf_exempt
 def get_products(request):
     response = get_template(request, 'get_products', "select * from Products")
     return response
@@ -282,6 +332,132 @@ def increase_product_quantity(request):
     response = HttpResponse("Product quantity increased successfully")
     response.status_code = 200
     return response
+
+
+
+@csrf_exempt
+def decrease_product_quantity(request):
+    if request.method != 'POST':
+        response = HttpResponse("decrease_product_quantity only accepts POST requests")
+        response.status_code = 405
+        return response
+    value = JSONParser().parse(request)
+    if "p_id" not in value or "quantity" not in value:
+        response = HttpResponse("p_id or quantity not found in request body")
+        response.status_code = 400
+        return response
+    p_id = value["p_id"]
+    quantity = value["quantity"]
+    # Ensure quantity is a positive integer
+    if not isinstance(quantity, int) or quantity <= 0:
+        response = HttpResponse("quantity must be a positive integer")
+        response.status_code = 400
+        return response
+    # Update the product quantity in the database
+    with transaction.atomic():
+        executeRaw(f"UPDATE Products SET stock_amount = stock_amount - {quantity} WHERE p_id = {p_id}")
+    response = HttpResponse("Product quantity decreased successfully")
+    response.status_code = 200
+    return response
+
+
+
+@csrf_exempt
+def delete_product(request):
+  return delete_template(request, "products", f"DELETE FROM products WHERE p_id = %s")
+
+
+
+@csrf_exempt
+def get_customers(request):
+    response = get_template(request, 'get_customers', "select * from Customers")
+    return response
+
+
+
+@csrf_exempt
+def get_one_customer_per_city(request):
+    response = get_template(request, 'get_one_customer_per_city', """SELECT *
+                                                                            FROM Customers
+                                                                            GROUP BY city
+                                                                            LIMIT 1;""")
+    return response
+
+
+
+@csrf_exempt
+def delete_customer(request):
+  return delete_template(request, "customers", f"DELETE FROM customers WHERE p_id = %s")
+
+
+
+@csrf_exempt
+def get_orders(request):
+    response = get_template(request, 'get_orders', "select * from orders")
+    return response
+
+
+
+@csrf_exempt
+def get_products_from_order(request):
+  if request.method != 'GET':
+    response = HttpResponse("get_products_from_order only accepts GET requests")
+    response.status_code = 405
+    return response
+  value = JSONParser().parse(request)
+  if "order_id" not in value:
+    response = HttpResponse("order_id not found in request body")
+    response.status_code = 400
+    return response
+  order_id = value["order_id"]
+  query = f"""
+            SELECT p.p_id, p.stock_amount, p.category, op.purchased_price, p.p_name
+            FROM Products p
+            INNER JOIN Order_Products op ON p.p_id = op.p_id
+            WHERE op.o_id = {order_id};
+            """
+  return get_template(request, "get_products_from_order", query)
+
+
+
+@csrf_exempt
+def get_vouchers(request):
+    response = get_template(request, 'get_vouchers', "select * from vouchers")
+    return response
+
+
+
+@csrf_exempt
+def insert_voucher(request):
+  if request.method != 'POST':
+    response = HttpResponse("insert_voucher only accepts POST requests")
+    response.status_code = 405
+    return response
+  value = JSONParser().parse(request)
+  required_fields = ["discount_rate", "v_name"]
+  for field in required_fields:
+    if field not in value:
+      response = HttpResponse(f"Missing field: {field}")
+      response.status_code = 400
+      return response
+  discount_rate = value["discount_rate"]
+  v_name = value["v_name"]
+  if discount_rate < 1 or discount_rate > 100:
+    response = HttpResponse("Discount rate must be between 1 and 100")
+    response.status_code = 400
+    return response
+  v_id = get_next_id("Vouchers", "v_id")
+  with transaction.atomic():
+    insert_one("Vouchers", v_id, discount_rate, v_name)
+  response = HttpResponse("Voucher created successfully")
+  response.status_code = 201
+  return response
+
+
+
+@csrf_exempt
+def delete_voucher(request):
+  return delete_template(request, "vouchers", f"DELETE FROM vouchers WHERE v_id = %s")
 
 
 

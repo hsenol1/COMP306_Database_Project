@@ -13,5 +13,15 @@ urlpatterns = [
     path('get-products/', views.get_products, name='get_products'),
     path('get-products-with-higher-than-4-rating/', views.get_products_with_higher_than_4_rating, name='get_products_with_higher_than_4_rating'),
     path('get-top-5-lowest-rated-products/', views.get_top_5_lowest_rated_products, name='get_top_5_lowest_rated_products'),
-    path('increase-product-quantity/', views.increase_product_quantity, name='increase_product_quantity')
+    path('increase-product-quantity/', views.increase_product_quantity, name='increase_product_quantity'),
+    path('decrease-product-quantity/', views.decrease_product_quantity, name='decrease_product_quantity'),
+    path('delete-product/', views.delete_product, name='delete_product'),
+    path('get-customers/', views.get_customers, name='get_customers'),
+    path('get-one-customer-per-city/', views.get_one_customer_per_city, name='get_one_customer_per_city'),
+    path('delete-customer/', views.delete_customer, name='delete_customer'),
+    path('get-orders/', views.get_orders, name='get_orders'),
+    path('get-products-from-order/', views.get_products_from_order, name='get_products_from_order'),
+    path('get-vouchers/', views.get_vouchers, name='get_vouchers'),
+    path('insert-voucher/', views.insert_voucher, name='insert_voucher'),
+    path('delete_voucher/', views.delete_voucher, name='delete_voucher')
 ]
