@@ -388,29 +388,28 @@ def get_vouchers(request):
 
 @csrf_exempt
 def insert_voucher(request):
-  if request.method != 'POST':
-    response = HttpResponse("insert_voucher only accepts POST requests")
-    response.status_code = 405
+    if request.method != 'POST':
+        response = HttpResponse("insert_voucher only accepts POST requests")
+        response.status_code = 405
+        return response
+    try:
+        value = JSONParser().parse(request)
+        v_id = get_next_id("Vouchers", "v_id")
+        discount_rate = value["discount_rate"]
+        v_name = value["v_name"]
+        if not (1 <= discount_rate <= 100):
+            response = HttpResponse("Invalid discount_rate. It must be between 1 and 100.")
+            response.status_code = 400
+            return response
+        with transaction.atomic():
+            insert_one("Vouchers", v_id, discount_rate, v_name)
+        response = HttpResponse("Voucher created successfully")
+        response.status_code = 201
+    except Exception as e:
+        response = HttpResponse(str(e))
+        response.status_code = 400
     return response
-  value = JSONParser().parse(request)
-  required_fields = ["discount_rate", "v_name"]
-  for field in required_fields:
-    if field not in value:
-      response = HttpResponse(f"Missing field: {field}")
-      response.status_code = 400
-      return response
-  discount_rate = value["discount_rate"]
-  v_name = value["v_name"]
-  if discount_rate < 1 or discount_rate > 100:
-    response = HttpResponse("Discount rate must be between 1 and 100")
-    response.status_code = 400
-    return response
-  v_id = get_next_id("Vouchers", "v_id")
-  with transaction.atomic():
-    insert_one("Vouchers", v_id, discount_rate, v_name)
-  response = HttpResponse("Voucher created successfully")
-  response.status_code = 201
-  return response
+
 
 
 
