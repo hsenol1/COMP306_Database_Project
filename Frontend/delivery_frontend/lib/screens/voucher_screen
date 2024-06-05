@@ -1,0 +1,26 @@
+import 'package:flutter/material.dart';
+import '../models/voucher.dart';
+import '../widgets/voucher_card.dart';
+
+class VoucherScreen extends StatelessWidget {
+  final List<Voucher> mockVouchers = [
+    Voucher(name: 'Summer Sale', discountRate: 10.0),
+    Voucher(name: 'Black Friday', discountRate: 20.0),
+    Voucher(name: 'New Year Sale', discountRate: 15.0),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: ListView.builder(
+          itemCount: mockVouchers.length,
+          itemBuilder: (context, index) {
+            return VoucherCard(voucher: mockVouchers[index]);
+          },
+        ),
+      ),
+    );
+  }
+}

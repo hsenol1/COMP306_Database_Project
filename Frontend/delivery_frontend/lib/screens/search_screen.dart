@@ -1,0 +1,116 @@
+import 'package:delivery_frontend/services/network_service.dart';
+import 'package:delivery_frontend/utils/dialog_utils.dart';
+import 'package:delivery_frontend/utils/popup_utils.dart';
+import 'package:flutter/material.dart';
+import '../models/product.dart';
+import '../models/basket.dart';
+import '../widgets/product_card.dart';
+
+class SearchScreen extends StatefulWidget {
+  final Basket basket;
+  SearchScreen({required this.basket});
+  @override
+  _SearchScreenState createState() => _SearchScreenState();
+}
+
+class _SearchScreenState extends State<SearchScreen> {
+  final List<Product> products = [];
+
+  late Basket _basket;
+  bool isLoading = true;
+  final NetworkService _networkService = NetworkService();
+
+  String query = '';
+  List<Product> filteredProducts = [];
+
+  void _searchProducts() {
+    setState(() {
+      filteredProducts = products
+          .where((product) =>
+              product.name.toLowerCase().contains(query.toLowerCase()))
+          .toList();
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _basket = widget.basket;
+    filteredProducts = products;
+  }
+
+  void updateProducts(List<Product> newProducts) {
+    setState(() {
+      filteredProducts = newProducts;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    decoration: InputDecoration(
+                      hintText: 'Search products...',
+                      prefixIcon: Icon(Icons.search, color: Colors.grey),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8.0),
+                      ),
+                    ),
+                    onChanged: (value) {
+                      query = value;
+                    },
+                  ),
+                ),
+                SizedBox(width: 8),
+                ElevatedButton(
+                  onPressed: () async {
+                    final response =
+                        await _networkService.getProductsBySearch(query);
+                    if (response.statusCode == 200) {
+                      List<Product> products =
+                          Product.fromJsonList(response.body);
+                      updateProducts(products);
+                    } else if (response.statusCode == 404) {
+                      showErrorPopup(context, response.body);
+                    } else {
+                      showErrorPopup(
+                          context, 'Network error occurred. Please try again.');
+                    }
+                  },
+                  child: Text('Search'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: GridView.builder(
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 10,
+                  mainAxisSpacing: 10,
+                ),
+                itemCount: filteredProducts.length,
+                itemBuilder: (context, index) {
+                  final product = filteredProducts[index];
+                  return ProductCard(product: product, basket: _basket);
+                },
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
