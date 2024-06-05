@@ -40,6 +40,55 @@ def register_customer(request):
     response.status_code = 201
     return response
 
+def login_user(request):
+    if request.method != 'POST':
+        response = HttpResponse("login_user only accepts POST requests")
+        response.status_code = 405
+        return response
+    value = JSONParser().parse(request)
+    if "username" not in value:
+        response = HttpResponse("username not found in request body")
+        response.status_code = 400
+        return response
+    if "pwd" not in value:
+        response = HttpResponse("pwd not found in request body")
+        response.status_code = 400
+        return response
+    username = value["username"]
+    pwd = value["pwd"]
+    result = executeRaw(f"select * from Users where username = '{username}' and pwd = '{pwd}'")
+    if len(result) == 0:
+        response = HttpResponse("Invalid username or password")
+        response.status_code = 401
+        return response
+    result = convert_decimals_to_str(result)
+    result = result[0]
+    user_id = result[0]
+
+    admin_result = executeRaw(f"select * from Admins where u_id = {user_id}")
+    if len(admin_result) > 0:
+        admin_result = convert_decimals_to_str(admin_result)
+        admin_result = admin_result[0]
+        admin_result = {'admin_info': admin_result}
+        result.append(admin_result)
+    else:
+        customer_result = executeRaw(f"select * from Customers where u_id = {user_id}")
+        if len(customer_result) > 0:
+            customer_result = convert_decimals_to_str(customer_result)
+            customer_result = customer_result[0]
+            customer_result = {'customer_info': customer_result}
+            result.append(customer_result)
+        else:
+            response = HttpResponse("User is neither admin nor customer")
+            response.status_code = 401
+            return response
+
+    
+    result = json.dumps(result)
+    response = HttpResponse(result)
+    response.status_code = 200
+    return response
+
 @csrf_exempt
 def get_categories(request):
     if request.method != 'GET':
