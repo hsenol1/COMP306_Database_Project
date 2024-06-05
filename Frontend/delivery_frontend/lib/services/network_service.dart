@@ -2,7 +2,9 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class NetworkService {
-  final String baseUrl = '127.0.0.1:8000';
+  //web: 127.0.0.1:8000
+  //android emul: 10.0.2.2:8000
+  final String baseUrl = '10.0.2.2:8000';
 
   Future<http.Response> getRequestTemplate(String endpoint) async {
     final url = Uri.parse('http://$baseUrl/$endpoint');
@@ -11,7 +13,8 @@ class NetworkService {
     return response;
   }
 
-  Future<List<Map<String, dynamic>>> fetchProductsTemplate(Future<http.Response> Function() getFunction) async {
+  Future<List<Map<String, dynamic>>> fetchProductsTemplate(
+      Future<http.Response> Function() getFunction) async {
     final response = await getFunction();
 
     if (response.statusCode == 200) {
@@ -24,7 +27,8 @@ class NetworkService {
           'category': product[2],
           'price': product[3],
           'name': product[4],
-          'image': 'assets/bunch-bananas-isolated-on-white-600w-1722111529.png', // Placeholder image URL
+          'image':
+              'assets/bunch-bananas-isolated-on-white-600w-1722111529.png', // Placeholder image URL
         };
       }).toList();
     } else {
@@ -44,7 +48,8 @@ class NetworkService {
     return response;
   }
 
-  Future<List<Map<String, dynamic>>> fetchCustomersTemplate(Future<http.Response> Function() getFunction) async {
+  Future<List<Map<String, dynamic>>> fetchCustomersTemplate(
+      Future<http.Response> Function() getFunction) async {
     final response = await getFunction();
 
     if (response.statusCode == 200) {
@@ -67,8 +72,8 @@ class NetworkService {
     }
   }
 
-
-  Future<List<Map<String, dynamic>>> fetchOrderTemplate(Future<http.Response> Function() getFunction) async {
+  Future<List<Map<String, dynamic>>> fetchOrderTemplate(
+      Future<http.Response> Function() getFunction) async {
     final response = await getFunction();
 
     if (response.statusCode == 200) {
@@ -87,7 +92,8 @@ class NetworkService {
     }
   }
 
-  Future<List<Map<String, dynamic>>> fetchVouchersTemplate(Future<http.Response> Function() getFunction) async {
+  Future<List<Map<String, dynamic>>> fetchVouchersTemplate(
+      Future<http.Response> Function() getFunction) async {
     final response = await getFunction();
 
     if (response.statusCode == 200) {
@@ -104,8 +110,6 @@ class NetworkService {
       throw Exception('Failed to load vouchers');
     }
   }
-
-
 
   Future<http.Response> register(String name, String surname, String username,
       String password, String city, String address, String phoneNumber) async {
@@ -132,15 +136,15 @@ class NetworkService {
       url,
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
-          'username': username,
-          'pwd': password,
+        'username': username,
+        'pwd': password,
       }),
     );
     return response;
   }
-  
+
   Future<http.Response> getCategories() async {
-    final uri = Uri.parse('http://$baseUrl/register-customer/');
+    final uri = Uri.parse('http://$baseUrl/get-categories/');
     final headers = {'Content-Type': 'application/json'};
     final response = await http.get(uri, headers: headers);
     return response;
@@ -152,7 +156,7 @@ class NetworkService {
       url,
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
-          'category': category,
+        'category': category,
       }),
     );
     return response;
@@ -164,20 +168,21 @@ class NetworkService {
       url,
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
-          'search': searchQuery,
+        'search': searchQuery,
       }),
     );
     return response;
   }
 
-  Future<http.Response> addProductToBucket(String username, String productName) async {
+  Future<http.Response> addProductToBucket(
+      String username, String productName) async {
     final url = Uri.parse('http://$baseUrl/add-product-to-bucket/');
     final response = await http.post(
       url,
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
-          'username': username,
-          'productName': productName,
+        'username': username,
+        'productName': productName,
       }),
     );
     return response;
@@ -189,7 +194,7 @@ class NetworkService {
       url,
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
-          'username': username,
+        'username': username,
       }),
     );
     return response;
@@ -201,20 +206,21 @@ class NetworkService {
       url,
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
-          'username': username,
+        'username': username,
       }),
     );
     return response;
   }
-  
-  Future<http.Response> createOrder(String username, String paymentMethod) async {
+
+  Future<http.Response> createOrder(
+      String username, String paymentMethod) async {
     final url = Uri.parse('http://$baseUrl/create-order/');
     final response = await http.post(
       url,
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
-          'username': username,
-          'paymentMethod': paymentMethod,
+        'username': username,
+        'paymentMethod': paymentMethod,
       }),
     );
     return response;
@@ -226,13 +232,11 @@ class NetworkService {
       url,
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
-          'username': username,
+        'username': username,
       }),
     );
     return response;
   }
-
-  
 
   Future<http.Response> getProducts() async {
     return await getRequestTemplate('get-products/');
@@ -249,8 +253,6 @@ class NetworkService {
   Future<http.Response> getTop5LowestRatedProducts() async {
     return await getRequestTemplate('get-top-5-lowest-rated-products/');
   }
-  
-  
 
   Future<List<Map<String, dynamic>>> fetchProducts() async {
     return await fetchProductsTemplate(getProducts);
@@ -260,7 +262,8 @@ class NetworkService {
     return await fetchProductsTemplate(getLowStockProducts);
   }
 
-  Future<List<Map<String, dynamic>>> fetchProductsWithHigherthan4Rating() async {
+  Future<List<Map<String, dynamic>>>
+      fetchProductsWithHigherthan4Rating() async {
     return await fetchProductsTemplate(getProductsWithHigherthan4Rating);
   }
 
@@ -268,8 +271,8 @@ class NetworkService {
     return await fetchProductsTemplate(getTop5LowestRatedProducts);
   }
 
-
-  Future<http.Response> increaseProductQuantity(String productId, int quantity) async {
+  Future<http.Response> increaseProductQuantity(
+      String productId, int quantity) async {
     final url = Uri.parse('http://$baseUrl/increase-product-quantity/');
     final response = await http.post(
       url,
@@ -282,7 +285,8 @@ class NetworkService {
     return response;
   }
 
-  Future<http.Response> decreaseProductQuantity(String productId, int quantity) async {
+  Future<http.Response> decreaseProductQuantity(
+      String productId, int quantity) async {
     final url = Uri.parse('http://$baseUrl/decrease-product-quantity/');
     final response = await http.post(
       url,
@@ -335,48 +339,46 @@ class NetworkService {
     return await fetchOrderTemplate(getOrders);
   }
 
-  Future<List<Map<String, dynamic>>> fetchProductsFromOrder(String orderId) async {
-  final response = await getProductsFromOrder(orderId);
+  Future<List<Map<String, dynamic>>> fetchProductsFromOrder(
+      String orderId) async {
+    final response = await getProductsFromOrder(orderId);
 
-  if (response.statusCode == 200) {
-    List<dynamic> data = json.decode(response.body);
-    print(data); // Debugging: Print the response data
-    return data.map((product) {
-      return {
-        'id': product[0],
-        'name': product[4],
-        'quantity': product[5],
-        'price': product[6],
-        'image': 'assets/bunch-bananas-isolated-on-white-600w-1722111529.png',
-      };
-    }).toList();
-  } else {
-    throw Exception('Failed to load products from order');
+    if (response.statusCode == 200) {
+      List<dynamic> data = json.decode(response.body);
+      print(data); // Debugging: Print the response data
+      return data.map((product) {
+        return {
+          'id': product[0],
+          'name': product[4],
+          'quantity': product[5],
+          'price': product[6],
+          'image': 'assets/bunch-bananas-isolated-on-white-600w-1722111529.png',
+        };
+      }).toList();
+    } else {
+      throw Exception('Failed to load products from order');
+    }
   }
-}
 
-Future<http.Response> getVouchers() async {
-  return await getRequestTemplate('get-vouchers');
-}
+  Future<http.Response> getVouchers() async {
+    return await getRequestTemplate('get-vouchers');
+  }
 
-Future<http.Response> insertVoucher(int discountRate, String voucherName) async {
-  final url = Uri.parse('http://$baseUrl/insert-voucher/');
-  final response = await http.post(
-    url,
-    headers: {'Content-Type': 'application/json'},
-    body: jsonEncode({
-      'discount_rate': discountRate,
-      'v_name': voucherName,
-    }),
-  );
-  return response;
-}
+  Future<http.Response> insertVoucher(
+      int discountRate, String voucherName) async {
+    final url = Uri.parse('http://$baseUrl/insert-voucher/');
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'discount_rate': discountRate,
+        'v_name': voucherName,
+      }),
+    );
+    return response;
+  }
 
-Future<List<Map<String, dynamic>>> fetchVouchers() async {
-  return await fetchVouchersTemplate(getVouchers);
-}
-
-
-
-
+  Future<List<Map<String, dynamic>>> fetchVouchers() async {
+    return await fetchVouchersTemplate(getVouchers);
+  }
 }

@@ -22,15 +22,15 @@ class _ProductCardState extends State<ProductCard> {
       _isLoading = true;
     });
 
-    showLoadingDialog(context);
+    //showLoadingDialog(context);
 
-    await Future.delayed(Duration(seconds: 3));
+    //await Future.delayed(Duration(seconds: 3));
 
     setState(() {
       _isLoading = false;
     });
 
-    Navigator.of(context).pop();
+    //Navigator.of(context).pop();
 
     widget.basket.addItem(widget.product, 1);
   }
@@ -80,7 +80,9 @@ class _ProductCardState extends State<ProductCard> {
                         style: TextStyle(fontSize: 16, color: Colors.black),
                       ),
                     IconButton(
-                      icon: _isLoading ? CircularProgressIndicator() : Icon(Icons.add),
+                      icon: _isLoading
+                          ? CircularProgressIndicator()
+                          : Icon(Icons.add),
                       onPressed: _isLoading ? null : _addItemToBasket,
                     ),
                   ],

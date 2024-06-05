@@ -14,43 +14,11 @@ class SearchScreen extends StatefulWidget {
 }
 
 class _SearchScreenState extends State<SearchScreen> {
-  final List<Product> products = [
-    Product(
-      image: 'assets/bunch-bananas-isolated-on-white-600w-1722111529.png',
-      name: 'Bananas',
-      price: 1.99,
-    ),
-    Product(
-      image: 'assets/bunch-bananas-isolated-on-white-600w-1722111529.png',
-      name: 'Apples',
-      price: 2.49,
-    ),
-    Product(
-      image: 'assets/bunch-bananas-isolated-on-white-600w-1722111529.png',
-      name: 'Oranges',
-      price: 3.99,
-    ),
-    Product(
-      image: 'assets/bunch-bananas-isolated-on-white-600w-1722111529.png',
-      name: 'Grapes',
-      price: 4.99,
-    ),
-    Product(
-      image: 'assets/bunch-bananas-isolated-on-white-600w-1722111529.png',
-      name: 'Mangoes',
-      price: 5.99,
-    ),
-    Product(
-      image: 'assets/bunch-bananas-isolated-on-white-600w-1722111529.png',
-      name: 'Pineapples',
-      price: 6.99,
-    ),
-  ];
+  final List<Product> products = [];
 
   late Basket _basket;
   bool isLoading = true;
-  final NetworkService _networkService =
-      NetworkService();
+  final NetworkService _networkService = NetworkService();
 
   String query = '';
   List<Product> filteredProducts = [];
@@ -103,16 +71,6 @@ class _SearchScreenState extends State<SearchScreen> {
                 SizedBox(width: 8),
                 ElevatedButton(
                   onPressed: () async {
-                    //GETTIRTODO: Until backend fixes structure of get queries.
-
-                    showLoadingDialog(context);
-                    await Future.delayed(Duration(seconds: 3));
-                    List<Product> products = Product.fromJsonList(
-                        '[[1, 100, "food", "3.50", "bread"]]');
-                    updateProducts(products);
-                    Navigator.of(context).pop();
-                    return;
-
                     final response =
                         await _networkService.getProductsBySearch(query);
                     if (response.statusCode == 200) {

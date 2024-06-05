@@ -16,43 +16,11 @@ class HomeContent extends StatefulWidget {
 }
 
 class _HomeContentState extends State<HomeContent> {
-  List<Product> products = [
-    Product(
-      image: 'assets/bunch-bananas-isolated-on-white-600w-1722111529.png',
-      name: 'Bananas',
-      price: 1.99,
-    ),
-    Product(
-      image: 'assets/bunch-bananas-isolated-on-white-600w-1722111529.png',
-      name: 'Apples',
-      price: 2.49,
-    ),
-    Product(
-      image: 'assets/bunch-bananas-isolated-on-white-600w-1722111529.png',
-      name: 'Oranges',
-      price: 3.99,
-    ),
-    Product(
-      image: 'assets/bunch-bananas-isolated-on-white-600w-1722111529.png',
-      name: 'Grapes',
-      price: 4.99,
-    ),
-    Product(
-      image: 'assets/bunch-bananas-isolated-on-white-600w-1722111529.png',
-      name: 'Mangoes',
-      price: 5.99,
-    ),
-    Product(
-      image: 'assets/bunch-bananas-isolated-on-white-600w-1722111529.png',
-      name: 'Pineapples',
-      price: 6.99,
-    ),
-  ];
+  List<Product> products = [];
 
   List<String> categories = [];
   bool isLoading = true;
-  final NetworkService _networkService =
-      NetworkService();
+  final NetworkService _networkService = NetworkService();
 
   @override
   void initState() {
@@ -150,11 +118,6 @@ class CategoryButton extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 8.0),
       child: ElevatedButton(
         onPressed: () async {
-          //GETTIRTODO: Until backend fixes structure of get queries.
-          List<Product> products =
-              Product.fromJsonList('[[1, 100, "food", "3.50", "bread"]]');
-          onProductsFetched(products);
-          return;
           final response = await networkService.getProductsByCategory(name);
           if (response.statusCode == 200) {
             List<Product> products = Product.fromJsonList(response.body);

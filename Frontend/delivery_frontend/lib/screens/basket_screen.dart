@@ -15,7 +15,12 @@ class _BasketScreenState extends State<BasketScreen> {
   String _selectedPaymentMethod = 'Card';
   String _selectedVoucher = 'None';
   final List<String> _paymentMethods = ['Card', 'Cash'];
-  final List<String> _vouchers = ['None', 'Voucher 1', 'Voucher 2', 'Voucher 3'];
+  final List<String> _vouchers = [
+    'None',
+    'Voucher 1',
+    'Voucher 2',
+    'Voucher 3'
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -26,11 +31,11 @@ class _BasketScreenState extends State<BasketScreen> {
           IconButton(
             icon: Icon(Icons.delete),
             onPressed: () async {
-              showLoadingDialog(context);
+              //showLoadingDialog(context);
 
-              await Future.delayed(Duration(seconds: 3));
+              //await Future.delayed(Duration(seconds: 3));
               widget.basket.clear();
-              Navigator.of(context).pop();
+              //Navigator.of(context).pop();
               Navigator.pop(context);
             },
           ),
@@ -47,10 +52,15 @@ class _BasketScreenState extends State<BasketScreen> {
                   itemBuilder: (context, index) {
                     final item = items[index];
                     return ListTile(
-                      leading: Image.asset(item.product.image, width: 50, height: 50),
-                      title: Text(item.product.name, style: TextStyle(fontSize: 16)),
-                      subtitle: Text('Count: ${item.count}', style: TextStyle(fontSize: 16)),
-                      trailing: Text('\$${(item.product.price * item.count).toStringAsFixed(2)}', style: TextStyle(fontSize: 16)),
+                      leading: Image.asset(item.product.image,
+                          width: 50, height: 50),
+                      title: Text(item.product.name,
+                          style: TextStyle(fontSize: 16)),
+                      subtitle: Text('Count: ${item.count}',
+                          style: TextStyle(fontSize: 16)),
+                      trailing: Text(
+                          '\$${(item.product.price * item.count).toStringAsFixed(2)}',
+                          style: TextStyle(fontSize: 16)),
                     );
                   },
                 ),
@@ -60,7 +70,9 @@ class _BasketScreenState extends State<BasketScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Text('Total: \$${widget.basket.totalPrice.toStringAsFixed(2)}', style: TextStyle(fontSize: 24)),
+                    Text(
+                        'Total: \$${widget.basket.totalPrice.toStringAsFixed(2)}',
+                        style: TextStyle(fontSize: 24)),
                     SizedBox(height: 10),
                     DropdownButtonFormField<String>(
                       value: _selectedPaymentMethod,
@@ -73,7 +85,8 @@ class _BasketScreenState extends State<BasketScreen> {
                         labelText: 'Payment Method',
                         border: OutlineInputBorder(),
                       ),
-                      items: _paymentMethods.map<DropdownMenuItem<String>>((String value) {
+                      items: _paymentMethods
+                          .map<DropdownMenuItem<String>>((String value) {
                         return DropdownMenuItem<String>(
                           value: value,
                           child: Text(value),
@@ -92,7 +105,8 @@ class _BasketScreenState extends State<BasketScreen> {
                         labelText: 'Voucher',
                         border: OutlineInputBorder(),
                       ),
-                      items: _vouchers.map<DropdownMenuItem<String>>((String value) {
+                      items: _vouchers
+                          .map<DropdownMenuItem<String>>((String value) {
                         return DropdownMenuItem<String>(
                           value: value,
                           child: Text(value),
@@ -106,7 +120,8 @@ class _BasketScreenState extends State<BasketScreen> {
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.blue,
-                        padding: EdgeInsets.symmetric(vertical: 12, horizontal: 24),
+                        padding:
+                            EdgeInsets.symmetric(vertical: 12, horizontal: 24),
                       ),
                       child: Text('Buy', style: TextStyle(fontSize: 16)),
                     ),
