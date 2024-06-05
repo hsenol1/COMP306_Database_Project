@@ -426,6 +426,62 @@ def delete_voucher(request):
     return delete_template(request, "Vouchers", "v_id")
 
 @csrf_exempt
+def complete_order(request):
+    if request.method != 'POST':
+        response = HttpResponse("complete_order only accepts POST requests")
+        response.status_code = 405
+        return response 
+    
+    try: 
+        value = JSONParser().parse(request)
+    except Exception as e:
+        response = HttpResponse("Invalid JSON format.")
+        response.status_code = 400
+        return response
+    
+    if 'u_id' not in value:
+        response = HttpResponse("u_id is not found in request body")
+        response.status_code = 400
+        return response
+    
+    u_id = value['u_id']
+    existing_orders = executeRaw(f"SELECT * FROM Orders o JOIN Order_Placements op ON o.o_id = op.o_id WHERE op.u_id = {u_id} AND o.order_status = 'IN_PROGRESS'")
+    if len(existing_orders) == 0:
+        response = HttpResponse(f"There is not an existing IN-PROGRESS order for user: {u_id}")
+        response.status_code = 409
+        return response
+    
+    if len(existing_orders) > 1:
+        response = HttpResponse(f"There exists more than one IN-PROGRESS order for user: {u_id}")
+        return response 
+    
+
+    order = existing_orders[0]
+    o_id = order[0]
+    total_price = order[2]
+    print(total_price)
+    total_price = float(total_price)
+    if total_price < 100:
+        add_on = 100.00 - total_price
+        response = HttpResponse(f"Total price is less than 100, you need to add {add_on} TL wort products.")
+        response.status_code = 400
+        return response 
+    
+    with transaction.atomic():
+        executeRaw(f"UPDATE Orders SET order_status = 'delivered' WHERE o_id = {o_id}")
+
+    response = HttpResponse("Order completed succesfully, our staff started to prepare.")
+    response.status_code = 200
+    return response
+     
+
+
+
+
+
+
+
+@csrf_exempt
 def get_last_10_orders(request):
     if request.method != 'GET':
         response = HttpResponse("get_last_10_order only accepts POST request.")
@@ -481,7 +537,6 @@ def create_order(request):
         response = HttpResponse("Invalid JSON format.")
         response.status_code = 400
         return response
-    # value = JSONParser().parse(request)
     if 'u_id' not in value:
         response = HttpResponse("u_id is not found in request body")
         response.status_code = 400
