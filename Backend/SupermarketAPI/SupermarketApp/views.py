@@ -40,6 +40,55 @@ def register_customer(request):
     response.status_code = 201
     return response
 
+def login_user(request):
+    if request.method != 'POST':
+        response = HttpResponse("login_user only accepts POST requests")
+        response.status_code = 405
+        return response
+    value = JSONParser().parse(request)
+    if "username" not in value:
+        response = HttpResponse("username not found in request body")
+        response.status_code = 400
+        return response
+    if "pwd" not in value:
+        response = HttpResponse("pwd not found in request body")
+        response.status_code = 400
+        return response
+    username = value["username"]
+    pwd = value["pwd"]
+    result = executeRaw(f"select * from Users where username = '{username}' and pwd = '{pwd}'")
+    if len(result) == 0:
+        response = HttpResponse("Invalid username or password")
+        response.status_code = 401
+        return response
+    result = convert_decimals_to_str(result)
+    result = result[0]
+    user_id = result[0]
+
+    admin_result = executeRaw(f"select * from Admins where u_id = {user_id}")
+    if len(admin_result) > 0:
+        admin_result = convert_decimals_to_str(admin_result)
+        admin_result = admin_result[0]
+        admin_result = {'admin_info': admin_result}
+        result.append(admin_result)
+    else:
+        customer_result = executeRaw(f"select * from Customers where u_id = {user_id}")
+        if len(customer_result) > 0:
+            customer_result = convert_decimals_to_str(customer_result)
+            customer_result = customer_result[0]
+            customer_result = {'customer_info': customer_result}
+            result.append(customer_result)
+        else:
+            response = HttpResponse("User is neither admin nor customer")
+            response.status_code = 401
+            return response
+
+    
+    result = json.dumps(result)
+    response = HttpResponse(result)
+    response.status_code = 200
+    return response
+
 @csrf_exempt
 def get_categories(request):
     if request.method != 'GET':
@@ -59,8 +108,8 @@ def get_categories(request):
 
 @csrf_exempt
 def get_products_by_category(request):
-    if request.method != 'GET':
-        response = HttpResponse("get_products_by_category only accepts GET requests")
+    if request.method != 'POST':
+        response = HttpResponse("get_products_by_category only accepts POST requests")
         response.status_code = 405
         return response
     value = JSONParser().parse(request)
@@ -83,8 +132,8 @@ def get_products_by_category(request):
 
 @csrf_exempt
 def get_products_by_search(request):
-    if request.method != 'GET':
-        response = HttpResponse("get_products_by_search only accepts GET requests")
+    if request.method != 'POST':
+        response = HttpResponse("get_products_by_search only accepts POST requests")
         response.status_code = 405
         return response
     value = JSONParser().parse(request)
@@ -106,8 +155,8 @@ def get_products_by_search(request):
 
 @csrf_exempt
 def is_user_admin_by_username(request):
-    if request.method != 'GET':
-        response = HttpResponse("is_user_admin_by_username only accepts GET requests")
+    if request.method != 'POST':
+        response = HttpResponse("is_user_admin_by_username only accepts POST requests")
         response.status_code = 405
         return response
     value = JSONParser().parse(request)
@@ -135,8 +184,8 @@ def is_user_admin_by_username(request):
 
 @csrf_exempt
 def get_admin_data_by_username(request):
-    if request.method != 'GET':
-        response = HttpResponse("get_user_data_by_username only accepts GET requests")
+    if request.method != 'POST':
+        response = HttpResponse("get_user_data_by_username only accepts POST requests")
         response.status_code = 405
         return response
     value = JSONParser().parse(request)
@@ -166,8 +215,8 @@ def get_admin_data_by_username(request):
 
 @csrf_exempt
 def get_customer_data_by_username(request):
-    if request.method != 'GET':
-        response = HttpResponse("get_user_data_by_username only accepts GET requests")
+    if request.method != 'POST':
+        response = HttpResponse("get_user_data_by_username only accepts POST requests")
         response.status_code = 405
         return response
     value = JSONParser().parse(request)
@@ -197,11 +246,7 @@ def get_customer_data_by_username(request):
 
 
 
-def get_template(request, func_name, query):
-    if request.method != 'GET':
-        response = HttpResponse(func_name + " only accepts GET requests")
-        response.status_code = 405
-        return response
+def get_template(func_name, query):
     result = executeRaw(query)
     if len(result) == 0:
         response = HttpResponse(func_name + " returned none")
@@ -242,7 +287,7 @@ def delete_template(request, table_name, id_field):
 
 @csrf_exempt
 def get_products(request):
-    response = get_template(request, 'get_products', "select * from Products")
+    response = get_template('get_products', "select * from Products")
     return response
 
 
@@ -250,7 +295,7 @@ def get_products(request):
 #WARNING: get_low_stock_products returns lowest stock product from each category
 @csrf_exempt
 def get_low_stock_products(request):
-    response = get_template(request, 'get_low_stock_products', """SELECT * 
+    response = get_template('get_low_stock_products', """SELECT * 
                                                                     FROM Products p1 
                                                                     WHERE stock_amount = (
                                                                         SELECT MIN(stock_amount) 
@@ -263,7 +308,7 @@ def get_low_stock_products(request):
 
 @csrf_exempt
 def get_products_with_higher_than_4_rating(request):
-    response = get_template(request, 'get_products_with_higher_than_4_rating', """SELECT p.p_id, p.stock_amount, p.category, p.price, p.p_name 
+    response = get_template('get_products_with_higher_than_4_rating', """SELECT p.p_id, p.stock_amount, p.category, p.price, p.p_name 
                                                                                     FROM Products p
                                                                                     JOIN Order_Products op ON p.p_id = op.p_id
                                                                                     JOIN Order_Placements opl ON op.o_id = opl.o_id
@@ -275,7 +320,7 @@ def get_products_with_higher_than_4_rating(request):
 
 @csrf_exempt
 def get_top_5_lowest_rated_products(request):
-    response = get_template(request, 'get_top_5_lowest_rated_products', """SELECT p.p_id, p.stock_amount, p.category, p.price, p.p_name
+    response = get_template('get_top_5_lowest_rated_products', """SELECT p.p_id, p.stock_amount, p.category, p.price, p.p_name
                                                                             FROM Products p
                                                                             JOIN Order_Products op ON p.p_id = op.p_id
                                                                             JOIN Order_Placements opl ON op.o_id = opl.o_id
@@ -342,14 +387,14 @@ def decrease_product_quantity(request):
 
 @csrf_exempt
 def get_customers(request):
-    response = get_template(request, 'get_customers', "select * from Customers JOIN Users ON Customers.u_id = Users.u_id")
+    response = get_template('get_customers', "select * from Customers JOIN Users ON Customers.u_id = Users.u_id")
     return response
 
 
 
 @csrf_exempt
 def get_one_customer_per_city(request):
-    response = get_template(request, 'get_one_customer_per_city', """SELECT c.*, u.*
+    response = get_template('get_one_customer_per_city', """SELECT c.*, u.*
                                                                         FROM Customers c
                                                                         JOIN Users u ON c.u_id = u.u_id
                                                                         JOIN (
@@ -375,13 +420,13 @@ def get_products_from_order(request, order_id):
             INNER JOIN Order_Products op ON p.p_id = op.p_id
             WHERE op.o_id = {order_id};
             """
-    return get_template(request, "get_products_from_order", query)
+    return get_template("get_products_from_order", query)
 
 
 
 @csrf_exempt
 def get_vouchers(request):
-    response = get_template(request, 'get_vouchers', "select * from vouchers")
+    response = get_template('get_vouchers', "select * from vouchers")
     return response
 
 
@@ -427,7 +472,7 @@ def delete_voucher(request):
 
 @csrf_exempt
 def get_last_10_orders(request):
-    if request.method != 'GET':
+    if request.method != 'POST':
         response = HttpResponse("get_last_10_order only accepts POST request.")
         response.status_code = 405
         return response
