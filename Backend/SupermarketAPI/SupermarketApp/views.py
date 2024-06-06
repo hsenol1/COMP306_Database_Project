@@ -718,6 +718,56 @@ def get_vouchers_by_u_id(request):
     return response
 
 @csrf_exempt
+def delete_basket(request):
+    if request.method != 'POST':
+        response = HttpResponse("delete_basket only accepts POST requests")
+        response.status_code = 405
+        return response 
+    
+    try: 
+        value = JSONParser().parse(request)
+    except Exception as e:
+        response = HttpResponse("Invalid JSON format.")
+        response.status_code = 400
+        return response
+    
+    if 'u_id' not in value:
+        response = HttpResponse("u_id is not found in request body")
+        response.status_code = 400
+        return response
+    
+    u_id = value['u_id']
+
+    basket_id_result = executeRaw(f"SELECT o.o_id FROM Orders o JOIN Order_Placements op ON o.o_id = op.o_id WHERE op.u_id = {u_id} AND o.order_status = 'IN_PROGRESS'")
+    if len(basket_id_result) == 0:
+        response = HttpResponse("No basket found for this user")
+        response.status_code = 404
+        return response
+    basket_id_result = convert_decimals_to_str(basket_id_result)
+    o_id = basket_id_result[0][0]
+
+    result = executeRaw(f"SELECT order_status FROM Orders WHERE o_id = {o_id}")
+    if not result or len(result) <= 0:
+        response = HttpResponse("Basket does not exist")
+        response.status_code = 400
+        return response
+
+    order_status = result[0][0]
+    if order_status != "IN_PROGRESS":
+        response = HttpResponse("Order is not basket")
+        response.status_code = 400
+        return response
+    
+    with transaction.atomic():
+        executeRaw(f"DELETE FROM Order_Placements WHERE o_id = {o_id}")
+        executeRaw(f"DELETE FROM Order_Products WHERE o_id = {o_id}")
+        executeRaw(f"DELETE FROM Orders WHERE o_id = {o_id}")
+        response = HttpResponse("Basket deleted successfully")
+        response.status_code = 200
+        return response
+
+
+@csrf_exempt
 def get_basket_by_u_id(request):
     if request.method != 'POST':
         response = HttpResponse("get_basket_by_u_id only accepts POST requests")
@@ -829,6 +879,7 @@ def complete_order(request):
             response.status_code = 400
             return response
 
+    payment_type = value["payment_type"]
     with transaction.atomic():
         for product in order_products:
             p_id = product[0]
@@ -836,6 +887,7 @@ def complete_order(request):
             decrease_stock_amount(p_id, p_amount)
         
         executeRaw(f"UPDATE Orders SET order_status = 'delivered' WHERE o_id = {o_id}")
+        executeRaw(f"UPDATE Orders SET payment_type = '{payment_type}' WHERE o_id = {o_id}")
 
 
     response = HttpResponse("Order completed succesfully, our staff started to prepare.")
