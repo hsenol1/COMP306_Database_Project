@@ -696,6 +696,7 @@ def complete_order(request):
     
     if len(existing_orders) > 1:
         response = HttpResponse(f"There exists more than one IN-PROGRESS order for user: {u_id}")
+        response.status_code = 409
         return response 
     
 
