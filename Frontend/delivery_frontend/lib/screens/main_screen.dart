@@ -1,6 +1,10 @@
+import 'dart:convert';
+
 import 'package:delivery_frontend/models/user.dart';
 import 'package:delivery_frontend/models/user_info.dart';
-import 'package:delivery_frontend/screens/voucher_screen';
+import 'package:delivery_frontend/screens/voucher_screen.dart';
+import 'package:delivery_frontend/services/network_service.dart';
+import 'package:delivery_frontend/utils/popup_utils.dart';
 import 'package:flutter/material.dart';
 import '../models/product.dart';
 import 'home_content.dart';
@@ -19,13 +23,13 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   int _selectedIndex = 0;
   Basket _basket = Basket(uid: 0);
-
+  final NetworkService _networkService = NetworkService();
   final List<Widget> _widgetOptions = [];
 
   @override
   void initState() {
     super.initState();
-    _basket = Basket(uid: widget.user.id);
+    _basket.uid = widget.user.id;
     _widgetOptions.addAll([
       HomeContent(
         basket: _basket,
@@ -36,10 +40,36 @@ class _MainScreenState extends State<MainScreen> {
       ProfileScreen(
         user: widget.user,
       ),
-      VoucherScreen(),
+      VoucherScreen(
+        uid: widget.user.id,
+      ),
     ]);
-
     _basket.itemsNotifier.addListener(_updateState);
+    fetchBasket();
+  }
+
+  Future<void> fetchBasket() async {
+    final response = await _networkService.getBasket(widget.user.id);
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      List<dynamic> decodedJson = jsonDecode(response.body);
+      for (int i = 0; i < decodedJson.length; i++) {
+        int p_id = decodedJson[i][0] as int;
+        String p_name = decodedJson[i][1] as String;
+        double price = double.parse(decodedJson[i][2]);
+        int amount = decodedJson[i][3];
+        _basket.addItem(
+            Product(
+                image: "assets/${p_name}.png",
+                name: p_name,
+                price: price,
+                id: p_id),
+            amount);
+      }
+    } else if (response.statusCode == 420) {
+      //do nothing
+    } else {
+      showErrorPopup(context, "Network Error");
+    }
   }
 
   @override

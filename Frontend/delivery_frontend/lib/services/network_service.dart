@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 class NetworkService {
   //web: 127.0.0.1:8000
   //android emul: 10.0.2.2:8000
-  final String baseUrl = '127.0.0.1:8000';
+  final String baseUrl = '10.0.2.2:8000';
 
   Future<http.Response> getRequestTemplate(String endpoint) async {
     final url = Uri.parse('http://$baseUrl/$endpoint');
@@ -13,7 +13,8 @@ class NetworkService {
     return response;
   }
 
-  Future<http.Response> getRequestWithIdTemplate(String endpoint, String id) async {
+  Future<http.Response> getRequestWithIdTemplate(
+      String endpoint, String id) async {
     final url = Uri.parse('http://$baseUrl/$endpoint/$id/');
     final headers = {'Content-Type': 'application/json'};
     final response = await http.get(url, headers: headers);
@@ -180,16 +181,12 @@ class NetworkService {
     return response;
   }
 
-  Future<http.Response> addProductToBucket(
-      String username, String productName) async {
-    final url = Uri.parse('http://$baseUrl/add-product-to-bucket/');
+  Future<http.Response> addProductToBucket(int uid, int pid) async {
+    final url = Uri.parse('http://$baseUrl/add-item-to-bucket/');
     final response = await http.post(
       url,
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({
-        'username': username,
-        'productName': productName,
-      }),
+      body: jsonEncode({'u_id': uid, 'p_id': pid, 'p_amount': 1}),
     );
     return response;
   }
@@ -206,13 +203,37 @@ class NetworkService {
     return response;
   }
 
-  Future<http.Response> getBucket(int uid) async {
-    final url = Uri.parse('http://$baseUrl/get-bucket/');
+  Future<http.Response> getBasket(int uid) async {
+    final url = Uri.parse('http://$baseUrl/get-basket-by-u-id/');
     final response = await http.post(
       url,
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
-        'uid': uid,
+        'u_id': uid,
+      }),
+    );
+    return response;
+  }
+
+  Future<http.Response> getVouchersByUid(int uid) async {
+    final url = Uri.parse('http://$baseUrl/get-vouchers-by-u-id/');
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'u_id': uid,
+      }),
+    );
+    return response;
+  }
+
+  Future<http.Response> deleteBasket(int uid) async {
+    final url = Uri.parse('http://$baseUrl/delete-basket/');
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'u_id': uid,
       }),
     );
     return response;
@@ -227,8 +248,8 @@ class NetworkService {
         url,
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
-          'uid': uid,
-          'paymentMethod': paymentMethod,
+          'u_id': uid,
+          'payment_type': paymentMethod,
         }),
       );
     } else {
@@ -236,19 +257,19 @@ class NetworkService {
         url,
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(
-            {'uid': uid, 'paymentMethod': paymentMethod, 'vid': vid}),
+            {'u_id': uid, 'payment_type': paymentMethod, 'v_id': vid}),
       );
     }
     return response;
   }
 
   Future<http.Response> getOrderHistory(int uid) async {
-    final url = Uri.parse('http://$baseUrl/get-order-history/');
+    final url = Uri.parse('http://$baseUrl/get-order-history-by-u-id/');
     final response = await http.post(
       url,
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
-        'uid': uid,
+        'u_id': uid,
       }),
     );
     return response;
@@ -408,11 +429,14 @@ class NetworkService {
     return await getRequestTemplate('assign-random-vouchers/$voucherId');
   }
 
-  Future<List<Map<String, dynamic>>> fetchCustomersWhoGaveTheLowestRatings(String number) async {
-    return await fetchCustomersTemplate(() => getRequestWithIdTemplate('get-lowest-rater-customers', number));
+  Future<List<Map<String, dynamic>>> fetchCustomersWhoGaveTheLowestRatings(
+      String number) async {
+    return await fetchCustomersTemplate(
+        () => getRequestWithIdTemplate('get-lowest-rater-customers', number));
   }
 
-  Future<http.Response> giveVoucherToUser(String userId, String voucherId) async {
+  Future<http.Response> giveVoucherToUser(
+      String userId, String voucherId) async {
     final url = Uri.parse('http://$baseUrl/give-voucher-by-u-id-and-v-id/');
     final response = await http.post(
       url,
@@ -424,5 +448,4 @@ class NetworkService {
     );
     return response;
   }
-
 }
