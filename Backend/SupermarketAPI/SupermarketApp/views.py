@@ -9,6 +9,7 @@ from decimal import Decimal
 from datetime import datetime
 import decimal
 from django.core.serializers.json import DjangoJSONEncoder  
+import random 
 
 # Create your views here.
 
@@ -461,12 +462,14 @@ def complete_order(request):
     total_price = order[2]
     print(total_price)
     total_price = float(total_price)
+
     if total_price < 100:
         add_on = 100.00 - total_price
         response = HttpResponse(f"Total price is less than 100, you need to add {add_on} TL wort products.")
         response.status_code = 400
         return response 
-    
+    ##Add vouchers here, TO BE COMPLETED.
+
     with transaction.atomic():
         executeRaw(f"UPDATE Orders SET order_status = 'delivered' WHERE o_id = {o_id}")
 
@@ -474,11 +477,43 @@ def complete_order(request):
     response.status_code = 200
     return response
      
+@csrf_exempt
+def assign_random_vouchers(request):
+    if request.method != 'POST':
+        response = HttpResponse("assign_vouchers only accepts POST requests")
+        response.status_code = 405
+        return response
+    
+    citys = executeRaw("SELECT DISTINCT city FROM Customers")
+    cities = [city[0] for city in citys]
 
+    selected_cities = random.sample(cities, 5)
+    response_message = []
 
+    with transaction.atomic():
+        for city in selected_cities:
+            customer_result = executeRaw(f"SELECT u_id FROM Customers WHERE city = '{city}'")
 
+            customers = [customer[0] for customer in customer_result]
 
+            sample_size = min(len(customers), 5)
+            selected_customers = random.sample(customers, sample_size)
 
+            for u_id in selected_customers:
+                has_voucher = executeRaw(f"SELECT v_amount FROM Customer_Vouchers WHERE u_id = {u_id} AND v_id = 2")
+                if has_voucher:
+                    v_amount= has_voucher[0][0] + 1
+                    executeRaw(f"UPDATE Customer_Vouchers SET v_amount = {v_amount} WHERE {u_id} AND v_id = 2")
+                else:
+                    insert_one("Customer_Vouchers", u_id, 2, 1)
+
+                
+                response_message.append(f"Voucher assigned to user {u_id} in city {city}")
+
+                
+    response = HttpResponse("\n".join(response_message))
+    response.status_code = 200
+    return response
 
 
 @csrf_exempt

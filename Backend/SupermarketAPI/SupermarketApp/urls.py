@@ -26,5 +26,6 @@ urlpatterns = [
     path('delete-voucher/', views.delete_voucher, name='delete_voucher'),
     path('create-order/', views.create_order, name='create_order'),
     path('get-last-10-orders/', views.get_last_10_orders, name='get-last-10-orders'),
-    path('complete-order/', views.complete_order, name = 'complete_order')
+    path('complete-order/', views.complete_order, name = 'complete_order'),
+    path('assign-random-vouchers/', views.assign_random_vouchers, name = 'assign_random_vouchers')
 ]
