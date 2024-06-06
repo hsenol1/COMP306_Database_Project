@@ -77,9 +77,9 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
                                 Container(
                                   width: 100, // Set the desired width
                                   height: 100, // Set the desired height
-                                  child: Image.asset(
-                                    product['image'],
-                                    fit: BoxFit.cover, // Ensure the image covers the entire space
+                                  child: Image.network(
+                                    product['image'], // Ensure the image covers the entire space
+                                    fit: BoxFit.cover,
                                   ),
                                 ),
                                 SizedBox(width: 10), // Spacing between image and text
