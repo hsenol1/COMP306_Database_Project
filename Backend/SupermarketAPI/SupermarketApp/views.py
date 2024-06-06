@@ -731,12 +731,20 @@ def delete_basket(request):
         response.status_code = 400
         return response
     
-    if 'o_id' not in value:
-        response = HttpResponse("o_id is not found in request body")
+    if 'u_id' not in value:
+        response = HttpResponse("u_id is not found in request body")
         response.status_code = 400
         return response
     
-    o_id = value['o_id']
+    u_id = value['u_id']
+
+    basket_id_result = executeRaw(f"SELECT o.o_id FROM Orders o JOIN Order_Placements op ON o.o_id = op.o_id WHERE op.u_id = {u_id} AND o.order_status = 'IN_PROGRESS'")
+    if len(basket_id_result) == 0:
+        response = HttpResponse("No basket found for this user")
+        response.status_code = 404
+        return response
+    basket_id_result = convert_decimals_to_str(basket_id_result)
+    o_id = basket_id_result[0][0]
 
     result = executeRaw(f"SELECT order_status FROM Orders WHERE o_id = {o_id}")
     if not result or len(result) <= 0:
