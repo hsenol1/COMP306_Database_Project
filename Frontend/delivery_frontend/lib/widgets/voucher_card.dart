@@ -23,6 +23,11 @@ class VoucherCard extends StatelessWidget {
               'Discount Rate: ${voucher.discountRate.toStringAsFixed(2)}%',
               style: TextStyle(fontSize: 18),
             ),
+            SizedBox(height: 8),
+            Text(
+              'Amount: ${voucher.amount}',
+              style: TextStyle(fontSize: 18),
+            ),
           ],
         ),
       ),

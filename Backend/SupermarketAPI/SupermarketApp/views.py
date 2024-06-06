@@ -63,20 +63,20 @@ def login_user(request):
         response = HttpResponse("Invalid username or password")
         response.status_code = 401
         return response
-    result = convert_decimals_to_str(result)
+    result = convert_decimals_and_datetimes_to_str(result)
     result = result[0]
     user_id = result[0]
 
     admin_result = executeRaw(f"select * from Admins where u_id = {user_id}")
     if len(admin_result) > 0:
-        admin_result = convert_decimals_to_str(admin_result)
+        admin_result = convert_decimals_and_datetimes_to_str(admin_result)
         admin_result = admin_result[0]
         admin_result = {'admin_info': admin_result}
         result.append(admin_result)
     else:
         customer_result = executeRaw(f"select * from Customers where u_id = {user_id}")
         if len(customer_result) > 0:
-            customer_result = convert_decimals_to_str(customer_result)
+            customer_result = convert_decimals_and_datetimes_to_str(customer_result)
             customer_result = customer_result[0]
             customer_result = {'customer_info': customer_result}
             result.append(customer_result)
@@ -100,7 +100,7 @@ def get_categories(request):
     result = executeRaw("select distinct category from Products")
     if len(result) == 0:
         response = HttpResponse("No categories found")
-        response.status_code = 404
+        response.status_code = 420
         return response
     result = map(lambda x: x[0], result)
     result = json.dumps(list(result))
@@ -123,10 +123,10 @@ def get_products_by_category(request):
     result = executeRaw(f"select * from Products where category = '{category}'")
     if len(result) == 0:
         response = HttpResponse("No products found")
-        response.status_code = 404
+        response.status_code = 420
         return response
     
-    result = convert_decimals_to_str(result)
+    result = convert_decimals_and_datetimes_to_str(result)
     result = json.dumps(result)
     response = HttpResponse(result)
     response.status_code = 200
@@ -147,9 +147,9 @@ def get_products_by_search(request):
     result = executeRaw(f"select * from Products where p_name like '%{search}%'")
     if len(result) == 0:
         response = HttpResponse("No products found")
-        response.status_code = 404
+        response.status_code = 420
         return response
-    result = convert_decimals_to_str(result)
+    result = convert_decimals_and_datetimes_to_str(result)
     result = json.dumps(result)
     response = HttpResponse(result)
     response.status_code = 200
@@ -170,9 +170,9 @@ def is_user_admin_by_username(request):
     result = executeRaw(f"select * from Users where username = '{username}'")
     if len(result) == 0:
         response = HttpResponse("No user found")
-        response.status_code = 404
+        response.status_code = 420
         return response
-    result = convert_decimals_to_str(result)
+    result = convert_decimals_and_datetimes_to_str(result)
     result = result[0]
     user_id = result[0]
     admin_result = executeRaw(f"select * from Admins where u_id = {user_id}")
@@ -199,15 +199,15 @@ def get_admin_data_by_username(request):
     result = executeRaw(f"select * from Users where username = '{username}'")
     if len(result) == 0:
         response = HttpResponse("No user found")
-        response.status_code = 404
+        response.status_code = 420
         return response
-    result = convert_decimals_to_str(result)
+    result = convert_decimals_and_datetimes_to_str(result)
     result = result[0]
     user_id = result[0]
     admin_result = executeRaw(f"select * from Admins where u_id = {user_id}")
     if len(admin_result) == 0:
         response = HttpResponse("User is not an admin")
-        response.status_code = 404
+        response.status_code = 420
         return response
     result.append(admin_result[0])
     result = json.dumps(result)
@@ -230,15 +230,15 @@ def get_customer_data_by_username(request):
     result = executeRaw(f"select * from Users where username = '{username}'")
     if len(result) == 0:
         response = HttpResponse("No user found")
-        response.status_code = 404
+        response.status_code = 420
         return response
-    result = convert_decimals_to_str(result)
+    result = convert_decimals_and_datetimes_to_str(result)
     result = result[0]
     user_id = result[0]
     customer_result = executeRaw(f"select * from Customers where u_id = {user_id}")
     if len(customer_result) == 0:
         response = HttpResponse("User is not a customer")
-        response.status_code = 404
+        response.status_code = 420
         return response
     result.append(customer_result[0])
     result = json.dumps(result)
@@ -252,9 +252,9 @@ def get_template(func_name, query):
     result = executeRaw(query)
     if len(result) == 0:
         response = HttpResponse(func_name + " returned none")
-        response.status_code = 404
+        response.status_code = 420
         return response
-    result = convert_decimals_to_str(result)
+    result = convert_decimals_and_datetimes_to_str(result)
     result = json.dumps(result)
     response = HttpResponse(result)
     response.status_code = 200
@@ -277,7 +277,7 @@ def delete_template(request, table_name, id_field):
     existing_object_result = executeRaw(f"SELECT * FROM {table_name} WHERE {id_field} = '{object_id}'")
     if len(existing_object_result) == 0:
         response = HttpResponse(f"{table_name} not found")
-        response.status_code = 404
+        response.status_code = 420
         return response
     with transaction.atomic():
         executeRaw(f"DELETE FROM {table_name} WHERE {id_field} = '{object_id}'")
@@ -427,7 +427,7 @@ def give_voucher_to_one_customer_per_city(request, voucher_id):
                             ) as subquery
                             ON c.u_id = subquery.min_u_id;
                             """)
-    customers = convert_decimals_to_str(customers)
+    customers = convert_decimals_and_datetimes_to_str(customers)
     u_ids = [customer[3] for customer in customers]
     for u_id in u_ids:
         current_voucher_result = executeRaw(f"SELECT v_amount FROM Customer_Vouchers WHERE u_id = {u_id} AND v_id = {voucher_id}")
@@ -475,7 +475,7 @@ def rate_order_by_o_id(request):
     rating_result = executeRaw(f"SELECT rating FROM Order_Placements op WHERE op.o_id = {o_id}")
     if len(rating_result) == 0:
         response = HttpResponse("Order not found in Order_Placements table")
-        response.status_code = 404
+        response.status_code = 420
         return response
     rating = rating_result[0][0]
     if rating is not None and rating != 0:
@@ -502,15 +502,15 @@ def get_order_history_by_u_id(request):
         return response
     u_id = value["u_id"]
     result = executeRaw(f"SELECT o.*, v.v_name, opl.rating FROM Order_Placements opl JOIN Orders o ON opl.o_id = o.o_id JOIN Vouchers v ON opl.v_id = v.v_id WHERE opl.u_id = {u_id}")
-    result = convert_decimals_to_str(result)
+    result = convert_decimals_and_datetimes_to_str(result)
     
     for order in result:
         o_id = order[0]
         order_products = executeRaw(f"SELECT p.p_name, opr.* FROM Order_Products opr JOIN Products p ON opr.p_id = p.p_id WHERE opr.o_id = {o_id}")
-        order_products = convert_decimals_to_str(order_products)
+        order_products = convert_decimals_and_datetimes_to_str(order_products)
         order.append(order_products)
 
-    result = convert_decimals_to_str(result)
+    result = convert_decimals_and_datetimes_to_str(result)
     result = json.dumps(result)
     response = HttpResponse(result)
     response.status_code = 200
@@ -596,7 +596,7 @@ def delete_customer(request, table_name = 'Customers', id_field ='u_id'):
     existing_object_result = executeRaw(f"SELECT * FROM {table_name} WHERE {id_field} = '{object_id}'")
     if len(existing_object_result) == 0:
         response = HttpResponse(f"{table_name} not found")
-        response.status_code = 404
+        response.status_code = 420
         return response
     with transaction.atomic():
         executeRaw(f"DELETE FROM {table_name} WHERE {id_field} = '{object_id}'")
@@ -714,7 +714,7 @@ def get_vouchers_by_u_id(request):
 
     try:
         result = executeRaw(f"SELECT cv.v_amount, v.* FROM Customer_Vouchers cv JOIN Vouchers v ON cv.v_id = v.v_id WHERE cv.u_id = {u_id}")
-        result = convert_decimals_to_str(result)
+        result = convert_decimals_and_datetimes_to_str(result)
         result = json.dumps(result, cls=DjangoJSONEncoder)
         response = HttpResponse(result)
         response.status_code = 200
@@ -797,18 +797,18 @@ def get_basket_by_u_id(request):
         basket_id_result = executeRaw(f"SELECT o.o_id FROM Orders o JOIN Order_Placements op ON o.o_id = op.o_id WHERE op.u_id = {u_id} AND o.order_status = 'IN_PROGRESS'")
         if len(basket_id_result) == 0:
             response = HttpResponse("No basket found for this user 1")
-            response.status_code = 404
+            response.status_code = 420
             return response
-        basket_id_result = convert_decimals_to_str(basket_id_result)
+        basket_id_result = convert_decimals_and_datetimes_to_str(basket_id_result)
         basket_id = basket_id_result[0][0]
         # id, name, price, amount
-        result = executeRaw(f"SELECT p.p_id, p.name, p.price, op.amount FROM Products p JOIN Order_Products op ON p.p_id = op.p_id WHERE op.o_id = {basket_id}")
-        result = convert_decimals_to_str(result)
+        result = executeRaw(f"SELECT p.p_id, p.p_name, p.price, op.p_amount FROM Products p JOIN Order_Products op ON p.p_id = op.p_id WHERE op.o_id = {basket_id}")
+        result = convert_decimals_and_datetimes_to_str(result)
         if len(result) == 0:
             response = HttpResponse("No basket found for this user 2")
-            response.status_code = 404
+            response.status_code = 420
             return response
-        result = result[0]
+
         response = HttpResponse(json.dumps(result, cls=DjangoJSONEncoder))
         response.status_code = 200
     except Exception as e:
@@ -862,15 +862,11 @@ def complete_order(request):
         is_available, response_message = is_enough_stock(p_id, p_amount)
         if not is_available:
             response = HttpResponse(response_message)
-            response.status_code = 400
+            response.status_code = 408
             return response
 
     
-    if total_price < 100:
-        add_on = 100.00 - total_price
-        response = HttpResponse(f"Total price is less than 100, you need to add {add_on} TL wort products.")
-        response.status_code = 400
-        return response 
+    
 
 
     order_products = executeRaw(f"SELECT p_id, p_amount FROM Order_Products WHERE o_id = {o_id}")
@@ -1123,13 +1119,15 @@ def create_order(request):
 
 
 
-def convert_decimals_to_str(result):
+def convert_decimals_and_datetimes_to_str(result):
     result = list(result)
     result = list(map(lambda x: list(x), result))
     for i in range(len(result)):
         for j in range(len(result[i])):
             if type(result[i][j]) == Decimal:
                 result[i][j] = str(result[i][j])
+            if type(result[i][j]) == datetime:
+                result[i][j] = result[i][j].strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
     
     return result
 
@@ -1237,7 +1235,7 @@ def get_template_serial(request, func_name, query):
     result = executeRaw(query)
     if len(result) == 0:
         response = HttpResponse(func_name + " returned none")
-        response.status_code = 404
+        response.status_code = 420
         return response
     result = convert_to_serializable(result)
     result = json.dumps(result)

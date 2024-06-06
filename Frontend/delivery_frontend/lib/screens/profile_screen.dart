@@ -51,7 +51,8 @@ class ProfileScreen extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => OrderHistoryScreen()),
+                            builder: (context) =>
+                                OrderHistoryScreen(uid: user.id)),
                       );
                     },
                     style: ElevatedButton.styleFrom(
