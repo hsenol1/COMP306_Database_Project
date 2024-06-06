@@ -751,8 +751,6 @@ def create_order(request):
         rating = value["rating"]
         if v_id is None:
             v_id = get_next_id("Vouchers", "v_id")  # 
-        if rating is None:
-            rating = 5  # default 
 
         executeRaw(f"INSERT INTO Order_Placements (u_id, v_id, o_id, rating) VALUES ({u_id}, {v_id}, {o_id}, {rating})")
 
