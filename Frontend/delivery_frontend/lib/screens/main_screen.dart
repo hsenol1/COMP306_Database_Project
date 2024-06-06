@@ -27,18 +27,9 @@ class _MainScreenState extends State<MainScreen> {
   final List<Widget> _widgetOptions = [];
 
   @override
-  Future<void> initState() async {
+  void initState() {
     super.initState();
-    _basket = Basket(uid: widget.user.id);
-    final response = await _networkService.getBasket(widget.user.id);
-    if (response.statusCode == 404) {
-      //GETTIRTODO
-    } else if (response.statusCode == 200) {
-      List<dynamic> decodedJson = jsonDecode(response.body);
-    } else {
-      showErrorPopup(context, "Network error.");
-    }
-    ;
+    _basket.uid = widget.user.id;
     _widgetOptions.addAll([
       HomeContent(
         basket: _basket,
@@ -51,8 +42,32 @@ class _MainScreenState extends State<MainScreen> {
       ),
       VoucherScreen(),
     ]);
-
     _basket.itemsNotifier.addListener(_updateState);
+    fetchBasket();
+  }
+
+  Future<void> fetchBasket() async {
+    final response = await _networkService.getBasket(widget.user.id);
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      List<dynamic> decodedJson = jsonDecode(response.body);
+      for (int i = 0; i < decodedJson.length; i++) {
+        int p_id = decodedJson[i][0] as int;
+        String p_name = decodedJson[i][1] as String;
+        double price = double.parse(decodedJson[i][2]);
+        int amount = decodedJson[i][3];
+        _basket.addItem(
+            Product(
+                image: "assets/${p_name}.png",
+                name: p_name,
+                price: price,
+                id: p_id),
+            amount);
+      }
+    } else if (response.statusCode == 420) {
+      //do nothing
+    } else {
+      showErrorPopup(context, "Network Error");
+    }
   }
 
   @override

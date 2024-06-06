@@ -4,11 +4,11 @@ import '../widgets/voucher_card.dart';
 
 class VoucherScreen extends StatelessWidget {
   final List<Voucher> mockVouchers = [
-    Voucher(name: 'Summer Sale', discountRate: 10.0),
-    Voucher(name: 'Black Friday', discountRate: 20.0),
-    Voucher(name: 'New Year Sale', discountRate: 15.0),
+    Voucher(name: 'Summer Sale', discountRate: 10.0, v_id: 3),
+    Voucher(name: 'Black Friday', discountRate: 20.0, v_id: 3),
+    Voucher(name: 'New Year Sale', discountRate: 15.0, v_id: 3),
   ];
-
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(

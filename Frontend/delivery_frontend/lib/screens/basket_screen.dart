@@ -1,10 +1,13 @@
+import 'package:delivery_frontend/services/network_service.dart';
+import 'package:delivery_frontend/utils/popup_utils.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart';
 import '../models/basket.dart';
 import '../utils/dialog_utils.dart';
 
 class BasketScreen extends StatefulWidget {
   final Basket basket;
-
+  final NetworkService networkService = NetworkService();
   BasketScreen({required this.basket});
 
   @override
@@ -115,8 +118,18 @@ class _BasketScreenState extends State<BasketScreen> {
                     ),
                     SizedBox(height: 10),
                     ElevatedButton(
-                      onPressed: () {
-                        // Handle buy action
+                      onPressed: () async {
+                        final response = await widget.networkService
+                            .completeOrder(
+                                widget.basket.uid, _selectedPaymentMethod, -1);
+                        if (response.statusCode == 200 ||
+                            response.statusCode == 201) {
+                          widget.basket.clear();
+
+                          Navigator.pop(context);
+                        } else {
+                          showErrorPopup(context, "Network Error");
+                        }
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.blue,

@@ -1,3 +1,5 @@
+import 'package:delivery_frontend/services/network_service.dart';
+import 'package:delivery_frontend/utils/popup_utils.dart';
 import 'package:flutter/material.dart';
 import '../models/product.dart';
 import '../models/basket.dart';
@@ -7,7 +9,7 @@ import '../utils/dialog_utils.dart';
 class ProductCard extends StatefulWidget {
   final Product product;
   final Basket basket;
-
+  final NetworkService networkService = NetworkService();
   ProductCard({required this.product, required this.basket});
 
   @override
@@ -29,10 +31,16 @@ class _ProductCardState extends State<ProductCard> {
     setState(() {
       _isLoading = false;
     });
-
     //Navigator.of(context).pop();
-
-    widget.basket.addItem(widget.product, 1);
+    final response = await widget.networkService
+        .addProductToBucket(widget.basket.uid, widget.product.id);
+    if (response.statusCode == 400) {
+      showErrorPopup(context, "Stock error. Please recreate your basket");
+    } else if (response.statusCode == 201 || response.statusCode == 200) {
+      widget.basket.addItem(widget.product, 1);
+    } else {
+      showErrorPopup(context, "Network error.");
+    }
   }
 
   @override
