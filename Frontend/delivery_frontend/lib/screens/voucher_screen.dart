@@ -47,9 +47,6 @@ class _VoucherScreenState extends State<VoucherScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Vouchers'),
-      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: vouchers.isEmpty

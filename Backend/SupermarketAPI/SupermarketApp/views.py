@@ -477,8 +477,8 @@ def rate_order_by_o_id(request):
         response = HttpResponse("Order not found in Order_Placements table")
         response.status_code = 420
         return response
-    rating = rating_result[0][0]
-    if rating is not None and rating != 0:
+    old_rating = rating_result[0][0]
+    if old_rating is not None and old_rating != 0:
         response = HttpResponse("Order already rated")
         response.status_code = 400
         return response
@@ -518,7 +518,7 @@ def get_order_history_by_u_id(request):
 
 @csrf_exempt
 def get_vouchers(request):
-    response = get_template('get_vouchers', "select * from vouchers")
+    response = get_template('get_vouchers', "select * from vouchers where v_id != 0")
     return response
 
 @csrf_exempt
@@ -865,8 +865,6 @@ def complete_order(request):
             response.status_code = 408
             return response
 
-    if v_id:
-        total_price = apply_voucher(total_price, v_id, u_id)
     
     
 
@@ -881,6 +879,9 @@ def complete_order(request):
             response.status_code = 400
             return response
 
+    if v_id:
+        total_price = apply_voucher(total_price, v_id, u_id)
+
     payment_type = value["payment_type"]
     with transaction.atomic():
         for product in order_products:
@@ -888,6 +889,10 @@ def complete_order(request):
             p_amount = product[1]
             decrease_stock_amount(p_id, p_amount)
         
+        if v_id:
+            executeRaw(f"UPDATE Order_Placements SET v_id = {v_id} WHERE o_id = {o_id}")
+        
+        executeRaw(f"UPDATE Orders SET total_price = {total_price} WHERE o_id = {o_id}")
         executeRaw(f"UPDATE Orders SET order_status = 'delivered' WHERE o_id = {o_id}")
         executeRaw(f"UPDATE Orders SET payment_type = '{payment_type}' WHERE o_id = {o_id}")
 
