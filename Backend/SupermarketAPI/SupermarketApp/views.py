@@ -796,24 +796,40 @@ def complete_order(request):
 
     order = existing_orders[0]
     o_id = order[0]
-    total_price = order[2]
-    print(total_price)
-    total_price = float(total_price)
-    v_id = value['v_id']
+    total_price = float(order[2])
+    v_id = value.get('v_id', None)
+
+    order_products = executeRaw(f"SELECT p_id, p_amount FROM Order_Products WHERE o_id = {o_id}")
+    for product in order_products:
+        p_id = product[0]
+        p_amount = product[1]
+        is_available, response_message = is_enough_stock(p_id, p_amount)
+        if not is_available:
+            response = HttpResponse(response_message)
+            response.status_code = 400
+            return response
 
     if v_id:
-        apply_voucher(total_price)
-    
+        total_price = apply_voucher(total_price, v_id, u_id)
     
     if total_price < 100:
         add_on = 100.00 - total_price
         response = HttpResponse(f"Total price is less than 100, you need to add {add_on} TL wort products.")
         response.status_code = 400
         return response 
-    ##Add vouchers here, TO BE COMPLETED.
+
+
+    order_products = executeRaw(f"SELECT p_id, p_amount FROM Order_Products WHERE o_id = {o_id}")
+    for product in order_products:
+        p_id = product[0]
+        p_amount = product[1]
+        is_available, response_message = is_enough_stock(p_id, p_amount)
+        if not is_available:
+            response = HttpResponse(response_message)
+            response.status_code = 400
+            return response
 
     with transaction.atomic():
-        order_products = executeRaw(f"SELECT p_id, p_amount FROM Order_Products WHERE o_id = {o_id}")
         for product in order_products:
             p_id = product[0]
             p_amount = product[1]
@@ -891,6 +907,12 @@ def add_item_to_bucket(request):
         response.status_code = 400
         return response
     
+    is_available, response_message = is_enough_stock(p_id, p_amount)
+    if not is_available:
+        response = HttpResponse(response_message)
+        response.status_code = 400
+        return response
+
     existing_orders = executeRaw(f"SELECT * FROM Orders o JOIN Order_Placements op ON o.o_id = op.o_id WHERE op.u_id = {u_id} AND o.order_status = 'IN_PROGRESS'")
     if len(existing_orders) == 0:
         o_id = get_next_id("Orders", "o_id")
@@ -1050,7 +1072,7 @@ def convert_decimals_to_str(result):
     
     return result
 
-  @csrf_exempt
+@csrf_exempt
 def add_item_to_bucket(request):
     if request.method != 'POST':
         response = HttpResponse("add_item_to_basket only accepts POST requests")
