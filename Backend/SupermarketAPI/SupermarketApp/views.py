@@ -318,7 +318,7 @@ def get_products_with_higher_than_4_rating(request):
     return response
 
 
-
+# COMPLEX QUERY
 @csrf_exempt
 def get_top_5_lowest_rated_products(request):
     response = get_template('get_top_5_lowest_rated_products', """SELECT p.p_id, p.stock_amount, p.category, p.price, p.p_name
@@ -392,7 +392,7 @@ def get_customers(request):
     return response
 
 
-
+#COMPLEX QUERY
 @csrf_exempt
 def get_one_customer_per_city(request):
     response = get_template('get_one_customer_per_city', """SELECT c.*, u.*
@@ -407,7 +407,33 @@ def get_one_customer_per_city(request):
                                                                         """)
     return response
 
-
+#COMPLEX QUERY
+@csrf_exempt
+@transaction.atomic
+def give_voucher_to_one_customer_per_city(request, voucher_id):
+    customers = executeRaw("""SELECT c.*, u.*
+                            FROM Customers c
+                            JOIN Users u ON c.u_id = u.u_id
+                            JOIN (
+                                SELECT city, MIN(u_id) as min_u_id
+                                FROM Customers
+                                GROUP BY city
+                            ) as subquery
+                            ON c.u_id = subquery.min_u_id;
+                            """)
+    customers = convert_decimals_to_str(customers)
+    u_ids = [customer[3] for customer in customers]
+    for u_id in u_ids:
+        current_voucher_result = executeRaw(f"SELECT v_amount FROM Customer_Vouchers WHERE u_id = {u_id} AND v_id = {voucher_id}")
+        if not current_voucher_result or len(current_voucher_result) <= 0:
+            insert_one("Customer_Vouchers", u_id, voucher_id, 1)
+        else:
+            current_voucher_amount = current_voucher_result[0][0]
+            executeRaw(f"UPDATE Customer_Vouchers SET v_amount = {current_voucher_amount + 1} WHERE u_id = {u_id} AND v_id = {voucher_id}")
+    customers = json.dumps(customers)
+    response = HttpResponse(customers)
+    response.status_code = 200
+    return response
 
 @csrf_exempt
 def get_products_from_order(request, order_id):
@@ -513,6 +539,151 @@ def decimal_default(obj):
         return float(obj)
     raise TypeError
 
+
+
+@csrf_exempt
+def assign_random_vouchers(request, voucher_id):
+    if request.method != 'POST':
+        response = HttpResponse("assign_vouchers only accepts POST requests")
+        response.status_code = 405
+        return response
+    
+    citys = executeRaw("SELECT DISTINCT city FROM Customers")
+    cities = [city[0] for city in citys]
+
+
+
+    selected_cities = random.sample(cities, 5)
+    response_message = []
+
+    with transaction.atomic():
+        for city in selected_cities:
+            customer_result = executeRaw(f"SELECT u_id FROM Customers WHERE city = '{city}'")
+
+            customers = [customer[0] for customer in customer_result]
+
+            sample_size = min(len(customers), 5)
+            selected_customers = random.sample(customers, sample_size)
+
+            for u_id in selected_customers:
+                has_voucher = executeRaw(f"SELECT v_amount FROM Customer_Vouchers WHERE u_id = {u_id} AND v_id = {voucher_id}")
+                if has_voucher:
+                    v_amount= has_voucher[0][0] + 1
+                    executeRaw(f"UPDATE Customer_Vouchers SET v_amount = {v_amount} WHERE {u_id} AND v_id = {voucher_id}")
+                else:
+                    insert_one("Customer_Vouchers", u_id, 2, 1)
+
+                
+                response_message.append(f"Voucher assigned to user {u_id} in city {city}")
+
+                
+    response = HttpResponse("\n".join(response_message))
+    response.status_code = 200
+    return response
+
+
+
+def is_enough_stock(p_id, p_amount):
+    result = executeRaw(f"SELECT stock_amount FROM Products WHERE p_id = {p_id}")
+    if not result: 
+        return False, f"Product with p_id:{p_id} does not exists"
+    stock_amount = result[0][0]
+    if p_amount > stock_amount:
+        return False, f"Available stock: {stock_amount}, Requested: {p_amount}. Request is not completed."
+    
+    return True, None 
+
+
+@csrf_exempt
+def complete_order(request):
+    if request.method != 'POST':
+        response = HttpResponse("complete_order only accepts POST requests")
+        response.status_code = 405
+        return response 
+    
+    try: 
+        value = JSONParser().parse(request)
+    except Exception as e:
+        response = HttpResponse("Invalid JSON format.")
+        response.status_code = 400
+        return response
+    
+    if 'u_id' not in value:
+        response = HttpResponse("u_id is not found in request body")
+        response.status_code = 400
+        return response
+    
+    u_id = value['u_id']
+    existing_orders = executeRaw(f"SELECT * FROM Orders o JOIN Order_Placements op ON o.o_id = op.o_id WHERE op.u_id = {u_id} AND o.order_status = 'IN_PROGRESS'")
+    if len(existing_orders) == 0:
+        response = HttpResponse(f"There is not an existing IN-PROGRESS order for user: {u_id}")
+        response.status_code = 409
+        return response
+    
+    if len(existing_orders) > 1:
+        response = HttpResponse(f"There exists more than one IN-PROGRESS order for user: {u_id}")
+        return response 
+    
+
+    order = existing_orders[0]
+    o_id = order[0]
+    total_price = order[2]
+    print(total_price)
+    total_price = float(total_price)
+    v_id = value['v_id']
+
+    if v_id:
+        apply_voucher(total_price)
+    
+    
+    if total_price < 100:
+        add_on = 100.00 - total_price
+        response = HttpResponse(f"Total price is less than 100, you need to add {add_on} TL wort products.")
+        response.status_code = 400
+        return response 
+    ##Add vouchers here, TO BE COMPLETED.
+
+    with transaction.atomic():
+        order_products = executeRaw(f"SELECT p_id, p_amount FROM Order_Products WHERE o_id = {o_id}")
+        for product in order_products:
+            p_id = product[0]
+            p_amount = product[1]
+            decrease_stock_amount(p_id, p_amount)
+        
+        executeRaw(f"UPDATE Orders SET order_status = 'delivered' WHERE o_id = {o_id}")
+
+    response = HttpResponse("Order completed succesfully, our staff started to prepare.")
+    response.status_code = 200
+    return response
+    
+
+def apply_voucher(total_price, v_id, u_id):
+    voucher_result = executeRaw(f"SELECT v_amount FROM Customer_Vouchers WHERE u_id = {u_id} AND v_id = {v_id}")
+    if len(voucher_result) == 0:
+        raise ValueError(f"Voucher {v_id} is not found for User: {u_id}")
+
+    v_amount = voucher_result[0][0]
+
+    discount = executeRaw(f"SELECT discount_rate FROM Vouchers WHERE v_id = {v_id}")
+    if len(discount) == 0:
+        raise ValueError(f"Voucher ID {v_id} not found in Vouchers table")
+
+    discount_rate = discount[0][0]
+
+    total_price = total_price * (100 - discount_rate) / 100
+
+    with transaction.atomic():
+        if v_amount == 1:
+            executeRaw(f"DELETE FROM Customer_Vouchers WHERE u_id = {u_id} AND v_id = {v_id}")
+        else:
+            executeRaw(f"UPDATE Customer_Vouchers SET v_amount = v_amount - 1 WHERE u_id = {u_id} AND v_id = {v_id}")
+
+
+    return total_price
+
+def decrease_stock_amount(p_id, p_amount):
+    executeRaw(f"UPDATE Products SET stock_amount = stock_amount - {p_amount} WHERE p_id = {p_id}") 
+
 @csrf_exempt
 def create_order(request):
     if request.method != 'POST':
@@ -562,7 +733,13 @@ def create_order(request):
             for product in value["products"]:
                 p_id = product["p_id"]
                 p_amount = product["p_amount"]
-                purchased_price = product["purchased_price"]
+                is_available, response_message = is_enough_stock(p_id, p_amount)
+                if not is_available:
+                    response = HttpResponse(response_message)
+                    response.status_code = 400
+                    return response
+            
+                purchased_price = product["price"]
                 ## executeRaw(f"INSERT INTO Order_Products (p_id, o_id, p_amount, purchased_price) VALUES ({p_id}, {o_id}, {p_amount}, {purchased_price})")
                 insert_one("Order_Products",p_id,o_id,p_amount, purchased_price)
                 total_price += p_amount * purchased_price
@@ -591,12 +768,12 @@ def create_order(request):
 # #     {
 # #       "p_id": 1,
 # #       "p_amount": 2,
-# #       "purchased_price": 3.50
+# #       "price": 3.50
 # #     },
 # #     {
 # #       "p_id": 2,
 # #       "p_amount": 1,
-# #       "purchased_price": 1000.00
+# #       "price": 1000.00
 # #     }
 # #   ],
 # #   "voucher_id": 5,
