@@ -477,8 +477,8 @@ def rate_order_by_o_id(request):
         response = HttpResponse("Order not found in Order_Placements table")
         response.status_code = 420
         return response
-    rating = rating_result[0][0]
-    if rating is not None and rating != 0:
+    old_rating = rating_result[0][0]
+    if old_rating is not None and old_rating != 0:
         response = HttpResponse("Order already rated")
         response.status_code = 400
         return response
