@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:delivery_frontend/models/user.dart';
 import 'package:delivery_frontend/models/user_info.dart';
-import 'package:delivery_frontend/screens/voucher_screen';
+import 'package:delivery_frontend/screens/voucher_screen.dart';
 import 'package:delivery_frontend/services/network_service.dart';
 import 'package:delivery_frontend/utils/popup_utils.dart';
 import 'package:flutter/material.dart';
@@ -40,7 +40,9 @@ class _MainScreenState extends State<MainScreen> {
       ProfileScreen(
         user: widget.user,
       ),
-      VoucherScreen(),
+      VoucherScreen(
+        uid: widget.user.id,
+      ),
     ]);
     _basket.itemsNotifier.addListener(_updateState);
     fetchBasket();

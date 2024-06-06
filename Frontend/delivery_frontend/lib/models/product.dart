@@ -24,7 +24,7 @@ class Product {
       double tmpPrice = double.parse(productString[3]);
       String tmpName = productString[4];
       productList.add(Product(
-          image: 'assets/bunch-bananas-isolated-on-white-600w-1722111529.png',
+          image: 'assets/${tmpName}.png',
           name: tmpName,
           price: tmpPrice,
           id: id));

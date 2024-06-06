@@ -856,17 +856,13 @@ def complete_order(request):
         is_available, response_message = is_enough_stock(p_id, p_amount)
         if not is_available:
             response = HttpResponse(response_message)
-            response.status_code = 400
+            response.status_code = 408
             return response
 
     if v_id:
         total_price = apply_voucher(total_price, v_id, u_id)
     
-    if total_price < 100:
-        add_on = 100.00 - total_price
-        response = HttpResponse(f"Total price is less than 100, you need to add {add_on} TL wort products.")
-        response.status_code = 400
-        return response 
+    
 
 
     order_products = executeRaw(f"SELECT p_id, p_amount FROM Order_Products WHERE o_id = {o_id}")

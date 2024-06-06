@@ -36,7 +36,7 @@ class Basket {
   factory Basket.fromJson(List<dynamic> json) {
     Basket basket = Basket(uid: 0);
     for (var item in json) {
-      basket.addItem(Product.fromJson(item), item[1]);
+      basket.addItem(Product.fromJson(item), item[3]);
     }
     return basket;
   }

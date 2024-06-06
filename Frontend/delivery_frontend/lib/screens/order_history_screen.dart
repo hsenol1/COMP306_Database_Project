@@ -28,7 +28,10 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
 
   Future<List<Order>> parseOrders(String jsonString) async {
     List<dynamic> jsonResponse = jsonDecode(jsonString);
-    return jsonResponse.map((orderJson) => Order.fromJson(orderJson)).toList();
+    List<Order> orders =
+        jsonResponse.map((orderJson) => Order.fromJson(orderJson)).toList();
+    orders.sort((a, b) => b.date.compareTo(a.date));
+    return orders;
   }
 
   Future<List<Order>> _initializeOrders() async {

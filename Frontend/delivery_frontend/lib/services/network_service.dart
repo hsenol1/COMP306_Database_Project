@@ -13,7 +13,8 @@ class NetworkService {
     return response;
   }
 
-  Future<http.Response> getRequestWithIdTemplate(String endpoint, String id) async {
+  Future<http.Response> getRequestWithIdTemplate(
+      String endpoint, String id) async {
     final url = Uri.parse('http://$baseUrl/$endpoint/$id/');
     final headers = {'Content-Type': 'application/json'};
     final response = await http.get(url, headers: headers);
@@ -214,8 +215,20 @@ class NetworkService {
     return response;
   }
 
-  Future<http.Response> getVoucherByUid(int uid) async {
+  Future<http.Response> getVouchersByUid(int uid) async {
     final url = Uri.parse('http://$baseUrl/get-vouchers-by-u-id/');
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'u_id': uid,
+      }),
+    );
+    return response;
+  }
+
+  Future<http.Response> deleteBasket(int uid) async {
+    final url = Uri.parse('http://$baseUrl/delete-basket/');
     final response = await http.post(
       url,
       headers: {'Content-Type': 'application/json'},
@@ -416,11 +429,14 @@ class NetworkService {
     return await getRequestTemplate('assign-random-vouchers/$voucherId');
   }
 
-  Future<List<Map<String, dynamic>>> fetchCustomersWhoGaveTheLowestRatings(String number) async {
-    return await fetchCustomersTemplate(() => getRequestWithIdTemplate('get-lowest-rater-customers', number));
+  Future<List<Map<String, dynamic>>> fetchCustomersWhoGaveTheLowestRatings(
+      String number) async {
+    return await fetchCustomersTemplate(
+        () => getRequestWithIdTemplate('get-lowest-rater-customers', number));
   }
 
-  Future<http.Response> giveVoucherToUser(String userId, String voucherId) async {
+  Future<http.Response> giveVoucherToUser(
+      String userId, String voucherId) async {
     final url = Uri.parse('http://$baseUrl/give-voucher-by-u-id-and-v-id/');
     final response = await http.post(
       url,
@@ -432,5 +448,4 @@ class NetworkService {
     );
     return response;
   }
-
 }
