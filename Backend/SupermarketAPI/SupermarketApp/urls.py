@@ -37,4 +37,5 @@ urlpatterns = [
     path('rate-order-by-o-id/', views.rate_order_by_o_id, name='rate_order_by_o_id'),
     path('get-order-history-by-u-id/', views.get_order_history_by_u_id, name='get_order_history_by_u_id'),
     path('give-voucher-by-u-id-and-v-id/', views.give_voucher_by_u_id_and_v_id, name='give_voucher_by_u_id_and_v_id'),
+    path('get-lowest-rater-customers/', views.get_lowest_rater_customers, name='get_lowest_rater_customers'),
 ]

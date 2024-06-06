@@ -293,7 +293,7 @@ def get_products(request):
     return response
 
 
-
+# COMPLEX QUERY
 #WARNING: get_low_stock_products returns lowest stock product from each category
 @csrf_exempt
 def get_low_stock_products(request):
@@ -307,7 +307,7 @@ def get_low_stock_products(request):
     return response
 
 
-
+# COMPLEX QUERY
 @csrf_exempt
 def get_products_with_higher_than_4_rating(request):
     response = get_template('get_products_with_higher_than_4_rating', """SELECT p.p_id, p.stock_amount, p.category, p.price, p.p_name 
@@ -393,7 +393,6 @@ def get_customers(request):
     return response
 
 
-#COMPLEX QUERY
 @csrf_exempt
 def get_one_customer_per_city(request):
     response = get_template('get_one_customer_per_city', """SELECT c.*, u.*
@@ -1165,4 +1164,14 @@ def get_template_serial(request, func_name, query):
 
 def get_orders(request):
     response = get_template_serial(request, 'get_orders', "select * from Orders JOIN Order_Placements ON Orders.o_id = Order_Placements.o_id")
+    return response
+
+# COMPLEX QUERY
+@csrf_exempt
+def get_lowest_rater_customers(request, num_customers):
+    result = executeRaw(f"SELECT u.*, c.*, AVG(op.rating) FROM Users u JOIN Customers c ON u.u_id = c.u_id JOIN Order_Placements op ON c.u_id = op.u_id GROUP BY u.u_id ORDER BY AVG(op.rating) ASC LIMIT {num_customers}")
+    result = convert_decimals_to_str(result)
+    result = json.dumps(result)
+    response = HttpResponse(result)
+    response.status_code = 200
     return response
