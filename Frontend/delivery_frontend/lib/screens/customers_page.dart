@@ -156,6 +156,54 @@ class _CustomersPageState extends State<CustomersPage> {
     }
   }
 
+  void _showGetCustomersWithLowestRatingsDialog(BuildContext context) {
+    final _voucherIdController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Get Customers with Lowest Ratings', style: TextStyle(fontSize: 24)),
+          content: TextField(
+            controller: _voucherIdController,
+            decoration: InputDecoration(labelText: 'Voucher ID'),
+            keyboardType: TextInputType.number,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('Cancel', style: TextStyle(fontSize: 16, color: Colors.black)),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                String voucherId = _voucherIdController.text;
+                getCustomersWithLowestRatings(voucherId);
+                Navigator.of(context).pop();
+              },
+              child: Text('Get Customers', style: TextStyle(fontSize: 16, color: Colors.black)),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blue,
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> getCustomersWithLowestRatings(String voucherId) async {
+    try {
+      List<Map<String, dynamic>> fetchedCustomers = await networkService.fetchCustomersWhoGaveTheLowestRatings(voucherId);
+      setState(() {
+        customers = fetchedCustomers;
+      });
+    } catch (e) {
+      print(e);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -199,6 +247,16 @@ class _CustomersPageState extends State<CustomersPage> {
                     padding: EdgeInsets.symmetric(vertical: 12),
                   ),
                   child: Text('Assign Random Vouchers', style: TextStyle(fontSize: 16)),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    _showGetCustomersWithLowestRatingsDialog(context);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red,
+                    padding: EdgeInsets.symmetric(vertical: 12),
+                  ),
+                  child: Text('Get Customers with Lowest Ratings', style: TextStyle(fontSize: 16)),
                 ),
               ],
             ),
