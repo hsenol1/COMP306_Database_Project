@@ -417,6 +417,10 @@ def get_one_customer_per_city(request):
 @csrf_exempt
 @transaction.atomic
 def give_voucher_to_one_customer_per_city(request, voucher_id):
+    if voucher_id == 0:
+        response = HttpResponse("Voucher id cannot be 0")
+        response.status_code = 400
+        return response
     customers = executeRaw("""SELECT c.*, u.*
                             FROM Customers c
                             JOIN Users u ON c.u_id = u.u_id
@@ -538,6 +542,12 @@ def give_voucher_by_u_id_and_v_id(request):
         response.status_code = 400
         return response
     v_id = value["v_id"]
+
+    if v_id == 0:
+        response = HttpResponse("Voucher id cannot be 0")
+        response.status_code = 400
+        return response
+    
     result = executeRaw (f"SELECT v_amount FROM Customer_Vouchers WHERE u_id = {u_id} AND v_id = {v_id}")
     if len(result) == 0 or result[0][0] == 0:
         executeRaw(f"INSERT INTO Customer_Vouchers VALUES ({u_id}, {v_id}, 1)")
@@ -656,6 +666,10 @@ def decimal_default(obj):
 @csrf_exempt
 @transaction.atomic
 def assign_random_vouchers(request, voucher_id):
+    if voucher_id == 0:
+        response = HttpResponse("Voucher id cannot be 0")
+        response.status_code = 400
+        return response
     cities = executeRaw("SELECT DISTINCT city FROM Customers")
     cities = [city[0] for city in cities]
     selected_cities = random.sample(cities, min(len(cities), 5))  # Ensure not to exceed the number of available cities
@@ -749,7 +763,7 @@ def delete_basket(request):
         response = HttpResponse("No basket found for this user")
         response.status_code = 404
         return response
-    basket_id_result = convert_decimals_to_str(basket_id_result)
+    basket_id_result = convert_decimals_and_datetimes_to_str(basket_id_result)
     o_id = basket_id_result[0][0]
 
     result = executeRaw(f"SELECT order_status FROM Orders WHERE o_id = {o_id}")
@@ -1253,7 +1267,7 @@ def get_orders(request):
 @csrf_exempt
 def get_lowest_rater_customers(request, num_customers):
     result = executeRaw(f"SELECT c.home_address, c.city, c.phone, u.u_id, u.u_id, u.u_name, u.surname, u.username, u.pwd, AVG(op.rating) FROM Users u JOIN Customers c ON u.u_id = c.u_id JOIN Order_Placements op ON c.u_id = op.u_id GROUP BY u.u_id ORDER BY AVG(op.rating) ASC LIMIT {num_customers}")
-    result = convert_decimals_to_str(result)
+    result = convert_decimals_and_datetimes_to_str(result)
     result = json.dumps(result)
     response = HttpResponse(result)
     response.status_code = 200
