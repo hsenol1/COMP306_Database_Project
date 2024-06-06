@@ -9,6 +9,7 @@ from decimal import Decimal
 from datetime import datetime
 import decimal
 from django.core.serializers.json import DjangoJSONEncoder  
+import random
 
 # Create your views here.
 
@@ -549,8 +550,28 @@ def delete_product(request):
     return delete_template(request, "Products", "p_id")
 
 @csrf_exempt
-def delete_customer(request):
-    return delete_template(request, "Customers", "u_id")
+def delete_customer(request, table_name = 'Customers', id_field ='u_id'):
+    if request.method != 'POST':
+        response = HttpResponse(f"delete_{table_name} only accepts POST requests")
+        response.status_code = 405
+        return response
+    value = JSONParser().parse(request)
+    if "id" not in value:
+        response = HttpResponse(f"{table_name} id not found in request body")
+        response.status_code = 400
+        return response
+    object_id = value["id"]
+    existing_object_result = executeRaw(f"SELECT * FROM {table_name} WHERE {id_field} = '{object_id}'")
+    if len(existing_object_result) == 0:
+        response = HttpResponse(f"{table_name} not found")
+        response.status_code = 404
+        return response
+    with transaction.atomic():
+        executeRaw(f"DELETE FROM {table_name} WHERE {id_field} = '{object_id}'")
+        executeRaw(f"DELETE FROM Users WHERE {id_field} = '{object_id}'")
+    response = HttpResponse(f"{table_name} deleted successfully")
+    response.status_code = 200
+    return response
 
 @csrf_exempt
 def delete_voucher(request):
@@ -601,44 +622,29 @@ def decimal_default(obj):
 
 
 @csrf_exempt
+@transaction.atomic
 def assign_random_vouchers(request, voucher_id):
-    if request.method != 'POST':
-        response = HttpResponse("assign_vouchers only accepts POST requests")
-        response.status_code = 405
-        return response
-    
-    citys = executeRaw("SELECT DISTINCT city FROM Customers")
-    cities = [city[0] for city in citys]
-
-
-
-    selected_cities = random.sample(cities, 5)
+    cities = executeRaw("SELECT DISTINCT city FROM Customers")
+    cities = [city[0] for city in cities]
+    selected_cities = random.sample(cities, min(len(cities), 5))  # Ensure not to exceed the number of available cities
     response_message = []
-
-    with transaction.atomic():
-        for city in selected_cities:
-            customer_result = executeRaw(f"SELECT u_id FROM Customers WHERE city = '{city}'")
-
-            customers = [customer[0] for customer in customer_result]
-
-            sample_size = min(len(customers), 5)
-            selected_customers = random.sample(customers, sample_size)
-
-            for u_id in selected_customers:
-                has_voucher = executeRaw(f"SELECT v_amount FROM Customer_Vouchers WHERE u_id = {u_id} AND v_id = {voucher_id}")
-                if has_voucher:
-                    v_amount= has_voucher[0][0] + 1
-                    executeRaw(f"UPDATE Customer_Vouchers SET v_amount = {v_amount} WHERE {u_id} AND v_id = {voucher_id}")
-                else:
-                    insert_one("Customer_Vouchers", u_id, 2, 1)
-
-                
-                response_message.append(f"Voucher assigned to user {u_id} in city {city}")
-
-                
+    for city in selected_cities:
+        customer_result = executeRaw(f"SELECT u_id FROM Customers WHERE city = '{city}'")
+        customers = [customer[0] for customer in customer_result]
+        sample_size = min(len(customers), 5)  # Ensure not to exceed the number of available customers
+        selected_customers = random.sample(customers, sample_size)
+        for u_id in selected_customers:
+            current_voucher_result = executeRaw(f"SELECT v_amount FROM Customer_Vouchers WHERE u_id = {u_id} AND v_id = {voucher_id}")
+            if not current_voucher_result or len(current_voucher_result) <= 0:
+                insert_one("Customer_Vouchers", u_id, voucher_id, 1)
+            else:
+                current_voucher_amount = current_voucher_result[0][0]
+                executeRaw(f"UPDATE Customer_Vouchers SET v_amount = {current_voucher_amount + 1} WHERE u_id = {u_id} AND v_id = {voucher_id}")
+            response_message.append(f"Voucher assigned to user {u_id} in city {city}")
     response = HttpResponse("\n".join(response_message))
     response.status_code = 200
     return response
+
 
 
 
@@ -659,6 +665,7 @@ def get_vouchers_by_u_id(request):
         response.status_code = 405
         return response 
     
+
     try: 
         value = JSONParser().parse(request)
     except Exception as e:
@@ -672,6 +679,7 @@ def get_vouchers_by_u_id(request):
         return response
     
     u_id = value['u_id']
+
     try:
         result = executeRaw(f"SELECT cv.v_amount, v.* FROM Customer_Vouchers cv JOIN Vouchers v ON cv.v_id = v.v_id WHERE cv.u_id = {u_id}")
         result = convert_decimals_to_str(result)
@@ -726,6 +734,7 @@ def get_basket_by_u_id(request):
         response.status_code = 500
 
     return response
+
 
 @csrf_exempt
 def complete_order(request):
@@ -786,6 +795,7 @@ def complete_order(request):
         
         executeRaw(f"UPDATE Orders SET order_status = 'delivered' WHERE o_id = {o_id}")
 
+
     response = HttpResponse("Order completed succesfully, our staff started to prepare.")
     response.status_code = 200
     return response
@@ -817,6 +827,96 @@ def apply_voucher(total_price, v_id, u_id):
 
 def decrease_stock_amount(p_id, p_amount):
     executeRaw(f"UPDATE Products SET stock_amount = stock_amount - {p_amount} WHERE p_id = {p_id}") 
+
+
+@csrf_exempt
+def add_item_to_bucket(request):
+    if request.method != 'POST':
+        response = HttpResponse("add_item_to_basket only accepts POST requests")
+        response.status_code = 405
+        return response 
+    
+    try: 
+        value = JSONParser().parse(request)
+    except Exception as e:
+        response = HttpResponse("Invalid JSON format.")
+        response.status_code = 400
+        return response
+
+    if 'u_id' not in value or 'p_id' not in value or 'p_amount' not in value:
+        response = HttpResponse("u_id, p_id, or p_amount is not found in request body")
+        response.status_code = 400
+        return response        
+
+    u_id = value["u_id"]
+    p_id = value["p_id"]
+    p_amount = value["p_amount"]
+
+    customer_exists = executeRaw(f"SELECT * FROM Customers WHERE u_id = {u_id}")
+    if len(customer_exists) == 0:
+        response = HttpResponse("u_id does not exist in Customers table")
+        response.status_code = 400
+        return response
+    
+    
+    purchased_price = get_product_price(p_id)
+    if purchased_price is None:
+        response = HttpResponse("p_id does not exist in Products table")
+        response.status_code = 400
+        return response
+    
+    existing_orders = executeRaw(f"SELECT * FROM Orders o JOIN Order_Placements op ON o.o_id = op.o_id WHERE op.u_id = {u_id} AND o.order_status = 'IN_PROGRESS'")
+    if len(existing_orders) == 0:
+        o_id = get_next_id("Orders", "o_id")
+        order_date = datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
+        order_status = "IN_PROGRESS"
+        payment_type = "Not specified"
+        total_price = purchased_price * p_amount
+
+        with transaction.atomic():
+            insert_one('Orders', o_id, payment_type, total_price, order_date, order_status)
+            insert_one('Order_Placements', u_id, 0, o_id, 0) ## v_id and rating = -1, as placeholders.
+            insert_one('Order_Products', p_id, o_id, p_amount,purchased_price)
+            response = HttpResponse(f"Order {o_id} is created and product {p_id} is added successfully.")
+            response.status_code=201
+        return response
+    
+    if len(existing_orders) > 1: 
+        response = HttpResponse("There exists more than one IN-PROGRESS order for user: {u_id}")
+        response.status_code = 409
+        return response
+        
+    order = existing_orders[0]
+    o_id = order[0]
+    total_price = order[2]
+
+    existing_product = executeRaw(f"SELECT * FROM Order_Products WHERE o_id = {o_id} AND p_id = {p_id}")
+    if len(existing_product) > 0:
+        with transaction.atomic():
+            new_amount = existing_product[0][2] + p_amount
+            executeRaw(f"UPDATE Order_Products SET p_amount = {new_amount}, purchased_price = {purchased_price} WHERE o_id = {o_id} AND p_id = {p_id}")
+            total_price += p_amount * purchased_price
+            executeRaw(f"UPDATE Orders SET total_price = {total_price} WHERE o_id = {o_id}")
+            response = HttpResponse("Item amount updated in basket successfully")
+            response.status_code = 200
+        return response
+    
+
+    with transaction.atomic():
+        insert_one("Order_Products", p_id, o_id, p_amount, purchased_price)
+        total_price += p_amount * purchased_price
+        executeRaw(f"UPDATE Orders SET total_price = {total_price} WHERE o_id = {o_id}")
+        response = HttpResponse("Item added to basket successfully")
+        response.status_code = 201
+    return response
+
+def get_product_price(p_id):
+    product = executeRaw(f"SELECT price FROM Products WHERE p_id = {p_id}")
+    if len(product) == 0:
+        return None
+    return product[0][0]
+
+
 
 @csrf_exempt
 def create_order(request):
@@ -912,8 +1012,6 @@ def create_order(request):
 # #   "rating": 4
 # # }
 
-@csrf_exempt
-def
 
 
 def convert_decimals_to_str(result):
@@ -926,6 +1024,87 @@ def convert_decimals_to_str(result):
     
     return result
 
+  @csrf_exempt
+def add_item_to_bucket(request):
+    if request.method != 'POST':
+        response = HttpResponse("add_item_to_basket only accepts POST requests")
+        response.status_code = 405
+        return response 
+    
+    try: 
+        value = JSONParser().parse(request)
+    except Exception as e:
+        response = HttpResponse("Invalid JSON format.")
+        response.status_code = 400
+        return response
+
+    if 'u_id' not in value or 'p_id' not in value or 'p_amount' not in value:
+        response = HttpResponse("u_id, p_id, or p_amount is not found in request body")
+        response.status_code = 400
+        return response        
+
+    u_id = value["u_id"]
+    p_id = value["p_id"]
+    p_amount = value["p_amount"]
+
+    customer_exists = executeRaw(f"SELECT * FROM Customers WHERE u_id = {u_id}")
+    if len(customer_exists) == 0:
+        response = HttpResponse("u_id does not exist in Customers table")
+        response.status_code = 400
+        return response
+    
+    
+    purchased_price = get_product_price(p_id)
+    if purchased_price is None:
+        response = HttpResponse("p_id does not exist in Products table")
+        response.status_code = 400
+        return response
+    
+    existing_orders = executeRaw(f"SELECT * FROM Orders o JOIN Order_Placements op ON o.o_id = op.o_id WHERE op.u_id = {u_id} AND o.order_status = 'IN_PROGRESS'")
+    if len(existing_orders) == 0:
+        o_id = get_next_id("Orders", "o_id")
+        order_date = datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
+        order_status = "IN_PROGRESS"
+        payment_type = "Not specified"
+        total_price = purchased_price * p_amount
+
+        with transaction.atomic():
+            insert_one('Orders', o_id, payment_type, total_price, order_date, order_status)
+            insert_one('Order_Placements', u_id, 0, o_id, 0) ## v_id and rating = -1, as placeholders.
+            insert_one('Order_Products', p_id, o_id, p_amount,purchased_price)
+            response = HttpResponse(f"Order {o_id} is created and product {p_id} is added successfully.")
+            response.status_code=201
+        return response
+    
+
+    if len(existing_orders) > 1: ##if there exist more than one, raise error 
+        response = HttpResponse("There exists more than one IN-PROGRESS order for user: {u_id}")
+        response.status_code = 409
+        return response
+
+    order = existing_orders[0]
+    o_id = order[0]
+    total_price = order[2]
+
+    existing_product = executeRaw(f"SELECT * FROM Order_Products WHERE o_id = {o_id} AND p_id = {p_id}")
+    if len(existing_product) > 0:
+        with transaction.atomic():
+            new_amount = existing_product[0][2] + p_amount
+            executeRaw(f"UPDATE Order_Products SET p_amount = {new_amount}, purchased_price = {purchased_price} WHERE o_id = {o_id} AND p_id = {p_id}")
+            total_price += p_amount * purchased_price
+            executeRaw(f"UPDATE Orders SET total_price = {total_price} WHERE o_id = {o_id}")
+            response = HttpResponse("Item amount updated in basket successfully")
+            response.status_code = 200
+        return response
+    
+
+    with transaction.atomic():
+        insert_one("Order_Products", p_id, o_id, p_amount, purchased_price)
+        total_price += p_amount * purchased_price
+        executeRaw(f"UPDATE Orders SET total_price = {total_price} WHERE o_id = {o_id}")
+        response = HttpResponse("Item added to basket successfully")
+        response.status_code = 201
+    return response
 
 def convert_to_serializable(result):
     serializable_result = []

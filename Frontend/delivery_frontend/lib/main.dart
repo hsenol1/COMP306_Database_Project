@@ -11,13 +11,13 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Gettir',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      //change home: to the view to be testes
-      home: AdminPage(),
-      //home: AdminPage(),
-    );
+        title: 'Gettir',
+        theme: ThemeData(
+          primarySwatch: Colors.blue,
+        ),
+        //change home: to the view to be testes
+        home: LoginScreen()
+        //home: AdminPage(),
+        );
   }
 }
