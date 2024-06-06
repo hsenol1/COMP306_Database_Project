@@ -1073,7 +1073,7 @@ def convert_decimals_to_str(result):
     
     return result
 
-  @csrf_exempt
+@csrf_exempt
 def add_item_to_bucket(request):
     if request.method != 'POST':
         response = HttpResponse("add_item_to_basket only accepts POST requests")
