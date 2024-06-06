@@ -718,6 +718,48 @@ def get_vouchers_by_u_id(request):
     return response
 
 @csrf_exempt
+def delete_basket(request):
+    if request.method != 'POST':
+        response = HttpResponse("delete_basket only accepts POST requests")
+        response.status_code = 405
+        return response 
+    
+    try: 
+        value = JSONParser().parse(request)
+    except Exception as e:
+        response = HttpResponse("Invalid JSON format.")
+        response.status_code = 400
+        return response
+    
+    if 'o_id' not in value:
+        response = HttpResponse("o_id is not found in request body")
+        response.status_code = 400
+        return response
+    
+    o_id = value['o_id']
+
+    result = executeRaw(f"SELECT order_status FROM Orders WHERE o_id = {o_id}")
+    if not result or len(result) <= 0:
+        response = HttpResponse("Basket does not exist")
+        response.status_code = 400
+        return response
+
+    order_status = result[0][0]
+    if order_status != "IN_PROGRESS":
+        response = HttpResponse("Order is not basket")
+        response.status_code = 400
+        return response
+    
+    with transaction.atomic():
+        executeRaw(f"DELETE FROM Order_Placements WHERE o_id = {o_id}")
+        executeRaw(f"DELETE FROM Order_Products WHERE o_id = {o_id}")
+        executeRaw(f"DELETE FROM Orders WHERE o_id = {o_id}")
+        response = HttpResponse("Basket deleted successfully")
+        response.status_code = 200
+        return response
+
+
+@csrf_exempt
 def get_basket_by_u_id(request):
     if request.method != 'POST':
         response = HttpResponse("get_basket_by_u_id only accepts POST requests")
