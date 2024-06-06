@@ -12,6 +12,9 @@ class UserInfo {
   });
 
   factory UserInfo.fromJson(Map<String, dynamic> json, String infoKey) {
+    if (infoKey == "admin_info") {
+      return UserInfo(address: "NONE", city: "NONE", phone: "NONE", id: -1);
+    }
     return UserInfo(
       address: json[infoKey][0] as String,
       city: json[infoKey][1] as String,

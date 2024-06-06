@@ -27,8 +27,7 @@ class NetworkService {
           'category': product[2],
           'price': product[3],
           'name': product[4],
-          'image':
-              'assets/bunch-bananas-isolated-on-white-600w-1722111529.png', // Placeholder image URL
+          'image': 'assets/' + product[4] + '.png', // Placeholder image URL
         };
       }).toList();
     } else {
@@ -200,39 +199,49 @@ class NetworkService {
     return response;
   }
 
-  Future<http.Response> getBucket(String username) async {
+  Future<http.Response> getBucket(int uid) async {
     final url = Uri.parse('http://$baseUrl/get-bucket/');
     final response = await http.post(
       url,
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
-        'username': username,
+        'uid': uid,
       }),
     );
     return response;
   }
 
-  Future<http.Response> createOrder(
-      String username, String paymentMethod) async {
-    final url = Uri.parse('http://$baseUrl/create-order/');
-    final response = await http.post(
-      url,
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({
-        'username': username,
-        'paymentMethod': paymentMethod,
-      }),
-    );
+  Future<http.Response> completeOrder(
+      int uid, String paymentMethod, int vid) async {
+    final url = Uri.parse('http://$baseUrl/complete-order/');
+    final response;
+    if (vid == -1) {
+      response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'uid': uid,
+          'paymentMethod': paymentMethod,
+        }),
+      );
+    } else {
+      response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(
+            {'uid': uid, 'paymentMethod': paymentMethod, 'vid': vid}),
+      );
+    }
     return response;
   }
 
-  Future<http.Response> getOrderHistory(String username) async {
+  Future<http.Response> getOrderHistory(int uid) async {
     final url = Uri.parse('http://$baseUrl/get-order-history/');
     final response = await http.post(
       url,
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
-        'username': username,
+        'uid': uid,
       }),
     );
     return response;
@@ -352,7 +361,7 @@ class NetworkService {
           'name': product[4],
           'quantity': product[5],
           'price': product[6],
-          'image': 'assets/bunch-bananas-isolated-on-white-600w-1722111529.png',
+          'image': 'assets/' + product[4] + '.png',
         };
       }).toList();
     } else {
@@ -382,8 +391,13 @@ class NetworkService {
     return await fetchVouchersTemplate(getVouchers);
   }
 
-  Future<http.Response> giveVoucherToOneCustomerPerCity(String voucherId) async {
-    return await getRequestTemplate('give-voucher-to-one-customer-per-city/$voucherId');
+  Future<http.Response> giveVoucherToOneCustomerPerCity(
+      String voucherId) async {
+    return await getRequestTemplate(
+        'give-voucher-to-one-customer-per-city/$voucherId');
   }
 
+  Future<http.Response> assignRandomVouchers(String voucherId) async {
+    return await getRequestTemplate('assign-random-vouchers/$voucherId');
+  }
 }
