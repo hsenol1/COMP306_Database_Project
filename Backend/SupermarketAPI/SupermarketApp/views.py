@@ -317,7 +317,7 @@ def get_products_with_higher_than_4_rating(request):
     return response
 
 
-
+# COMPLEX QUERY
 @csrf_exempt
 def get_top_5_lowest_rated_products(request):
     response = get_template('get_top_5_lowest_rated_products', """SELECT p.p_id, p.stock_amount, p.category, p.price, p.p_name
@@ -391,7 +391,7 @@ def get_customers(request):
     return response
 
 
-
+#COMPLEX QUERY
 @csrf_exempt
 def get_one_customer_per_city(request):
     response = get_template('get_one_customer_per_city', """SELECT c.*, u.*
@@ -406,7 +406,33 @@ def get_one_customer_per_city(request):
                                                                         """)
     return response
 
-
+#COMPLEX QUERY
+@csrf_exempt
+@transaction.atomic
+def give_voucher_to_one_customer_per_city(request, voucher_id):
+    customers = executeRaw("""SELECT c.*, u.*
+                            FROM Customers c
+                            JOIN Users u ON c.u_id = u.u_id
+                            JOIN (
+                                SELECT city, MIN(u_id) as min_u_id
+                                FROM Customers
+                                GROUP BY city
+                            ) as subquery
+                            ON c.u_id = subquery.min_u_id;
+                            """)
+    customers = convert_decimals_to_str(customers)
+    u_ids = [customer[3] for customer in customers]
+    for u_id in u_ids:
+        current_voucher_result = executeRaw(f"SELECT v_amount FROM Customer_Vouchers WHERE u_id = {u_id} AND v_id = {voucher_id}")
+        if not current_voucher_result or len(current_voucher_result) <= 0:
+            insert_one("Customer_Vouchers", u_id, voucher_id, 1)
+        else:
+            current_voucher_amount = current_voucher_result[0][0]
+            executeRaw(f"UPDATE Customer_Vouchers SET v_amount = {current_voucher_amount + 1} WHERE u_id = {u_id} AND v_id = {voucher_id}")
+    customers = json.dumps(customers)
+    response = HttpResponse(customers)
+    response.status_code = 200
+    return response
 
 @csrf_exempt
 def get_products_from_order(request, order_id):
@@ -515,7 +541,7 @@ def decimal_default(obj):
 
 
 @csrf_exempt
-def assign_random_vouchers(request):
+def assign_random_vouchers(request, voucher_id):
     if request.method != 'POST':
         response = HttpResponse("assign_vouchers only accepts POST requests")
         response.status_code = 405
@@ -539,10 +565,10 @@ def assign_random_vouchers(request):
             selected_customers = random.sample(customers, sample_size)
 
             for u_id in selected_customers:
-                has_voucher = executeRaw(f"SELECT v_amount FROM Customer_Vouchers WHERE u_id = {u_id} AND v_id = 2")
+                has_voucher = executeRaw(f"SELECT v_amount FROM Customer_Vouchers WHERE u_id = {u_id} AND v_id = {voucher_id}")
                 if has_voucher:
                     v_amount= has_voucher[0][0] + 1
-                    executeRaw(f"UPDATE Customer_Vouchers SET v_amount = {v_amount} WHERE {u_id} AND v_id = 2")
+                    executeRaw(f"UPDATE Customer_Vouchers SET v_amount = {v_amount} WHERE {u_id} AND v_id = {voucher_id}")
                 else:
                     insert_one("Customer_Vouchers", u_id, 2, 1)
 

@@ -13,3 +13,4 @@ Backend/SupermarketAPI/SupermarketApp/__pycache__/views.cpython-312.pyc
 Backend/SupermarketAPI/SupermarketApp/migrations/__pycache__/__init__.cpython-312.pyc
 Backend/SupermarketAPI/SupermarketApp/tests/__pycache__/__init__.cpython-312.pyc
 Backend/SupermarketAPI/SupermarketApp/tests/__pycache__/test_views.cpython-312.pyc
+Frontend/delivery_frontend/pubspec.lock
