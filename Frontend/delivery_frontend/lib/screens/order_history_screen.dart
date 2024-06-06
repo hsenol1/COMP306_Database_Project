@@ -14,6 +14,7 @@ class OrderHistoryScreen extends StatelessWidget {
       basket: Basket(uid: 0)
         ..addItem(
             Product(
+                id: 0,
                 name: 'Bananas',
                 price: 1.99,
                 image:
@@ -21,6 +22,7 @@ class OrderHistoryScreen extends StatelessWidget {
             2)
         ..addItem(
             Product(
+                id: 0,
                 name: 'Apples',
                 price: 2.49,
                 image:
@@ -35,6 +37,7 @@ class OrderHistoryScreen extends StatelessWidget {
       basket: Basket(uid: 0)
         ..addItem(
             Product(
+                id: 0,
                 name: 'Grapes',
                 price: 4.99,
                 image:
@@ -42,6 +45,7 @@ class OrderHistoryScreen extends StatelessWidget {
             1)
         ..addItem(
             Product(
+                id: 0,
                 name: 'Mangoes',
                 price: 5.99,
                 image:
@@ -56,6 +60,7 @@ class OrderHistoryScreen extends StatelessWidget {
       basket: Basket(uid: 0)
         ..addItem(
             Product(
+                id: 0,
                 name: 'Pineapples',
                 price: 6.99,
                 image:

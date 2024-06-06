@@ -1,6 +1,10 @@
+import 'dart:convert';
+
 import 'package:delivery_frontend/models/user.dart';
 import 'package:delivery_frontend/models/user_info.dart';
 import 'package:delivery_frontend/screens/voucher_screen';
+import 'package:delivery_frontend/services/network_service.dart';
+import 'package:delivery_frontend/utils/popup_utils.dart';
 import 'package:flutter/material.dart';
 import '../models/product.dart';
 import 'home_content.dart';
@@ -19,13 +23,22 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   int _selectedIndex = 0;
   Basket _basket = Basket(uid: 0);
-
+  final NetworkService _networkService = NetworkService();
   final List<Widget> _widgetOptions = [];
 
   @override
-  void initState() {
+  Future<void> initState() async {
     super.initState();
     _basket = Basket(uid: widget.user.id);
+    final response = await _networkService.getBasket(widget.user.id);
+    if (response.statusCode == 404) {
+      //GETTIRTODO
+    } else if (response.statusCode == 200) {
+      List<dynamic> decodedJson = jsonDecode(response.body);
+    } else {
+      showErrorPopup(context, "Network error.");
+    }
+    ;
     _widgetOptions.addAll([
       HomeContent(
         basket: _basket,

@@ -199,13 +199,25 @@ class NetworkService {
     return response;
   }
 
-  Future<http.Response> getBucket(int uid) async {
-    final url = Uri.parse('http://$baseUrl/get-bucket/');
+  Future<http.Response> getBasket(int uid) async {
+    final url = Uri.parse('http://$baseUrl/get-basket-by-u-id/');
     final response = await http.post(
       url,
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
-        'uid': uid,
+        'u_id': uid,
+      }),
+    );
+    return response;
+  }
+
+  Future<http.Response> getVoucherByUid(int uid) async {
+    final url = Uri.parse('http://$baseUrl/get-vouchers-by-u-id/');
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'u_id': uid,
       }),
     );
     return response;
@@ -241,7 +253,7 @@ class NetworkService {
       url,
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
-        'uid': uid,
+        'u_id': uid,
       }),
     );
     return response;
