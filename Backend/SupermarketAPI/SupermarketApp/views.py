@@ -505,7 +505,7 @@ def get_order_history_by_u_id(request):
         response.status_code = 400
         return response
     u_id = value["u_id"]
-    result = executeRaw(f"SELECT o.*, v.v_name, opl.rating FROM Order_Placements opl JOIN Orders o ON opl.o_id = o.o_id JOIN Vouchers v ON opl.v_id = v.v_id WHERE opl.u_id = {u_id}")
+    result = executeRaw(f"SELECT o.*, v.v_name, opl.rating FROM Order_Placements opl JOIN Orders o ON opl.o_id = o.o_id JOIN Vouchers v ON opl.v_id = v.v_id WHERE opl.u_id = {u_id} AND o.order_status != 'IN_PROGRESS'")
     result = convert_decimals_and_datetimes_to_str(result)
     
     for order in result:
