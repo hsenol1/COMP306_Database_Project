@@ -32,8 +32,6 @@ class CustomerDetailsPage extends StatelessWidget {
               SizedBox(height: 20),
               Text('Surname: ${customer['surname']}', style: TextStyle(fontSize: 16, color: Colors.black)),
               SizedBox(height: 20),
-              Text('Password: ${customer['password']}', style: TextStyle(fontSize: 16, color: Colors.black)),
-              SizedBox(height: 20),
               Text('City: ${customer['city']}', style: TextStyle(fontSize: 16, color: Colors.black)),
               SizedBox(height: 20),
               Text('Address: ${customer['home_address']}', style: TextStyle(fontSize: 16, color: Colors.black)),
