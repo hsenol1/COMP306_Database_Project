@@ -487,6 +487,8 @@ def assign_random_vouchers(request):
     citys = executeRaw("SELECT DISTINCT city FROM Customers")
     cities = [city[0] for city in citys]
 
+
+
     selected_cities = random.sample(cities, 5)
     response_message = []
 
