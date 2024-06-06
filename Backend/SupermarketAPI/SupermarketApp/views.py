@@ -871,6 +871,7 @@ def complete_order(request):
             response.status_code = 400
             return response
 
+    payment_type = value["payment_type"]
     with transaction.atomic():
         for product in order_products:
             p_id = product[0]
@@ -878,6 +879,7 @@ def complete_order(request):
             decrease_stock_amount(p_id, p_amount)
         
         executeRaw(f"UPDATE Orders SET order_status = 'delivered' WHERE o_id = {o_id}")
+        executeRaw(f"UPDATE Orders SET payment_type = '{payment_type}' WHERE o_id = {o_id}")
 
 
     response = HttpResponse("Order completed succesfully, our staff started to prepare.")
