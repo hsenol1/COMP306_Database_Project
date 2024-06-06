@@ -204,6 +204,52 @@ class _CustomersPageState extends State<CustomersPage> {
     }
   }
 
+  void _showGiveVoucherToSpecificUserDialog(BuildContext context, String userId) {
+    final _voucherIdController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Give Voucher to User', style: TextStyle(fontSize: 24)),
+          content: TextField(
+            controller: _voucherIdController,
+            decoration: InputDecoration(labelText: 'Voucher ID'),
+            keyboardType: TextInputType.number,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('Cancel', style: TextStyle(fontSize: 16, color: Colors.black)),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                String voucherId = _voucherIdController.text;
+                giveVoucherToUser(userId, voucherId);
+                Navigator.of(context).pop();
+              },
+              child: Text('Give Voucher', style: TextStyle(fontSize: 16, color: Colors.black)),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blue,
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> giveVoucherToUser(String userId, String voucherId) async {
+    try {
+      await networkService.giveVoucherToUser(userId, voucherId);
+      fetchCustomers(); // Refresh the list after giving the voucher
+    } catch (e) {
+      print(e);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -287,6 +333,16 @@ class _CustomersPageState extends State<CustomersPage> {
                                         Text('Surname: ${customer['surname']}', style: TextStyle(fontSize: 16, color: Colors.black)),
                                         Text('Phone: ${customer['phone']}', style: TextStyle(fontSize: 16, color: Colors.black)),
                                       ],
+                                    ),
+                                  ),
+                                  ElevatedButton(
+                                    onPressed: () {
+                                      _showGiveVoucherToSpecificUserDialog(context, customer['id'].toString());
+                                    },
+                                    child: Text('Give Voucher', style: TextStyle(fontSize: 16, color: Colors.black)),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.blue,
+                                      padding: EdgeInsets.symmetric(vertical: 12),
                                     ),
                                   ),
                                 ],

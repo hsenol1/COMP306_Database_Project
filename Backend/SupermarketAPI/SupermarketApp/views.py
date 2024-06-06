@@ -533,8 +533,7 @@ def give_voucher_by_u_id_and_v_id(request):
         return response
     v_id = value["v_id"]
     result = executeRaw (f"SELECT v_amount FROM Customer_Vouchers WHERE u_id = {u_id} AND v_id = {v_id}")
-    v_amount = result[0][0]
-    if len(result) == 0 or v_amount == 0:
+    if len(result) == 0 or result[0][0] == 0:
         executeRaw(f"INSERT INTO Customer_Vouchers VALUES ({u_id}, {v_id}, 1)")
         response = HttpResponse("Voucher given successfully")
         response.status_code = 200
@@ -543,6 +542,7 @@ def give_voucher_by_u_id_and_v_id(request):
     executeRaw(f"UPDATE Customer_Vouchers SET v_amount = v_amount + 1 WHERE u_id = {u_id} AND v_id = {v_id}")
     response = HttpResponse("Voucher given successfully")
     response.status_code = 200
+    return response
 
 @csrf_exempt
 def insert_voucher(request):

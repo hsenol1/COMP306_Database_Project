@@ -412,5 +412,17 @@ class NetworkService {
     return await fetchCustomersTemplate(() => getRequestWithIdTemplate('get-lowest-rater-customers', number));
   }
 
+  Future<http.Response> giveVoucherToUser(String userId, String voucherId) async {
+    final url = Uri.parse('http://$baseUrl/give-voucher-by-u-id-and-v-id/');
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'u_id': userId,
+        'v_id': voucherId,
+      }),
+    );
+    return response;
+  }
 
 }
