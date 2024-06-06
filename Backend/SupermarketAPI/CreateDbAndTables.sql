@@ -67,7 +67,7 @@ CREATE TABLE IF NOT EXISTS Order_Placements
 	(u_id INTEGER,
 	 v_id INTEGER,
 	 o_id INTEGER,
-	 rating INTEGER CHECK (rating BETWEEN 1 AND 5),
+	 rating INTEGER,
 	 PRIMARY KEY (u_id, v_id, o_id),
 	 FOREIGN KEY (u_id) REFERENCES Customers(u_id) ON UPDATE CASCADE,
 	 FOREIGN KEY (v_id) REFERENCES Vouchers(v_id) ON UPDATE CASCADE,

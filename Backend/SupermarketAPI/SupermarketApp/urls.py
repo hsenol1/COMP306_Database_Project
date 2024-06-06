@@ -31,6 +31,10 @@ urlpatterns = [
     path('complete-order/', views.complete_order, name = 'complete_order'),
     path('give-voucher-to-one-customer-per-city/<int:voucher_id>/', views.give_voucher_to_one_customer_per_city, name='give_voucher_to_one_customer_per_city'),
     path('assign-random-vouchers/<int:voucher_id>/',views.assign_random_vouchers, name ='assign_random_vouchers'),
+    path('add-item-to-bucket/', views.add_item_to_bucket, name='add_item_to_bucket'),
     path('get-basket-by-u-id/', views.get_basket_by_u_id, name='get_basket_by_u_id'),
     path('get-vouchers-by-u-id/', views.get_vouchers_by_u_id, name='get_vouchers_by_u_id'),
+    path('rate-order-by-o-id/', views.rate_order_by_o_id, name='rate_order_by_o_id'),
+    path('get-order-history-by-u-id/', views.get_order_history_by_u_id, name='get_order_history_by_u_id'),
+    path('give-voucher-by-u-id-and-v-id/', views.give_voucher_by_u_id_and_v_id, name='give_voucher_by_u_id_and_v_id'),
 ]
