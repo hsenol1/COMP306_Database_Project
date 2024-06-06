@@ -518,7 +518,7 @@ def get_order_history_by_u_id(request):
 
 @csrf_exempt
 def get_vouchers(request):
-    response = get_template('get_vouchers', "select * from vouchers")
+    response = get_template('get_vouchers', "select * from vouchers where v_id != 0")
     return response
 
 @csrf_exempt
