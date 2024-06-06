@@ -20,6 +20,7 @@ class LoginScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text('Login', style: TextStyle(fontSize: 24)),
         backgroundColor: Colors.blue,
+        automaticallyImplyLeading: false,
       ),
       body: Center(
         child: SingleChildScrollView(

@@ -7,10 +7,12 @@ class Order {
   final String orderMethod;
   final String? voucher;
   final Basket basket;
+  final double paidPrice;
   int rating;
 
   Order(
-      {required this.o_id,
+      {required this.paidPrice,
+      required this.o_id,
       required this.date,
       required this.status,
       required this.orderMethod,
@@ -20,6 +22,7 @@ class Order {
 
   factory Order.fromJson(List<dynamic> json) {
     return Order(
+      paidPrice: double.parse(json[2]),
       o_id: json[0] as int,
       date: json[3] as String,
       status: json[4] as String,

@@ -75,7 +75,7 @@ class _OrderCardState extends State<OrderCard> {
               Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Text(
-                    'Total: \$${widget.order.totalPrice.toStringAsFixed(2)}',
+                    'Total: \$${widget.order.paidPrice.toStringAsFixed(2)}',
                     style: TextStyle(fontSize: 24)),
               ),
             ],
@@ -117,7 +117,7 @@ class _OrderCardState extends State<OrderCard> {
                 ),
               SizedBox(height: 8),
               Text(
-                'Total Price: \$${widget.order.totalPrice.toStringAsFixed(2)}',
+                'Total Price: \$${widget.order.paidPrice.toStringAsFixed(2)}',
                 style: TextStyle(fontSize: 16),
               ),
               SizedBox(height: 8),
