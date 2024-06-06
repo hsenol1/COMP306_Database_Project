@@ -380,6 +380,12 @@ def decrease_product_quantity(request):
         return response
     # Update the product quantity in the database
     with transaction.atomic():
+        # Ensure there are enough products in stock
+        result = executeRaw(f"SELECT stock_amount FROM Products WHERE p_id = {p_id}")
+        if len(result) == 0 or result[0][0] < quantity:
+            response = HttpResponse("Not enough products in stock. Won't update quantity.")
+            response.status_code = 400
+            return response
         executeRaw(f"UPDATE Products SET stock_amount = stock_amount - {quantity} WHERE p_id = {p_id}")
     response = HttpResponse("Product quantity decreased successfully")
     response.status_code = 200
