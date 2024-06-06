@@ -408,8 +408,8 @@ class NetworkService {
     return await getRequestTemplate('assign-random-vouchers/$voucherId');
   }
 
-  Future<List<Map<String, dynamic>>> fetchCustomersWhoGaveTheLowestRatings(String voucherId) async {
-    return await fetchCustomersTemplate(() => getRequestWithIdTemplate('get-customer-lowest', voucherId));
+  Future<List<Map<String, dynamic>>> fetchCustomersWhoGaveTheLowestRatings(String number) async {
+    return await fetchCustomersTemplate(() => getRequestWithIdTemplate('get-lowest-rater-customers', number));
   }
 
 

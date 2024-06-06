@@ -163,10 +163,10 @@ class _CustomersPageState extends State<CustomersPage> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text('Get Customers with Lowest Ratings', style: TextStyle(fontSize: 24)),
+          title: Text('Get Lowest Rater Customers', style: TextStyle(fontSize: 24)),
           content: TextField(
             controller: _voucherIdController,
-            decoration: InputDecoration(labelText: 'Voucher ID'),
+            decoration: InputDecoration(labelText: 'No of Customers:'),
             keyboardType: TextInputType.number,
           ),
           actions: [
@@ -256,7 +256,7 @@ class _CustomersPageState extends State<CustomersPage> {
                     backgroundColor: Colors.red,
                     padding: EdgeInsets.symmetric(vertical: 12),
                   ),
-                  child: Text('Get Customers with Lowest Ratings', style: TextStyle(fontSize: 16)),
+                  child: Text('Get Lowest Rater Customers', style: TextStyle(fontSize: 16)),
                 ),
               ],
             ),

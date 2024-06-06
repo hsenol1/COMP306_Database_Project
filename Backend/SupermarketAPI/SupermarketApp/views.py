@@ -1191,7 +1191,7 @@ def get_orders(request):
 # COMPLEX QUERY
 @csrf_exempt
 def get_lowest_rater_customers(request, num_customers):
-    result = executeRaw(f"SELECT u.*, c.*, AVG(op.rating) FROM Users u JOIN Customers c ON u.u_id = c.u_id JOIN Order_Placements op ON c.u_id = op.u_id GROUP BY u.u_id ORDER BY AVG(op.rating) ASC LIMIT {num_customers}")
+    result = executeRaw(f"SELECT c.home_address, c.city, c.phone, u.u_id, u.u_id, u.u_name, u.surname, u.username, u.pwd, AVG(op.rating) FROM Users u JOIN Customers c ON u.u_id = c.u_id JOIN Order_Placements op ON c.u_id = op.u_id GROUP BY u.u_id ORDER BY AVG(op.rating) ASC LIMIT {num_customers}")
     result = convert_decimals_to_str(result)
     result = json.dumps(result)
     response = HttpResponse(result)
