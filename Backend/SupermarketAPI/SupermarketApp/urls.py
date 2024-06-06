@@ -28,4 +28,5 @@ urlpatterns = [
     path('get-last-10-orders/', views.get_last_10_orders, name='get-last-10-orders'),
     path('login-user/', views.login_user, name='login_user'),
     path('give-voucher-to-one-customer-per-city/<int:voucher_id>/', views.give_voucher_to_one_customer_per_city, name='give_voucher_to_one_customer_per_city'),
+    path('assign-random-vouchers/',views.assign_random_vouchers, name ='assign_random_vouchers'),
 ]

@@ -64,6 +64,52 @@ class _CustomersPageState extends State<CustomersPage> {
     }
   }
 
+  void _showGiveVoucherDialog(BuildContext context) {
+    final _voucherIdController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Give Vouchers to Customers', style: TextStyle(fontSize: 24)),
+          content: TextField(
+            controller: _voucherIdController,
+            decoration: InputDecoration(labelText: 'Voucher ID'),
+            keyboardType: TextInputType.number,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('Cancel', style: TextStyle(fontSize: 16, color: Colors.black)),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                String voucherId = _voucherIdController.text;
+                giveVouchersToNCustomerPerCity(voucherId);
+                Navigator.of(context).pop();
+              },
+              child: Text('Give Vouchers', style: TextStyle(fontSize: 16, color: Colors.black)),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blue,
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> giveVouchersToNCustomerPerCity(String voucherId) async {
+    try {
+      await networkService.giveVoucherToOneCustomerPerCity(voucherId);
+      fetchCustomers(); // Refresh the list after giving vouchers
+    } catch (e) {
+      print(e);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -75,15 +121,30 @@ class _CustomersPageState extends State<CustomersPage> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            ElevatedButton(
-              onPressed: () {
-                fetchOneCustomerPerCity();
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue,
-                padding: EdgeInsets.symmetric(vertical: 12),
-              ),
-              child: Text('Show one customer per city', style: TextStyle(fontSize: 16)),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    fetchOneCustomerPerCity();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue,
+                    padding: EdgeInsets.symmetric(vertical: 12),
+                  ),
+                  child: Text('Show one customer per city', style: TextStyle(fontSize: 16)),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    _showGiveVoucherDialog(context);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green,
+                    padding: EdgeInsets.symmetric(vertical: 12),
+                  ),
+                  child: Text('Give Vouchers', style: TextStyle(fontSize: 16)),
+                ),
+              ],
             ),
             SizedBox(height: 20), // Add spacing between button and list
             isLoading
