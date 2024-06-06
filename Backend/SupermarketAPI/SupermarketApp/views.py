@@ -9,6 +9,7 @@ from decimal import Decimal
 from datetime import datetime
 import decimal
 from django.core.serializers.json import DjangoJSONEncoder  
+import random
 
 # Create your views here.
 
@@ -490,8 +491,28 @@ def delete_product(request):
     return delete_template(request, "Products", "p_id")
 
 @csrf_exempt
-def delete_customer(request):
-    return delete_template(request, "Customers", "u_id")
+def delete_customer(request, table_name = 'Customers', id_field ='u_id'):
+    if request.method != 'POST':
+        response = HttpResponse(f"delete_{table_name} only accepts POST requests")
+        response.status_code = 405
+        return response
+    value = JSONParser().parse(request)
+    if "id" not in value:
+        response = HttpResponse(f"{table_name} id not found in request body")
+        response.status_code = 400
+        return response
+    object_id = value["id"]
+    existing_object_result = executeRaw(f"SELECT * FROM {table_name} WHERE {id_field} = '{object_id}'")
+    if len(existing_object_result) == 0:
+        response = HttpResponse(f"{table_name} not found")
+        response.status_code = 404
+        return response
+    with transaction.atomic():
+        executeRaw(f"DELETE FROM {table_name} WHERE {id_field} = '{object_id}'")
+        executeRaw(f"DELETE FROM Users WHERE {id_field} = '{object_id}'")
+    response = HttpResponse(f"{table_name} deleted successfully")
+    response.status_code = 200
+    return response
 
 @csrf_exempt
 def delete_voucher(request):
@@ -542,44 +563,29 @@ def decimal_default(obj):
 
 
 @csrf_exempt
+@transaction.atomic
 def assign_random_vouchers(request, voucher_id):
-    if request.method != 'POST':
-        response = HttpResponse("assign_vouchers only accepts POST requests")
-        response.status_code = 405
-        return response
-    
-    citys = executeRaw("SELECT DISTINCT city FROM Customers")
-    cities = [city[0] for city in citys]
-
-
-
-    selected_cities = random.sample(cities, 5)
+    cities = executeRaw("SELECT DISTINCT city FROM Customers")
+    cities = [city[0] for city in cities]
+    selected_cities = random.sample(cities, min(len(cities), 5))  # Ensure not to exceed the number of available cities
     response_message = []
-
-    with transaction.atomic():
-        for city in selected_cities:
-            customer_result = executeRaw(f"SELECT u_id FROM Customers WHERE city = '{city}'")
-
-            customers = [customer[0] for customer in customer_result]
-
-            sample_size = min(len(customers), 5)
-            selected_customers = random.sample(customers, sample_size)
-
-            for u_id in selected_customers:
-                has_voucher = executeRaw(f"SELECT v_amount FROM Customer_Vouchers WHERE u_id = {u_id} AND v_id = {voucher_id}")
-                if has_voucher:
-                    v_amount= has_voucher[0][0] + 1
-                    executeRaw(f"UPDATE Customer_Vouchers SET v_amount = {v_amount} WHERE {u_id} AND v_id = {voucher_id}")
-                else:
-                    insert_one("Customer_Vouchers", u_id, 2, 1)
-
-                
-                response_message.append(f"Voucher assigned to user {u_id} in city {city}")
-
-                
+    for city in selected_cities:
+        customer_result = executeRaw(f"SELECT u_id FROM Customers WHERE city = '{city}'")
+        customers = [customer[0] for customer in customer_result]
+        sample_size = min(len(customers), 5)  # Ensure not to exceed the number of available customers
+        selected_customers = random.sample(customers, sample_size)
+        for u_id in selected_customers:
+            current_voucher_result = executeRaw(f"SELECT v_amount FROM Customer_Vouchers WHERE u_id = {u_id} AND v_id = {voucher_id}")
+            if not current_voucher_result or len(current_voucher_result) <= 0:
+                insert_one("Customer_Vouchers", u_id, voucher_id, 1)
+            else:
+                current_voucher_amount = current_voucher_result[0][0]
+                executeRaw(f"UPDATE Customer_Vouchers SET v_amount = {current_voucher_amount + 1} WHERE u_id = {u_id} AND v_id = {voucher_id}")
+            response_message.append(f"Voucher assigned to user {u_id} in city {city}")
     response = HttpResponse("\n".join(response_message))
     response.status_code = 200
     return response
+
 
 
 
