@@ -865,8 +865,6 @@ def complete_order(request):
             response.status_code = 400
             return response
 
-    if v_id:
-        total_price = apply_voucher(total_price, v_id, u_id)
     
     if total_price < 100:
         add_on = 100.00 - total_price
@@ -885,6 +883,9 @@ def complete_order(request):
             response.status_code = 400
             return response
 
+    if v_id:
+        total_price = apply_voucher(total_price, v_id, u_id)
+
     payment_type = value["payment_type"]
     with transaction.atomic():
         for product in order_products:
@@ -892,6 +893,8 @@ def complete_order(request):
             p_amount = product[1]
             decrease_stock_amount(p_id, p_amount)
         
+        executeRaw(f"UPDATE Order_Placements SET v_id = {v_id} WHERE o_id = {o_id}")
+        executeRaw(f"UPDATE Orders SET total_price = {total_price} WHERE o_id = {o_id}")
         executeRaw(f"UPDATE Orders SET order_status = 'delivered' WHERE o_id = {o_id}")
         executeRaw(f"UPDATE Orders SET payment_type = '{payment_type}' WHERE o_id = {o_id}")
 
