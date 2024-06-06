@@ -512,6 +512,50 @@ def decimal_default(obj):
         return float(obj)
     raise TypeError
 
+
+
+@csrf_exempt
+def assign_random_vouchers(request):
+    if request.method != 'POST':
+        response = HttpResponse("assign_vouchers only accepts POST requests")
+        response.status_code = 405
+        return response
+    
+    citys = executeRaw("SELECT DISTINCT city FROM Customers")
+    cities = [city[0] for city in citys]
+
+
+
+    selected_cities = random.sample(cities, 5)
+    response_message = []
+
+    with transaction.atomic():
+        for city in selected_cities:
+            customer_result = executeRaw(f"SELECT u_id FROM Customers WHERE city = '{city}'")
+
+            customers = [customer[0] for customer in customer_result]
+
+            sample_size = min(len(customers), 5)
+            selected_customers = random.sample(customers, sample_size)
+
+            for u_id in selected_customers:
+                has_voucher = executeRaw(f"SELECT v_amount FROM Customer_Vouchers WHERE u_id = {u_id} AND v_id = 2")
+                if has_voucher:
+                    v_amount= has_voucher[0][0] + 1
+                    executeRaw(f"UPDATE Customer_Vouchers SET v_amount = {v_amount} WHERE {u_id} AND v_id = 2")
+                else:
+                    insert_one("Customer_Vouchers", u_id, 2, 1)
+
+                
+                response_message.append(f"Voucher assigned to user {u_id} in city {city}")
+
+                
+    response = HttpResponse("\n".join(response_message))
+    response.status_code = 200
+    return response
+
+
+
 @csrf_exempt
 def create_order(request):
     if request.method != 'POST':
