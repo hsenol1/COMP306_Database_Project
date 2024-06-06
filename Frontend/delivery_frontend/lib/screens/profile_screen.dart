@@ -6,13 +6,6 @@ import 'order_history_screen.dart';
 class ProfileScreen extends StatelessWidget {
   // Mock user data
   final User user;
-  final String name = 'John';
-  final String surname = 'Doe';
-  final String username = 'john_doe';
-  final String password = 'password123';
-  final String city = 'New York';
-  final String address = '123 Main St';
-  final String phoneNumber = '123-456-7890';
   ProfileScreen({required this.user});
   @override
   Widget build(BuildContext context) {
@@ -31,10 +24,7 @@ class ProfileScreen extends StatelessWidget {
             Text('Username: ${user.username}',
                 style: TextStyle(fontSize: 16, color: Colors.black)),
             SizedBox(height: 10),
-            Text('Password: ${user.pwd}',
-                style: TextStyle(fontSize: 16, color: Colors.black)),
-            SizedBox(height: 10),
-            Text('City: $city',
+            Text('City: ${user.customerInfo.city}',
                 style: TextStyle(fontSize: 16, color: Colors.black)),
             SizedBox(height: 10),
             Text('Address: ${user.customerInfo.address}',
