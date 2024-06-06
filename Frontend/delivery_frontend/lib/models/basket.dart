@@ -4,9 +4,12 @@ import 'package:flutter/foundation.dart';
 import 'product.dart';
 
 class Basket {
-  final ValueNotifier<List<BasketItem>> _items = ValueNotifier<List<BasketItem>>([]);
-
+  final ValueNotifier<List<BasketItem>> _items =
+      ValueNotifier<List<BasketItem>>([]);
+  final int uid;
   List<BasketItem> get items => _items.value;
+
+  Basket({required this.uid});
 
   void addItem(Product product, int count) {
     List<BasketItem> newItems = List.from(_items.value);
@@ -29,7 +32,8 @@ class Basket {
   }
 
   double get totalPrice {
-    return _items.value.fold(0, (total, item) => total + (item.product.price * item.count));
+    return _items.value
+        .fold(0, (total, item) => total + (item.product.price * item.count));
   }
 
   bool get isEmpty => _items.value.isEmpty;
