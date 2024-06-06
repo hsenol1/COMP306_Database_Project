@@ -28,6 +28,11 @@ def register_customer(request):
     surname = value["surname"]
     username = value["username"]
     pwd = value["pwd"]
+    if not (home_address and city and phone and u_name and surname and username and pwd):
+        response = HttpResponse("empty field in register_customer body")
+        response.status_code = 400
+        return response
+    
     existing_user_result = executeRaw(f"select * from Users where username = '{username}'")
 
     if len(existing_user_result) > 0:
