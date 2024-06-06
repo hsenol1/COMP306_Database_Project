@@ -16,7 +16,7 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
       ),
       //change home: to the view to be testes
-      home: LoginScreen(),
+      home: AdminPage(),
       //home: AdminPage(),
     );
   }
