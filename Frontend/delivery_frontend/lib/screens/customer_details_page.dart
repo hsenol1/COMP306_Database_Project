@@ -38,21 +38,6 @@ class CustomerDetailsPage extends StatelessWidget {
               SizedBox(height: 20),
               Text('Phone: ${customer['phone'].toString()}', style: TextStyle(fontSize: 16, color: Colors.black)),
               SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  ElevatedButton(
-                    onPressed: () {
-                      _showDeleteConfirmationDialog(context);
-                    },
-                    child: Text('Delete Account', style: TextStyle(fontSize: 16)),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.red,
-                      padding: EdgeInsets.symmetric(vertical: 12, horizontal: 24),
-                    ),
-                  ),
-                ],
-              ),
             ],
           ),
         ),
