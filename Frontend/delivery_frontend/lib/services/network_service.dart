@@ -131,7 +131,7 @@ class NetworkService {
   }
 
   Future<http.Response> login(String username, String password) async {
-    final url = Uri.parse('http://$baseUrl/login-customer/');
+    final url = Uri.parse('http://$baseUrl/login-user/');
     final response = await http.post(
       url,
       headers: {'Content-Type': 'application/json'},

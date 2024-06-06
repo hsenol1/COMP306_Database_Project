@@ -1,3 +1,7 @@
+import 'dart:convert';
+
+import 'package:delivery_frontend/models/user.dart';
+import 'package:delivery_frontend/models/user_info.dart';
 import 'package:delivery_frontend/screens/main_screen.dart';
 import 'package:delivery_frontend/utils/popup_utils.dart';
 import 'package:flutter/material.dart';
@@ -6,8 +10,7 @@ import 'admin_page.dart';
 import 'package:delivery_frontend/services/network_service.dart';
 
 class LoginScreen extends StatelessWidget {
-  final NetworkService _networkService =
-      NetworkService();
+  final NetworkService _networkService = NetworkService();
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
 
@@ -24,8 +27,7 @@ class LoginScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
-              SizedBox(
-                  height: 30),
+              SizedBox(height: 30),
               Text(
                 'GETTİR',
                 style: TextStyle(
@@ -66,29 +68,24 @@ class LoginScreen extends StatelessWidget {
               SizedBox(height: 30),
               ElevatedButton(
                 onPressed: () async {
-                  //GETTIRTODO: Until backend implements login
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => MainScreen()));
-                  return;
                   final response = await _networkService.login(
                       _usernameController.text, _passwordController.text);
-                  if (response.statusCode == 201) {
-                    //GettirTODO:
-                    //if testing admin make isAdmin = true.
-                    //Implement admin check in backend to handle the logic from response.
-                    //Implement statusCode for nonexisted user handle (For now, it is 999)
-                    //Get user data to write into profile page from this response.
-                    final isAdmin = false;
-                    if (isAdmin) {
+                  if (response.statusCode == 200) {
+                    List<dynamic> jsonData = jsonDecode(response.body);
+                    User _user = User.fromJson(jsonData);
+                    if (_user.isAdmin) {
                       Navigator.push(context,
                           MaterialPageRoute(builder: (context) => AdminPage()));
                     } else {
                       Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => MainScreen()));
+                            builder: (context) => MainScreen(
+                              user: _user,
+                            ),
+                          ));
                     }
-                  } else if (response.statusCode == 999) {
+                  } else if (response.statusCode == 401) {
                     showErrorPopup(context, response.body);
                   } else {
                     showErrorPopup(
