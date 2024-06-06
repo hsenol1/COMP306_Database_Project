@@ -110,6 +110,52 @@ class _CustomersPageState extends State<CustomersPage> {
     }
   }
 
+  void _showAssignRandomVouchersDialog(BuildContext context) {
+    final _voucherIdController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Assign Random Vouchers to Customers', style: TextStyle(fontSize: 24)),
+          content: TextField(
+            controller: _voucherIdController,
+            decoration: InputDecoration(labelText: 'Voucher ID'),
+            keyboardType: TextInputType.number,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('Cancel', style: TextStyle(fontSize: 16, color: Colors.black)),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                String voucherId = _voucherIdController.text;
+                assignRandomVouchers(voucherId);
+                Navigator.of(context).pop();
+              },
+              child: Text('Assign Vouchers', style: TextStyle(fontSize: 16, color: Colors.black)),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blue,
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> assignRandomVouchers(String voucherId) async {
+    try {
+      await networkService.assignRandomVouchers(voucherId);
+      fetchCustomers(); // Refresh the list after assigning random vouchers
+    } catch (e) {
+      print(e);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -143,6 +189,16 @@ class _CustomersPageState extends State<CustomersPage> {
                     padding: EdgeInsets.symmetric(vertical: 12),
                   ),
                   child: Text('Give Vouchers', style: TextStyle(fontSize: 16)),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    _showAssignRandomVouchersDialog(context);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.orange,
+                    padding: EdgeInsets.symmetric(vertical: 12),
+                  ),
+                  child: Text('Assign Random Vouchers', style: TextStyle(fontSize: 16)),
                 ),
               ],
             ),

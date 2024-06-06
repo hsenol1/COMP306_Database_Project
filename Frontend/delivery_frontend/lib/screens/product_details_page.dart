@@ -134,7 +134,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Image.asset(product['image'], width: double.infinity, height: 200, fit: BoxFit.cover),
+                Image.network(product['image'], width: double.infinity, height: 200, fit: BoxFit.cover),
                 SizedBox(height: 20),
                 Text('Name: ${product['name']}', style: TextStyle(fontSize: 16, color: Colors.black)),
                 SizedBox(height: 20),

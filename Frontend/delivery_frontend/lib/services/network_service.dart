@@ -27,8 +27,7 @@ class NetworkService {
           'category': product[2],
           'price': product[3],
           'name': product[4],
-          'image':
-              'assets/bunch-bananas-isolated-on-white-600w-1722111529.png', // Placeholder image URL
+          'image': 'assets/' + product[4] + '.png', // Placeholder image URL
         };
       }).toList();
     } else {
@@ -362,7 +361,7 @@ class NetworkService {
           'name': product[4],
           'quantity': product[5],
           'price': product[6],
-          'image': 'assets/bunch-bananas-isolated-on-white-600w-1722111529.png',
+          'image': 'assets/' + product[4] + '.png',
         };
       }).toList();
     } else {
@@ -396,5 +395,9 @@ class NetworkService {
       String voucherId) async {
     return await getRequestTemplate(
         'give-voucher-to-one-customer-per-city/$voucherId');
+  }
+
+  Future<http.Response> assignRandomVouchers(String voucherId) async {
+    return await getRequestTemplate('assign-random-vouchers/$voucherId');
   }
 }

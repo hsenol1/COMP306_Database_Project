@@ -593,6 +593,80 @@ def is_enough_stock(p_id, p_amount):
     
     return True, None 
 
+@csrf_exempt
+def get_vouchers_by_u_id(request):
+    if request.method != 'POST':
+        response = HttpResponse("get_vouchers_by_u_id only accepts POST requests")
+        response.status_code = 405
+        return response 
+    
+    try: 
+        value = JSONParser().parse(request)
+    except Exception as e:
+        response = HttpResponse("Invalid JSON format.")
+        response.status_code = 400
+        return response
+    
+    if 'u_id' not in value:
+        response = HttpResponse("u_id is not found in request body")
+        response.status_code = 400
+        return response
+    
+    u_id = value['u_id']
+    try:
+        result = executeRaw(f"SELECT cv.v_amount, v.* FROM Customer_Vouchers cv JOIN Vouchers v ON cv.v_id = v.v_id WHERE cv.u_id = {u_id}")
+        result = convert_decimals_to_str(result)
+        result = json.dumps(result, cls=DjangoJSONEncoder)
+        response = HttpResponse(result)
+        response.status_code = 200
+    except Exception as e:
+        response = HttpResponse(f"Internal Server Error: {str(e)}")
+        response.status_code = 500
+    return response
+
+@csrf_exempt
+def get_basket_by_u_id(request):
+    if request.method != 'POST':
+        response = HttpResponse("get_basket_by_u_id only accepts POST requests")
+        response.status_code = 405
+        return response 
+    
+    try: 
+        value = JSONParser().parse(request)
+    except Exception as e:
+        response = HttpResponse("Invalid JSON format.")
+        response.status_code = 400
+        return response
+    
+    if 'u_id' not in value:
+        response = HttpResponse("u_id is not found in request body")
+        response.status_code = 400
+        return response
+    
+    u_id = value['u_id']
+    try:
+        basket_id_result = executeRaw(f"SELECT o.o_id FROM Orders o JOIN Order_Placements op ON o.o_id = op.o_id WHERE op.u_id = {u_id} AND o.order_status = 'IN_PROGRESS'")
+        if len(basket_id_result) == 0:
+            response = HttpResponse("No basket found for this user 1")
+            response.status_code = 404
+            return response
+        basket_id_result = convert_decimals_to_str(basket_id_result)
+        basket_id = basket_id_result[0][0]
+        # id, name, price, amount
+        result = executeRaw(f"SELECT p.p_id, p.name, p.price, op.amount FROM Products p JOIN Order_Products op ON p.p_id = op.p_id WHERE op.o_id = {basket_id}")
+        result = convert_decimals_to_str(result)
+        if len(result) == 0:
+            response = HttpResponse("No basket found for this user 2")
+            response.status_code = 404
+            return response
+        result = result[0]
+        response = HttpResponse(json.dumps(result, cls=DjangoJSONEncoder))
+        response.status_code = 200
+    except Exception as e:
+        response = HttpResponse(f"Internal Server Error: {str(e)}")
+        response.status_code = 500
+
+    return response
 
 @csrf_exempt
 def complete_order(request):
@@ -622,6 +696,7 @@ def complete_order(request):
     
     if len(existing_orders) > 1:
         response = HttpResponse(f"There exists more than one IN-PROGRESS order for user: {u_id}")
+        response.status_code = 409
         return response 
     
 
@@ -751,8 +826,6 @@ def create_order(request):
         rating = value["rating"]
         if v_id is None:
             v_id = get_next_id("Vouchers", "v_id")  # 
-        if rating is None:
-            rating = 5  # default 
 
         executeRaw(f"INSERT INTO Order_Placements (u_id, v_id, o_id, rating) VALUES ({u_id}, {v_id}, {o_id}, {rating})")
 
@@ -779,7 +852,6 @@ def create_order(request):
 # #   "voucher_id": 5,
 # #   "rating": 4
 # # }
-
 
 
 
