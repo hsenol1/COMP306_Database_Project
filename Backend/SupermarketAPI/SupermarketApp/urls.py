@@ -31,5 +31,5 @@ urlpatterns = [
     path('complete-order/', views.complete_order, name = 'complete_order'),
     path('give-voucher-to-one-customer-per-city/<int:voucher_id>/', views.give_voucher_to_one_customer_per_city, name='give_voucher_to_one_customer_per_city'),
     path('assign-random-vouchers/<int:voucher_id>/',views.assign_random_vouchers, name ='assign_random_vouchers'),
-    
+    path('add-item-to-bucket/', views.add_item_to_bucket, name='add_item_to_bucket'),
 ]
