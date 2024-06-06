@@ -749,7 +749,7 @@ def delete_basket(request):
         response = HttpResponse("No basket found for this user")
         response.status_code = 404
         return response
-    basket_id_result = convert_decimals_to_str(basket_id_result)
+    basket_id_result = convert_decimals_and_datetimes_to_str(basket_id_result)
     o_id = basket_id_result[0][0]
 
     result = executeRaw(f"SELECT order_status FROM Orders WHERE o_id = {o_id}")
@@ -1253,7 +1253,7 @@ def get_orders(request):
 @csrf_exempt
 def get_lowest_rater_customers(request, num_customers):
     result = executeRaw(f"SELECT c.home_address, c.city, c.phone, u.u_id, u.u_id, u.u_name, u.surname, u.username, u.pwd, AVG(op.rating) FROM Users u JOIN Customers c ON u.u_id = c.u_id JOIN Order_Placements op ON c.u_id = op.u_id GROUP BY u.u_id ORDER BY AVG(op.rating) ASC LIMIT {num_customers}")
-    result = convert_decimals_to_str(result)
+    result = convert_decimals_and_datetimes_to_str(result)
     result = json.dumps(result)
     response = HttpResponse(result)
     response.status_code = 200
