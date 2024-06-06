@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 class NetworkService {
   //web: 127.0.0.1:8000
   //android emul: 10.0.2.2:8000
-  final String baseUrl = '127.0.0.1:8000';
+  final String baseUrl = '10.0.2.2:8000';
 
   Future<http.Response> getRequestTemplate(String endpoint) async {
     final url = Uri.parse('http://$baseUrl/$endpoint');
