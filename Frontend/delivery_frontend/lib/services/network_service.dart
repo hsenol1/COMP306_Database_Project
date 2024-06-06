@@ -386,4 +386,7 @@ class NetworkService {
     return await getRequestTemplate('give-voucher-to-one-customer-per-city/$voucherId');
   }
 
+  Future<http.Response> assignRandomVouchers(String voucherId) async {
+    return await getRequestTemplate('assign-random-vouchers/$voucherId');
+  }
 }
