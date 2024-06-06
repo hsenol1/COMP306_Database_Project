@@ -450,14 +450,100 @@ def get_products_from_order(request, order_id):
             """
     return get_template("get_products_from_order", query)
 
+@csrf_exempt
+def rate_order_by_o_id(request):
+    if request.method != 'POST':
+        response = HttpResponse("rate_order_by_o_id only accepts POST requests")
+        response.status_code = 405
+        return response
+    value = JSONParser().parse(request)
+    if "o_id" not in value:
+        response = HttpResponse("o_id not found in request body")
+        response.status_code = 400
+        return response
+    o_id = value["o_id"]
+    rating = value["rating"]
+    if not (1 <= rating <= 5):
+        response = HttpResponse("Invalid rating. It must be between 1 and 5.")
+        response.status_code = 400
+        return response
+    rating_result = executeRaw(f"SELECT rating FROM Order_Placements op WHERE op.o_id = {o_id}")
+    if len(rating_result) == 0:
+        response = HttpResponse("Order not found in Order_Placements table")
+        response.status_code = 404
+        return response
+    rating = rating_result[0][0]
+    if rating is not None and rating != 0:
+        response = HttpResponse("Order already rated")
+        response.status_code = 400
+        return response
+    with transaction.atomic():
+        executeRaw(f"UPDATE Order_Placements SET rating = {rating} WHERE o_id = {o_id}")
+    response = HttpResponse("Order rated successfully")
+    response.status_code = 200
+    return response
 
+@csrf_exempt
+def get_order_history_by_u_id(request):
+    # rating, order.*, v_name, [opr.*, p_name]
+    if request.method != 'POST':
+        response = HttpResponse("get_order_history_by_u_id only accepts POST requests")
+        response.status_code = 405
+        return response
+    value = JSONParser().parse(request)
+    if "u_id" not in value:
+        response = HttpResponse("u_id not found in request body")
+        response.status_code = 400
+        return response
+    u_id = value["u_id"]
+    result = executeRaw(f"SELECT o.*, v.v_name, opl.rating FROM Order_Placements opl JOIN Orders o ON opl.o_id = o.o_id JOIN Vouchers v ON opl.v_id = v.v_id WHERE opl.u_id = {u_id}")
+    result = convert_decimals_to_str(result)
+    
+    for order in result:
+        o_id = order[0]
+        order_products = executeRaw(f"SELECT p.p_name, opr.* FROM Order_Products opr JOIN Products p ON opr.p_id = p.p_id WHERE opr.o_id = {o_id}")
+        order_products = convert_decimals_to_str(order_products)
+        order.append(order_products)
+
+    result = convert_decimals_to_str(result)
+    result = json.dumps(result)
+    response = HttpResponse(result)
+    response.status_code = 200
+    return response
 
 @csrf_exempt
 def get_vouchers(request):
     response = get_template('get_vouchers', "select * from vouchers")
     return response
 
-
+@csrf_exempt
+def give_voucher_by_u_id_and_v_id(request):
+    if request.method != 'POST':
+        response = HttpResponse("give_voucher_by_u_id only accepts POST requests")
+        response.status_code = 405
+        return response
+    value = JSONParser().parse(request)
+    if "u_id" not in value:
+        response = HttpResponse("u_id not found in request body")
+        response.status_code = 400
+        return response
+    u_id = value["u_id"]
+    if "v_id" not in value:
+        response = HttpResponse("v_id not found in request body")
+        response.status_code = 400
+        return response
+    v_id = value["v_id"]
+    result = executeRaw (f"SELECT v_amount FROM Customer_Vouchers WHERE u_id = {u_id} AND v_id = {v_id}")
+    v_amount = result[0][0]
+    if len(result) == 0 or v_amount == 0:
+        executeRaw(f"INSERT INTO Customer_Vouchers VALUES ({u_id}, {v_id}, 1)")
+        response = HttpResponse("Voucher given successfully")
+        response.status_code = 200
+        return response
+    
+    executeRaw(f"UPDATE Customer_Vouchers SET v_amount = v_amount + 1 WHERE u_id = {u_id} AND v_id = {v_id}")
+    response = HttpResponse("Voucher given successfully")
+    response.status_code = 200
 
 @csrf_exempt
 def insert_voucher(request):
@@ -711,24 +797,40 @@ def complete_order(request):
 
     order = existing_orders[0]
     o_id = order[0]
-    total_price = order[2]
-    print(total_price)
-    total_price = float(total_price)
-    v_id = value['v_id']
+    total_price = float(order[2])
+    v_id = value.get('v_id', None)
+
+    order_products = executeRaw(f"SELECT p_id, p_amount FROM Order_Products WHERE o_id = {o_id}")
+    for product in order_products:
+        p_id = product[0]
+        p_amount = product[1]
+        is_available, response_message = is_enough_stock(p_id, p_amount)
+        if not is_available:
+            response = HttpResponse(response_message)
+            response.status_code = 400
+            return response
 
     if v_id:
-        apply_voucher(total_price)
-    
+        total_price = apply_voucher(total_price, v_id, u_id)
     
     if total_price < 100:
         add_on = 100.00 - total_price
         response = HttpResponse(f"Total price is less than 100, you need to add {add_on} TL wort products.")
         response.status_code = 400
         return response 
-    ##Add vouchers here, TO BE COMPLETED.
+
+
+    order_products = executeRaw(f"SELECT p_id, p_amount FROM Order_Products WHERE o_id = {o_id}")
+    for product in order_products:
+        p_id = product[0]
+        p_amount = product[1]
+        is_available, response_message = is_enough_stock(p_id, p_amount)
+        if not is_available:
+            response = HttpResponse(response_message)
+            response.status_code = 400
+            return response
 
     with transaction.atomic():
-        order_products = executeRaw(f"SELECT p_id, p_amount FROM Order_Products WHERE o_id = {o_id}")
         for product in order_products:
             p_id = product[0]
             p_amount = product[1]
@@ -806,6 +908,12 @@ def add_item_to_bucket(request):
         response.status_code = 400
         return response
     
+    is_available, response_message = is_enough_stock(p_id, p_amount)
+    if not is_available:
+        response = HttpResponse(response_message)
+        response.status_code = 400
+        return response
+
     existing_orders = executeRaw(f"SELECT * FROM Orders o JOIN Order_Placements op ON o.o_id = op.o_id WHERE op.u_id = {u_id} AND o.order_status = 'IN_PROGRESS'")
     if len(existing_orders) == 0:
         o_id = get_next_id("Orders", "o_id")

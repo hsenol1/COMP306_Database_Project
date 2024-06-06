@@ -392,8 +392,7 @@ CREATE TABLE `order_placements` (
   KEY `o_id` (`o_id`),
   CONSTRAINT `order_placements_ibfk_1` FOREIGN KEY (`u_id`) REFERENCES `customers` (`u_id`) ON UPDATE CASCADE,
   CONSTRAINT `order_placements_ibfk_2` FOREIGN KEY (`v_id`) REFERENCES `vouchers` (`v_id`) ON UPDATE CASCADE,
-  CONSTRAINT `order_placements_ibfk_3` FOREIGN KEY (`o_id`) REFERENCES `orders` (`o_id`) ON UPDATE CASCADE,
-  CONSTRAINT `order_placements_chk_1` CHECK ((`rating` between 1 and 5))
+  CONSTRAINT `order_placements_ibfk_3` FOREIGN KEY (`o_id`) REFERENCES `orders` (`o_id`) ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -542,7 +541,7 @@ CREATE TABLE `vouchers` (
 
 LOCK TABLES `vouchers` WRITE;
 /*!40000 ALTER TABLE `vouchers` DISABLE KEYS */;
-INSERT INTO `vouchers` VALUES (1,10,'Spring Sale'),(2,15,'Summer Special'),(3,20,'Back to School'),(4,25,'Black Friday'),(5,30,'Holiday Discount');
+INSERT INTO `vouchers` VALUES (0,100,'placeholder'),(1,10,'Spring Sale'),(2,15,'Summer Special'),(3,20,'Back to School'),(4,25,'Black Friday'),(5,30,'Holiday Discount');
 /*!40000 ALTER TABLE `vouchers` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -555,4 +554,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-06-06 15:40:30
+-- Dump completed on 2024-06-06 16:25:01
