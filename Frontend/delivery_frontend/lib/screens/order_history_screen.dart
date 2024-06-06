@@ -11,26 +11,56 @@ class OrderHistoryScreen extends StatelessWidget {
       status: 'Completed',
       orderMethod: 'Online',
       voucher: 'Black Friday',
-      basket: Basket()
-        ..addItem(Product(name: 'Bananas', price: 1.99, image: 'assets/bunch-bananas-isolated-on-white-600w-1722111529.png'), 2)
-        ..addItem(Product(name: 'Apples', price: 2.49, image: 'assets/bunch-bananas-isolated-on-white-600w-1722111529.png'), 3),
+      basket: Basket(uid: 0)
+        ..addItem(
+            Product(
+                name: 'Bananas',
+                price: 1.99,
+                image:
+                    'assets/bunch-bananas-isolated-on-white-600w-1722111529.png'),
+            2)
+        ..addItem(
+            Product(
+                name: 'Apples',
+                price: 2.49,
+                image:
+                    'assets/bunch-bananas-isolated-on-white-600w-1722111529.png'),
+            3),
     ),
     Order(
       date: '2023-11-15',
       status: 'Pending',
       orderMethod: 'In-Store',
       voucher: null,
-      basket: Basket()
-        ..addItem(Product(name: 'Grapes', price: 4.99, image: 'assets/bunch-bananas-isolated-on-white-600w-1722111529.png'), 1)
-        ..addItem(Product(name: 'Mangoes', price: 5.99, image: 'assets/bunch-bananas-isolated-on-white-600w-1722111529.png'), 2),
+      basket: Basket(uid: 0)
+        ..addItem(
+            Product(
+                name: 'Grapes',
+                price: 4.99,
+                image:
+                    'assets/bunch-bananas-isolated-on-white-600w-1722111529.png'),
+            1)
+        ..addItem(
+            Product(
+                name: 'Mangoes',
+                price: 5.99,
+                image:
+                    'assets/bunch-bananas-isolated-on-white-600w-1722111529.png'),
+            2),
     ),
     Order(
       date: '2023-10-30',
       status: 'Cancelled',
       orderMethod: 'Online',
       voucher: 'Summer Sale',
-      basket: Basket()
-        ..addItem(Product(name: 'Pineapples', price: 6.99, image: 'assets/bunch-bananas-isolated-on-white-600w-1722111529.png'), 1),
+      basket: Basket(uid: 0)
+        ..addItem(
+            Product(
+                name: 'Pineapples',
+                price: 6.99,
+                image:
+                    'assets/bunch-bananas-isolated-on-white-600w-1722111529.png'),
+            1),
     ),
   ];
 

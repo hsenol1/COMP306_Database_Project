@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 class NetworkService {
   //web: 127.0.0.1:8000
   //android emul: 10.0.2.2:8000
-  final String baseUrl = '127.0.0.1:8000';
+  final String baseUrl = '10.0.2.2:8000';
 
   Future<http.Response> getRequestTemplate(String endpoint) async {
     final url = Uri.parse('http://$baseUrl/$endpoint');
@@ -199,39 +199,49 @@ class NetworkService {
     return response;
   }
 
-  Future<http.Response> getBucket(String username) async {
+  Future<http.Response> getBucket(int uid) async {
     final url = Uri.parse('http://$baseUrl/get-bucket/');
     final response = await http.post(
       url,
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
-        'username': username,
+        'uid': uid,
       }),
     );
     return response;
   }
 
-  Future<http.Response> createOrder(
-      String username, String paymentMethod) async {
-    final url = Uri.parse('http://$baseUrl/create-order/');
-    final response = await http.post(
-      url,
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({
-        'username': username,
-        'paymentMethod': paymentMethod,
-      }),
-    );
+  Future<http.Response> completeOrder(
+      int uid, String paymentMethod, int vid) async {
+    final url = Uri.parse('http://$baseUrl/complete-order/');
+    final response;
+    if (vid == -1) {
+      response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'uid': uid,
+          'paymentMethod': paymentMethod,
+        }),
+      );
+    } else {
+      response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(
+            {'uid': uid, 'paymentMethod': paymentMethod, 'vid': vid}),
+      );
+    }
     return response;
   }
 
-  Future<http.Response> getOrderHistory(String username) async {
+  Future<http.Response> getOrderHistory(int uid) async {
     final url = Uri.parse('http://$baseUrl/get-order-history/');
     final response = await http.post(
       url,
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
-        'username': username,
+        'uid': uid,
       }),
     );
     return response;
@@ -381,8 +391,10 @@ class NetworkService {
     return await fetchVouchersTemplate(getVouchers);
   }
 
-  Future<http.Response> giveVoucherToOneCustomerPerCity(String voucherId) async {
-    return await getRequestTemplate('give-voucher-to-one-customer-per-city/$voucherId');
+  Future<http.Response> giveVoucherToOneCustomerPerCity(
+      String voucherId) async {
+    return await getRequestTemplate(
+        'give-voucher-to-one-customer-per-city/$voucherId');
   }
 
   Future<http.Response> assignRandomVouchers(String voucherId) async {
