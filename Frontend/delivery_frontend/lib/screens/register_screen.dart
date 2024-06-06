@@ -1,3 +1,4 @@
+import 'package:delivery_frontend/screens/login_screen.dart';
 import 'package:delivery_frontend/screens/main_screen.dart';
 import 'package:delivery_frontend/services/network_service.dart';
 import 'package:flutter/material.dart';
@@ -10,8 +11,7 @@ class RegisterScreen extends StatefulWidget {
 
 class _RegisterScreenState extends State<RegisterScreen> {
   final _formKey = GlobalKey<FormState>();
-  final NetworkService _networkService =
-      NetworkService();
+  final NetworkService _networkService = NetworkService();
 
   final _nameController = TextEditingController();
   final _surnameController = TextEditingController();
@@ -283,7 +283,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     if (response.statusCode == 201) {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => MainScreen()),
+                        MaterialPageRoute(builder: (context) => LoginScreen()),
                       );
                     } else if (response.statusCode == 409) {
                       showErrorPopup(context, response.body);

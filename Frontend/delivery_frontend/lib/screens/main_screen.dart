@@ -1,3 +1,5 @@
+import 'package:delivery_frontend/models/user.dart';
+import 'package:delivery_frontend/models/user_info.dart';
 import 'package:delivery_frontend/screens/voucher_screen';
 import 'package:flutter/material.dart';
 import '../models/product.dart';
@@ -8,6 +10,8 @@ import 'basket_screen.dart';
 import '../models/basket.dart';
 
 class MainScreen extends StatefulWidget {
+  final User user;
+  MainScreen({required this.user});
   @override
   _MainScreenState createState() => _MainScreenState();
 }
@@ -21,19 +25,16 @@ class _MainScreenState extends State<MainScreen> {
   @override
   void initState() {
     super.initState();
-    _basket.addItem(
-      Product(
-        image: 'assets/bunch-bananas-isolated-on-white-600w-1722111529.png',
-        name: 'Bananas',
-        price: 1.99,
-      ),
-      3,
-    );
-
     _widgetOptions.addAll([
-      HomeContent(basket: _basket,),
-      SearchScreen(basket: _basket,),
-      ProfileScreen(),
+      HomeContent(
+        basket: _basket,
+      ),
+      SearchScreen(
+        basket: _basket,
+      ),
+      ProfileScreen(
+        user: widget.user,
+      ),
       VoucherScreen(),
     ]);
 

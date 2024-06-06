@@ -1,9 +1,11 @@
+import 'package:delivery_frontend/models/user.dart';
 import 'package:flutter/material.dart';
 import 'login_screen.dart';
 import 'order_history_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   // Mock user data
+  final User user;
   final String name = 'John';
   final String surname = 'Doe';
   final String username = 'john_doe';
@@ -11,7 +13,7 @@ class ProfileScreen extends StatelessWidget {
   final String city = 'New York';
   final String address = '123 Main St';
   final String phoneNumber = '123-456-7890';
-
+  ProfileScreen({required this.user});
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -20,19 +22,26 @@ class ProfileScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Name: $name', style: TextStyle(fontSize: 16, color: Colors.black)),
+            Text('Name: ${user.name}',
+                style: TextStyle(fontSize: 16, color: Colors.black)),
             SizedBox(height: 10),
-            Text('Surname: $surname', style: TextStyle(fontSize: 16, color: Colors.black)),
+            Text('Surname: ${user.surname}',
+                style: TextStyle(fontSize: 16, color: Colors.black)),
             SizedBox(height: 10),
-            Text('Username: $username', style: TextStyle(fontSize: 16, color: Colors.black)),
+            Text('Username: ${user.username}',
+                style: TextStyle(fontSize: 16, color: Colors.black)),
             SizedBox(height: 10),
-            Text('Password: $password', style: TextStyle(fontSize: 16, color: Colors.black)),
+            Text('Password: ${user.pwd}',
+                style: TextStyle(fontSize: 16, color: Colors.black)),
             SizedBox(height: 10),
-            Text('City: $city', style: TextStyle(fontSize: 16, color: Colors.black)),
+            Text('City: $city',
+                style: TextStyle(fontSize: 16, color: Colors.black)),
             SizedBox(height: 10),
-            Text('Address: $address', style: TextStyle(fontSize: 16, color: Colors.black)),
+            Text('Address: ${user.customerInfo.address}',
+                style: TextStyle(fontSize: 16, color: Colors.black)),
             SizedBox(height: 10),
-            Text('Phone Number: $phoneNumber', style: TextStyle(fontSize: 16, color: Colors.black)),
+            Text('Phone Number: ${user.customerInfo.phone}',
+                style: TextStyle(fontSize: 16, color: Colors.black)),
             SizedBox(height: 20),
             Center(
               child: Column(
@@ -41,14 +50,17 @@ class ProfileScreen extends StatelessWidget {
                     onPressed: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => OrderHistoryScreen()),
+                        MaterialPageRoute(
+                            builder: (context) => OrderHistoryScreen()),
                       );
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.blue,
-                      padding: EdgeInsets.symmetric(vertical: 12, horizontal: 24),
+                      padding:
+                          EdgeInsets.symmetric(vertical: 12, horizontal: 24),
                     ),
-                    child: Text('Order History', style: TextStyle(fontSize: 16, color: Colors.white)),
+                    child: Text('Order History',
+                        style: TextStyle(fontSize: 16, color: Colors.white)),
                   ),
                   SizedBox(height: 10),
                   ElevatedButton(
@@ -60,9 +72,11 @@ class ProfileScreen extends StatelessWidget {
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.blue,
-                      padding: EdgeInsets.symmetric(vertical: 12, horizontal: 24),
+                      padding:
+                          EdgeInsets.symmetric(vertical: 12, horizontal: 24),
                     ),
-                    child: Text('Logout', style: TextStyle(fontSize: 16, color: Colors.white)),
+                    child: Text('Logout',
+                        style: TextStyle(fontSize: 16, color: Colors.white)),
                   ),
                 ],
               ),

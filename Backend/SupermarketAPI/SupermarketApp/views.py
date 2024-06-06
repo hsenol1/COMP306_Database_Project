@@ -40,6 +40,7 @@ def register_customer(request):
     response.status_code = 201
     return response
 
+@csrf_exempt
 def login_user(request):
     if request.method != 'POST':
         response = HttpResponse("login_user only accepts POST requests")
