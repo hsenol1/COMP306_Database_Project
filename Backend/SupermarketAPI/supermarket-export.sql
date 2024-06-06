@@ -489,7 +489,7 @@ CREATE TABLE `products` (
 
 LOCK TABLES `products` WRITE;
 /*!40000 ALTER TABLE `products` DISABLE KEYS */;
-INSERT INTO `products` VALUES (1,331,'food',3.50,'bread'),(2,200,'technology',1000.00,'iphone'),(3,50,'food',1.20,'apple'),(4,95,'technology',250.00,'tablet'),(5,300,'clothing',25.00,'jeans'),(6,20,'home',100.00,'blender'),(7,500,'food',2.00,'milk'),(8,150,'technology',600.00,'laptop'),(9,80,'clothing',50.00,'jacket'),(10,200,'home',30.00,'toaster'),(11,400,'food',0.80,'banana'),(12,100,'technology',150.00,'smartwatch'),(13,60,'clothing',40.00,'sweater'),(14,90,'home',120.00,'vacuum'),(15,250,'food',3.00,'cheese'),(16,180,'technology',80.00,'headphones'),(17,140,'clothing',20.00,'t-shirt'),(18,220,'home',50.00,'coffee maker'),(19,300,'food',1.50,'yogurt'),(20,110,'technology',200.00,'monitor'),(21,70,'clothing',60.00,'dress'),(22,160,'home',75.00,'mixer'),(23,50,'Electronics',299.99,'Bluetooth Speaker');
+INSERT INTO `products` VALUES (1,331,'food',3.50,'bread'),(2,200,'technology',1000.00,'iphone'),(3,50,'food',1.20,'apple'),(4,95,'technology',250.00,'tablet'),(5,300,'clothing',25.00,'jeans'),(6,20,'home',100.00,'blender'),(7,500,'food',2.00,'milk'),(8,150,'technology',600.00,'laptop'),(9,80,'clothing',50.00,'jacket'),(10,200,'home',30.00,'toaster'),(11,400,'food',0.80,'banana'),(12,100,'technology',150.00,'smartwatch'),(13,60,'clothing',40.00,'sweater'),(14,90,'home',120.00,'vacuum'),(15,250,'food',3.00,'cheese'),(16,180,'technology',80.00,'headphones'),(17,140,'clothing',20.00,'t-shirt'),(18,220,'home',50.00,'coffee maker'),(19,300,'food',1.50,'yogurt'),(20,110,'technology',200.00,'monitor'),(21,70,'clothing',60.00,'dress'),(22,160,'home',75.00,'mixer'),(23,50,'technology',299.99,'Bluetooth Speaker');
 /*!40000 ALTER TABLE `products` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -555,4 +555,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-06-06 15:25:23
+-- Dump completed on 2024-06-06 15:40:30
