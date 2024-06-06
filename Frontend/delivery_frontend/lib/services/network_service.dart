@@ -150,6 +150,19 @@ class NetworkService {
     return response;
   }
 
+  Future<http.Response> rateOrderByOid(int o_id, int rate) async {
+    final url = Uri.parse('http://$baseUrl/rate-order-by-o-id/');
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'o_id': o_id,
+        'rating': rate,
+      }),
+    );
+    return response;
+  }
+
   Future<http.Response> getCategories() async {
     final uri = Uri.parse('http://$baseUrl/get-categories/');
     final headers = {'Content-Type': 'application/json'};
