@@ -293,7 +293,7 @@ def get_products(request):
     return response
 
 
-
+# COMPLEX QUERY
 #WARNING: get_low_stock_products returns lowest stock product from each category
 @csrf_exempt
 def get_low_stock_products(request):
@@ -307,7 +307,7 @@ def get_low_stock_products(request):
     return response
 
 
-
+# COMPLEX QUERY
 @csrf_exempt
 def get_products_with_higher_than_4_rating(request):
     response = get_template('get_products_with_higher_than_4_rating', """SELECT p.p_id, p.stock_amount, p.category, p.price, p.p_name 
@@ -393,7 +393,6 @@ def get_customers(request):
     return response
 
 
-#COMPLEX QUERY
 @csrf_exempt
 def get_one_customer_per_city(request):
     response = get_template('get_one_customer_per_city', """SELECT c.*, u.*
@@ -534,8 +533,7 @@ def give_voucher_by_u_id_and_v_id(request):
         return response
     v_id = value["v_id"]
     result = executeRaw (f"SELECT v_amount FROM Customer_Vouchers WHERE u_id = {u_id} AND v_id = {v_id}")
-    v_amount = result[0][0]
-    if len(result) == 0 or v_amount == 0:
+    if len(result) == 0 or result[0][0] == 0:
         executeRaw(f"INSERT INTO Customer_Vouchers VALUES ({u_id}, {v_id}, 1)")
         response = HttpResponse("Voucher given successfully")
         response.status_code = 200
@@ -544,6 +542,7 @@ def give_voucher_by_u_id_and_v_id(request):
     executeRaw(f"UPDATE Customer_Vouchers SET v_amount = v_amount + 1 WHERE u_id = {u_id} AND v_id = {v_id}")
     response = HttpResponse("Voucher given successfully")
     response.status_code = 200
+    return response
 
 @csrf_exempt
 def insert_voucher(request):
@@ -719,6 +718,56 @@ def get_vouchers_by_u_id(request):
     return response
 
 @csrf_exempt
+def delete_basket(request):
+    if request.method != 'POST':
+        response = HttpResponse("delete_basket only accepts POST requests")
+        response.status_code = 405
+        return response 
+    
+    try: 
+        value = JSONParser().parse(request)
+    except Exception as e:
+        response = HttpResponse("Invalid JSON format.")
+        response.status_code = 400
+        return response
+    
+    if 'u_id' not in value:
+        response = HttpResponse("u_id is not found in request body")
+        response.status_code = 400
+        return response
+    
+    u_id = value['u_id']
+
+    basket_id_result = executeRaw(f"SELECT o.o_id FROM Orders o JOIN Order_Placements op ON o.o_id = op.o_id WHERE op.u_id = {u_id} AND o.order_status = 'IN_PROGRESS'")
+    if len(basket_id_result) == 0:
+        response = HttpResponse("No basket found for this user")
+        response.status_code = 404
+        return response
+    basket_id_result = convert_decimals_to_str(basket_id_result)
+    o_id = basket_id_result[0][0]
+
+    result = executeRaw(f"SELECT order_status FROM Orders WHERE o_id = {o_id}")
+    if not result or len(result) <= 0:
+        response = HttpResponse("Basket does not exist")
+        response.status_code = 400
+        return response
+
+    order_status = result[0][0]
+    if order_status != "IN_PROGRESS":
+        response = HttpResponse("Order is not basket")
+        response.status_code = 400
+        return response
+    
+    with transaction.atomic():
+        executeRaw(f"DELETE FROM Order_Placements WHERE o_id = {o_id}")
+        executeRaw(f"DELETE FROM Order_Products WHERE o_id = {o_id}")
+        executeRaw(f"DELETE FROM Orders WHERE o_id = {o_id}")
+        response = HttpResponse("Basket deleted successfully")
+        response.status_code = 200
+        return response
+
+
+@csrf_exempt
 def get_basket_by_u_id(request):
     if request.method != 'POST':
         response = HttpResponse("get_basket_by_u_id only accepts POST requests")
@@ -830,6 +879,7 @@ def complete_order(request):
             response.status_code = 400
             return response
 
+    payment_type = value["payment_type"]
     with transaction.atomic():
         for product in order_products:
             p_id = product[0]
@@ -837,6 +887,7 @@ def complete_order(request):
             decrease_stock_amount(p_id, p_amount)
         
         executeRaw(f"UPDATE Orders SET order_status = 'delivered' WHERE o_id = {o_id}")
+        executeRaw(f"UPDATE Orders SET payment_type = '{payment_type}' WHERE o_id = {o_id}")
 
 
     response = HttpResponse("Order completed succesfully, our staff started to prepare.")
@@ -1189,4 +1240,14 @@ def get_template_serial(request, func_name, query):
 
 def get_orders(request):
     response = get_template_serial(request, 'get_orders', "select * from Orders JOIN Order_Placements ON Orders.o_id = Order_Placements.o_id")
+    return response
+
+# COMPLEX QUERY
+@csrf_exempt
+def get_lowest_rater_customers(request, num_customers):
+    result = executeRaw(f"SELECT c.home_address, c.city, c.phone, u.u_id, u.u_id, u.u_name, u.surname, u.username, u.pwd, AVG(op.rating) FROM Users u JOIN Customers c ON u.u_id = c.u_id JOIN Order_Placements op ON c.u_id = op.u_id GROUP BY u.u_id ORDER BY AVG(op.rating) ASC LIMIT {num_customers}")
+    result = convert_decimals_to_str(result)
+    result = json.dumps(result)
+    response = HttpResponse(result)
+    response.status_code = 200
     return response

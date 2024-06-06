@@ -13,6 +13,13 @@ class NetworkService {
     return response;
   }
 
+  Future<http.Response> getRequestWithIdTemplate(String endpoint, String id) async {
+    final url = Uri.parse('http://$baseUrl/$endpoint/$id/');
+    final headers = {'Content-Type': 'application/json'};
+    final response = await http.get(url, headers: headers);
+    return response;
+  }
+
   Future<List<Map<String, dynamic>>> fetchProductsTemplate(
       Future<http.Response> Function() getFunction) async {
     final response = await getFunction();
@@ -408,4 +415,22 @@ class NetworkService {
   Future<http.Response> assignRandomVouchers(String voucherId) async {
     return await getRequestTemplate('assign-random-vouchers/$voucherId');
   }
+
+  Future<List<Map<String, dynamic>>> fetchCustomersWhoGaveTheLowestRatings(String number) async {
+    return await fetchCustomersTemplate(() => getRequestWithIdTemplate('get-lowest-rater-customers', number));
+  }
+
+  Future<http.Response> giveVoucherToUser(String userId, String voucherId) async {
+    final url = Uri.parse('http://$baseUrl/give-voucher-by-u-id-and-v-id/');
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'u_id': userId,
+        'v_id': voucherId,
+      }),
+    );
+    return response;
+  }
+
 }
