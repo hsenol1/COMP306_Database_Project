@@ -30,12 +30,20 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
   }
 
   void _decreaseStock(int quantity) async {
-    await networkService.decreaseProductQuantity(product['id'].toString(), quantity);
-    setState(() {
-      product['stock'] -= quantity;
-      _isProductUpdated = true; // Set flag to true
-    });
+    final response = await networkService.decreaseProductQuantity(product['id'].toString(), quantity);
+    if (response.statusCode == 200) {
+      setState(() {
+        product['stock'] -= quantity;
+        _isProductUpdated = true; // Set flag to true
+      });
+    } else {
+      // Show error message for invalid operation
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Cannot decrease stock below zero.')),
+      );
+    }
   }
+
 
   void _deleteProduct() async {
     await networkService.deleteTemplate('delete-product', product['id'].toString());
